@@ -30,18 +30,17 @@ corpus_institutions.parquet so downstream joins succeed.
 Institution retention analysis (selecting τ_U) is in institution_retention.py.
 """
 
+import sys
 from pathlib import Path
 import duckdb
-import yaml
 
-# Load configuration
-config_path = Path('./config.yaml')
-with open(config_path) as f:
-    config = yaml.safe_load(f)
-    WORKING  = Path(config.get('WORKING'))
-    OPENALEX = Path(config.get('OPENALEX'))
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from util import load_config
 
-PARQUET = WORKING / 'parquet'
+_paths  = load_config()
+WORKING  = _paths.working
+OPENALEX = _paths.openalex
+PARQUET  = _paths.parquet
 
 # Census window — update to match model parameters
 YEAR_MIN = 2000

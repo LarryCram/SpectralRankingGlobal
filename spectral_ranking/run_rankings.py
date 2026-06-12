@@ -272,7 +272,8 @@ def compute_chi_star(el_db, p: RunParams) -> float:
     return n_u / (n_s + n_u)
 
 
-def run_one(el_db, rk_db, p: RunParams, verbose: bool = True) -> bool:
+def run_one(el_db, rk_db, p: RunParams, el_tables: set,
+            verbose: bool = True) -> bool:
     """
     Run one parameter combination.  Returns True on success, False if the
     required edge list table is absent (soft skip).
@@ -284,12 +285,11 @@ def run_one(el_db, rk_db, p: RunParams, verbose: bool = True) -> bool:
     units_tname = f'_units_{p.run_code}_{p.fx}_tauU{p.tau_u}_tauS{p.tau_s}{tau_sfx}_m{mstr}{eps_sfx}'
     tname       = table_name(p)
 
-    existing = {row[0] for row in el_db.execute("SHOW TABLES").fetchall()}
-    if el_tname not in existing:
+    if el_tname not in el_tables:
         if verbose:
             print(f"  SKIP  {tname}  (edge list {el_tname} not found)")
         return False
-    if units_tname not in existing:
+    if units_tname not in el_tables:
         if verbose:
             print(f"  SKIP  {tname}  (units table {units_tname} not found)")
         return False
@@ -368,48 +368,35 @@ def main():
             f"Run prepare_data/build_edge_lists.py first."
         )
 
-    import time as _time
-    _T = {}
-
-    t0 = _time.perf_counter()
     with duckdb.connect(str(el_path), read_only=True) as el_db, \
          duckdb.connect(str(rk_path)) as rk_db:
-        _T['open_db'] = _time.perf_counter() - t0
 
-        t0 = _time.perf_counter()
         if args.baseline_only:
             schedule = [p for p in runs_from_csv() if p.label == 'baseline']
         else:
             schedule = runs_from_csv()
-        _T['schedule'] = _time.perf_counter() - t0
 
-        t0 = _time.perf_counter()
         rk_db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
         ensure_catalog(rk_db)
-        _T['ensure_catalog'] = _time.perf_counter() - t0
 
-        t0 = _time.perf_counter()
         print('=== Cleaning stale tables ===')
         clean_stale(rk_db, schedule)
-        _T['clean_stale'] = _time.perf_counter() - t0
 
+        el_tables = {row[0] for row in el_db.execute("SHOW TABLES").fetchall()}
         n_ok = n_skip = 0
         for p in schedule:
-            ok = run_one(el_db, rk_db, p)
+            ok = run_one(el_db, rk_db, p, el_tables)
             if ok:
                 n_ok += 1
             else:
                 n_skip += 1
 
     print(f"\nDone: {n_ok} completed, {n_skip} skipped.")
-    print("main() overhead (s): " + "  ".join(f"{k}={v:.2f}" for k, v in _T.items()))
 
-    t0 = _time.perf_counter()
     with duckdb.connect(str(rk_path), read_only=True) as db:
         print("\n=== Catalog ===")
         db.sql("SELECT table_name, n_s, n_u, lam1, lam2, iters, final_norm, label, created_at "
                "FROM _catalog ORDER BY created_at").show()
-    print(f"catalog_query={_time.perf_counter()-t0:.2f}s")
 
 
 if __name__ == '__main__':

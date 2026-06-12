@@ -82,21 +82,22 @@ def _tau_sfx(ref_units: str) -> str:
     return '_fixtau' if ref_units else '_vartau'
 
 
+def _tname(prefix: str, run_code: str, fx: str, tau_u: int, tau_s: int,
+           ref_units: str = '', epsilon: int = 0) -> str:
+    eps_sfx = '_eps1' if epsilon else ''
+    return f'{prefix}_{run_code}_{fx}_tauU{tau_u}_tauS{tau_s}{_tau_sfx(ref_units)}{eps_sfx}'
+
+
 def table_name(run_code: str, fx: str, tau_u: int, tau_s: int,
                ref_units: str = '', epsilon: int = 0) -> str:
-    """Canonical edge-list table name.
-    _vartau: unit set from this window's τ filter (default).
-    _fixtau: unit set inherited from a reference window.
-    _eps1:   includes cross-boundary sentinel edges (ε=1)."""
-    eps_sfx = '_eps1' if epsilon else ''
-    return f'el_{run_code}_{fx}_tauU{tau_u}_tauS{tau_s}{_tau_sfx(ref_units)}{eps_sfx}'
+    """Canonical edge-list table name."""
+    return _tname('el', run_code, fx, tau_u, tau_s, ref_units, epsilon)
 
 
 def _units_name(run_code: str, fx: str, tau_u: int, tau_s: int,
                 ref_units: str = '', epsilon: int = 0) -> str:
     """Canonical raw (C_full SCC) units table name."""
-    eps_sfx = '_eps1' if epsilon else ''
-    return f'_units_{run_code}_{fx}_tauU{tau_u}_tauS{tau_s}{_tau_sfx(ref_units)}{eps_sfx}'
+    return _tname('_units', run_code, fx, tau_u, tau_s, ref_units, epsilon)
 
 
 def corpus_configs_from_csv() -> list:
@@ -129,13 +130,11 @@ def corpus_configs_from_csv() -> list:
             })
 
     def sort_key(c):
-        # fixtau configs must come after all vartau configs so the reference
-        # _units_..._vartau table is guaranteed to exist when they run.
-        # Within each (run_code, tau_u, tau_s) group, EBAX comes before others.
-        # epsilon=1 configs come after epsilon=0 of the same fx.
-        has_ref = 1 if c['ref_units'] else 0
-        return (has_ref, c['run_code'], c['tau_u'], c['tau_s'],
-            0 if c['fx'] == 'EBAX' else 1, c['fx'], c['epsilon'])
+        # fixtau after vartau (reference table must exist first).
+        # EBAX before field subsets within each (run_code, tau_u, tau_s) group.
+        # epsilon=1 after epsilon=0 for the same fx.
+        return (int(bool(c['ref_units'])), c['run_code'], c['tau_u'], c['tau_s'],
+                int(c['fx'] != 'EBAX'), c['fx'], c['epsilon'])
 
     return sorted(configs, key=sort_key)
 
@@ -577,9 +576,9 @@ def filter_singletons(db, run_code: str, fx: str, tau_u: int, tau_s: int,
         drop_src  = np.union1d(src_ids[labels_full[:n_s] != giant_full], drop_zero_src)
         drop_inst = np.union1d(inst_ids[labels_full[n_s:] != giant_full], drop_zero_inst)
 
-        # Sentinels (idx==1) are never dropped regardless of SCC membership.
-        drop_src  = drop_src[drop_src != 1]
-        drop_inst = drop_inst[drop_inst != 1]
+        # Sentinels are never dropped regardless of SCC membership.
+        drop_src  = drop_src[drop_src != SX_IDX]
+        drop_inst = drop_inst[drop_inst != IX_IDX]
 
         if len(drop_src) == 0 and len(drop_inst) == 0:
             print(f"    filter_singletons: stable after {iteration} pass(es)")

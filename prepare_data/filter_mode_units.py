@@ -41,7 +41,9 @@ from scipy.sparse import csr_matrix, bmat as sp_bmat
 from scipy.sparse.csgraph import connected_components
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 from util import load_config, load_runs
+from build_edge_lists import SX_IDX, IX_IDX
 
 paths   = load_config()
 DB_PATH = paths.working / 'edge_lists.duckdb'
@@ -226,9 +228,9 @@ def compute_mode_scc(db, run_code: str, fx: str, tau_u: int, tau_s: int,
                 drop_src  = np.array([], dtype=np.int64)
                 drop_inst = np.union1d(inst_ids[labels != giant], drop_zero_inst)
 
-        # Sentinels (idx==1) are never dropped regardless of SCC membership.
-        drop_src  = drop_src[drop_src != 1]
-        drop_inst = drop_inst[drop_inst != 1]
+        # Sentinels are never dropped regardless of SCC membership.
+        drop_src  = drop_src[drop_src != SX_IDX]
+        drop_inst = drop_inst[drop_inst != IX_IDX]
 
         if len(drop_src) == 0 and len(drop_inst) == 0:
             print(f'      stable after {iteration} pass(es)', flush=True)
@@ -261,17 +263,10 @@ def write_mode_units(db, run_code: str, fx: str, tau_u: int, tau_s: int,
     """
     tname = mode_units_table(run_code, fx, tau_u, tau_s, m, ref_units, epsilon)
 
-    rows = (
-        [{'unit_idx': int(idx), 'unit_type': 'S', 'a_p': float(ap)}
-         for idx, ap in zip(src_ids, a_s)]
-        +
-        [{'unit_idx': int(idx), 'unit_type': 'U', 'a_p': float(ap)}
-         for idx, ap in zip(inst_ids, a_u)]
-    )
-    df = (pd.DataFrame(rows) if rows
-          else pd.DataFrame(columns=['unit_idx', 'unit_type', 'a_p']))
-    df['unit_idx'] = df['unit_idx'].astype(np.int64)
-    df['a_p']      = df['a_p'].astype(np.float64)
+    unit_idx = np.concatenate([src_ids, inst_ids]).astype(np.int64)
+    unit_type = np.array(['S'] * len(src_ids) + ['U'] * len(inst_ids))
+    a_p = np.concatenate([a_s, a_u]).astype(np.float64)
+    df = pd.DataFrame({'unit_idx': unit_idx, 'unit_type': unit_type, 'a_p': a_p})
 
     db.execute(f'DROP TABLE IF EXISTS {tname}')
     db.register('_fmu_write', df)

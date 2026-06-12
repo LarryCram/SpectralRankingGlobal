@@ -84,9 +84,6 @@ def build_csr(db, run_code: str, fx: str, tau_u: int, tau_s: int, rho: int, m: t
     -------
     CSRData with requested blocks populated; others None.
     """
-    import time
-    _t = {}   # timing dict — remove when no longer needed
-
     tau_sfx = '_fixtau' if ref_units else '_vartau'
     eps_sfx = '_eps1' if epsilon else ''
     mstr   = ''.join(str(x) for x in m)
@@ -94,7 +91,6 @@ def build_csr(db, run_code: str, fx: str, tau_u: int, tau_s: int, rho: int, m: t
     uname  = f'_units_{run_code}_{fx}_tauU{tau_u}_tauS{tau_s}{tau_sfx}_m{mstr}{eps_sfx}'
 
     # ── Load unit index ────────────────────────────────────────────────────
-    t0 = time.perf_counter()
     try:
         units_df = db.execute(
             f"SELECT unit_idx, unit_type, a_p FROM {uname} ORDER BY unit_type, unit_idx"
@@ -115,17 +111,13 @@ def build_csr(db, run_code: str, fx: str, tau_u: int, tau_s: int, rho: int, m: t
     n_s = len(source_ids)
     n_u = len(inst_ids)
 
-    # Vectorised index maps — pd.Index.get_indexer is a single hash-table
-    # pass over the array; avoids the intermediate Series allocation of .loc[]
+    # pd.Index.get_indexer: single hash-table pass, avoids intermediate Series
     src_idx  = pd.Index(source_ids)
     inst_idx = pd.Index(inst_ids)
-    _t['units'] = time.perf_counter() - t0
 
     # ── Materialise slim, ρ-weighted temp table (one scan of {tname}) ──────
-    # Drops the five a_* / direct_inst_weight columns not needed here.
     # All block queries below read _tmp_el from memory rather than
     # re-scanning the on-disk edge-list table each time.
-    t0 = time.perf_counter()
     if rho == 0:
         r_bar = db.execute(
             f"SELECT AVG(rval) FROM "
@@ -155,112 +147,62 @@ def build_csr(db, run_code: str, fx: str, tau_u: int, tau_s: int, rho: int, m: t
         FROM {tname}
         {self_filter}
     """)
-    _t['tmp_el'] = time.perf_counter() - t0
 
     # ── Block builders ─────────────────────────────────────────────────────
 
-    def _build_ss() -> sp.csr_matrix:
-        """
-        C_SS: de-duplicate on (citer_work, cited_work) to count each
-        reference once regardless of how many institution combinations exist.
-        """
-        df = db.execute("""
-            SELECT citer_source_idx, cited_source_idx, SUM(rho_w) AS weight
-            FROM (
-                SELECT DISTINCT citer_work_idx, citer_source_idx,
-                                cited_work_idx,  cited_source_idx, rho_w
-                FROM _tmp_el
-            )
-            GROUP BY citer_source_idx, cited_source_idx
-        """).fetchdf()
-        rows = src_idx.get_indexer(df['citer_source_idx'].to_numpy())
-        cols = src_idx.get_indexer(df['cited_source_idx'].to_numpy())
+    def _block(sql: str, row_idx: pd.Index, col_idx: pd.Index,
+               shape: tuple) -> sp.csr_matrix:
+        df = db.execute(sql).fetchdf()
+        if df.empty:
+            return sp.csr_matrix(shape)
+        rows = row_idx.get_indexer(df.iloc[:, 0].to_numpy())
+        cols = col_idx.get_indexer(df.iloc[:, 1].to_numpy())
         mask = (rows >= 0) & (cols >= 0)
         return sp.coo_matrix(
-            (df['weight'].to_numpy(dtype=np.float64)[mask], (rows[mask], cols[mask])),
-            shape=(n_s, n_s)
+            (df.iloc[:, 2].to_numpy(dtype=np.float64)[mask], (rows[mask], cols[mask])),
+            shape=shape
         ).tocsr()
 
-    def _build_si() -> sp.csr_matrix:
-        """
-        C_SI: de-duplicate over citer_inst so each (citer_work, cited_work,
-        cited_inst) contributes ρ_i × ω_jv exactly once.
-        """
-        df = db.execute("""
-            SELECT citer_source_idx, cited_inst_idx,
-                   SUM(rho_w * cited_inst_weight) AS weight
-            FROM (
-                SELECT DISTINCT citer_work_idx, citer_source_idx,
-                                cited_work_idx,  cited_inst_idx,
-                                rho_w, cited_inst_weight
-                FROM _tmp_el
-            )
-            GROUP BY citer_source_idx, cited_inst_idx
-        """).fetchdf()
-        rows = src_idx.get_indexer(df['citer_source_idx'].to_numpy())
-        cols = inst_idx.get_indexer(df['cited_inst_idx'].to_numpy())
-        mask = (rows >= 0) & (cols >= 0)
-        return sp.coo_matrix(
-            (df['weight'].to_numpy(dtype=np.float64)[mask], (rows[mask], cols[mask])),
-            shape=(n_s, n_u)
-        ).tocsr()
+    # C_SS: de-duplicate on (citer_work, cited_work) — one reference per work pair
+    _sql_ss = """
+        SELECT citer_source_idx, cited_source_idx, SUM(rho_w) AS weight
+        FROM (SELECT DISTINCT citer_work_idx, citer_source_idx,
+                              cited_work_idx,  cited_source_idx, rho_w FROM _tmp_el)
+        GROUP BY citer_source_idx, cited_source_idx"""
 
-    def _build_is() -> sp.csr_matrix:
-        """
-        C_IS: de-duplicate over cited_inst so each (citer_work, citer_inst,
-        cited_work) contributes ρ_i × ω_iu exactly once.
-        """
-        df = db.execute("""
-            SELECT citer_inst_idx, cited_source_idx,
-                   SUM(rho_w * inst_weight) AS weight
-            FROM (
-                SELECT DISTINCT citer_work_idx, citer_inst_idx,
-                                cited_work_idx,  cited_source_idx,
-                                rho_w, inst_weight
-                FROM _tmp_el
-            )
-            GROUP BY citer_inst_idx, cited_source_idx
-        """).fetchdf()
-        rows = inst_idx.get_indexer(df['citer_inst_idx'].to_numpy())
-        cols = src_idx.get_indexer(df['cited_source_idx'].to_numpy())
-        mask = (rows >= 0) & (cols >= 0)
-        return sp.coo_matrix(
-            (df['weight'].to_numpy(dtype=np.float64)[mask], (rows[mask], cols[mask])),
-            shape=(n_u, n_s)
-        ).tocsr()
+    # C_SI: de-duplicate over citer_inst — each (citer_work, cited_work, cited_inst) once
+    _sql_si = """
+        SELECT citer_source_idx, cited_inst_idx,
+               SUM(rho_w * cited_inst_weight) AS weight
+        FROM (SELECT DISTINCT citer_work_idx, citer_source_idx,
+                              cited_work_idx,  cited_inst_idx,
+                              rho_w, cited_inst_weight FROM _tmp_el)
+        GROUP BY citer_source_idx, cited_inst_idx"""
 
-    def _build_ii() -> sp.csr_matrix:
-        """
-        C_II: no de-duplication — every (citer_inst, cited_inst) combination
-        is a genuine cross-product contribution ρ_i × ω_iu × ω_jv.
-        """
-        df = db.execute("""
-            SELECT citer_inst_idx, cited_inst_idx,
-                   SUM(rho_w * inst_weight * cited_inst_weight) AS weight
-            FROM _tmp_el
-            GROUP BY citer_inst_idx, cited_inst_idx
-        """).fetchdf()
-        rows = inst_idx.get_indexer(df['citer_inst_idx'].to_numpy())
-        cols = inst_idx.get_indexer(df['cited_inst_idx'].to_numpy())
-        mask = (rows >= 0) & (cols >= 0)
-        return sp.coo_matrix(
-            (df['weight'].to_numpy(dtype=np.float64)[mask], (rows[mask], cols[mask])),
-            shape=(n_u, n_u)
-        ).tocsr()
+    # C_IS: de-duplicate over cited_inst — each (citer_work, citer_inst, cited_work) once
+    _sql_is = """
+        SELECT citer_inst_idx, cited_source_idx,
+               SUM(rho_w * inst_weight) AS weight
+        FROM (SELECT DISTINCT citer_work_idx, citer_inst_idx,
+                              cited_work_idx,  cited_source_idx,
+                              rho_w, inst_weight FROM _tmp_el)
+        GROUP BY citer_inst_idx, cited_source_idx"""
+
+    # C_II: no de-duplication — every (citer_inst, cited_inst) cross-product counts
+    _sql_ii = """
+        SELECT citer_inst_idx, cited_inst_idx,
+               SUM(rho_w * inst_weight * cited_inst_weight) AS weight
+        FROM _tmp_el
+        GROUP BY citer_inst_idx, cited_inst_idx"""
 
     # ── Assemble requested blocks ──────────────────────────────────────────
     m_SS, m_SI, m_IS, m_II = m
-    t0 = time.perf_counter(); C_SS = _build_ss() if m_SS else None; _t['SS'] = time.perf_counter() - t0
-    t0 = time.perf_counter(); C_SI = _build_si() if m_SI else None; _t['SI'] = time.perf_counter() - t0
-    t0 = time.perf_counter(); C_IS = _build_is() if m_IS else None; _t['IS'] = time.perf_counter() - t0
-    t0 = time.perf_counter(); C_II = _build_ii() if m_II else None; _t['II'] = time.perf_counter() - t0
+    C_SS = _block(_sql_ss, src_idx,  src_idx,  (n_s, n_s)) if m_SS else None
+    C_SI = _block(_sql_si, src_idx,  inst_idx, (n_s, n_u)) if m_SI else None
+    C_IS = _block(_sql_is, inst_idx, src_idx,  (n_u, n_s)) if m_IS else None
+    C_II = _block(_sql_ii, inst_idx, inst_idx, (n_u, n_u)) if m_II else None
 
     db.execute("DROP TABLE IF EXISTS _tmp_el")
-
-    total = sum(_t.values())
-    print(f"    build_csr timing (s): "
-          + "  ".join(f"{k}={v:.2f}" for k, v in _t.items())
-          + f"  TOTAL={total:.2f}", flush=True)
 
     is_sentinel_s = (source_ids == SX_IDX) if epsilon else None
     is_sentinel_u = (inst_ids   == IX_IDX) if epsilon else None
