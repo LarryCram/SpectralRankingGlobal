@@ -40,19 +40,30 @@ def _print_unit_rank_table(db, fw: str, top_p: str, unit: str) -> None:
     unit='institution' weight = SUM(field_weight * inst_weight)  per (field, institution)
     """
     assert unit in ('source', 'institution')
-    col      = 'source_idx' if unit == 'source' else 'institution_idx'
-    wt_expr  = 'field_weight' if unit == 'source' else 'field_weight * inst_weight'
+    col = 'source_idx' if unit == 'source' else 'institution_idx'
     rank_cases = ',\n'.join(
         f"           MAX(CASE WHEN rnk = {r} THEN ROUND(total_weight, 2) END) AS rank_{r}"
         for r in RANKS
     )
+    # Sources: deduplicate on work before summing — field_weight is per-work, not
+    # per-institution, so without DISTINCT a work with N institutions contributes
+    # N × field_weight. Institutions use field_weight * inst_weight which already
+    # sums to field_weight across institutions, so no dedup needed.
+    if unit == 'source':
+        inner = f"""
+            SELECT field_idx, {col} AS unit_idx,
+                   SUM(field_weight) AS total_weight
+            FROM (SELECT DISTINCT work_idx, source_idx, field_idx, field_weight FROM '{fw}')
+            GROUP BY field_idx, {col}"""
+    else:
+        inner = f"""
+            SELECT field_idx, {col} AS unit_idx,
+                   SUM(field_weight * inst_weight) AS total_weight
+            FROM '{fw}'
+            GROUP BY field_idx, {col}"""
     section(f"{unit.capitalize()} units — total topic weight at rank cutoffs")
     db.sql(f"""
-        WITH unit_weights AS (
-            SELECT field_idx, {col} AS unit_idx,
-                   SUM({wt_expr}) AS total_weight
-            FROM '{fw}'
-            GROUP BY field_idx, {col}
+        WITH unit_weights AS ({inner}
         ),
         ranked AS (
             SELECT field_idx, unit_idx, total_weight,

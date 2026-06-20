@@ -6,12 +6,16 @@ Filters applied:
   - type in ('article', 'review')
   - is_paratext = false, is_retracted = false
   - source type in ('journal', 'conference', 'book series')
-  - institution type in ('education', 'nonprofit', 'government', 'other')
-    (excludes company, funder, healthcare, archive, etc.)
+  - institution type in ('education', 'nonprofit', 'government', 'healthcare', 'other')
+    (excludes company, funder, archive, etc.)
   - work has at least one qualifying institutional authorship
   - work has at least one topic assignment
 
-Output: WORKING/flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet
+Outputs:
+  WORKING/flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet
+  WORKING/corpus_references_{YEAR_MIN}_{YEAR_MAX}.parquet  — (citer_idx, cited_idx)
+    pairs where both works appear in flat_works; avoids scanning all OA references
+    (~500M rows) on every Stage 3 run.
 
 Schema:
   work_idx               BIGINT
@@ -37,7 +41,7 @@ YEAR_MAX = 2025
 
 SOURCE_TYPES      = ('journal', 'conference', 'book series')
 WORK_TYPES        = ('article', 'review')
-INSTITUTION_TYPES = ('education', 'nonprofit', 'government', 'other')
+INSTITUTION_TYPES = ('education', 'nonprofit', 'government', 'healthcare', 'other')
 
 
 def build_flat_works(db: duckdb.DuckDBPyConnection,
@@ -169,6 +173,28 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
     return db.execute(f"SELECT COUNT(*) FROM '{out_path}'").fetchone()[0]
 
 
+def build_corpus_references(db: duckdb.DuckDBPyConnection,
+                            fw_path: str,
+                            refs_glob: str,
+                            out_path: str) -> int:
+    """
+    Build corpus_references parquet: (citer_idx, cited_idx) pairs where both
+    works appear in flat_works. Scans OA references once; result is reused by
+    Stage 3 for all fields instead of repeating the full ~500M-row scan.
+
+    Returns row count.
+    """
+    db.execute(f"""
+        COPY (
+            SELECT ref.citer_idx, ref.cited_idx
+            FROM '{refs_glob}' ref
+            WHERE ref.citer_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
+              AND ref.cited_idx  IN (SELECT DISTINCT work_idx FROM '{fw_path}')
+        ) TO '{out_path}' (FORMAT PARQUET)
+    """)
+    return db.execute(f"SELECT COUNT(*) FROM '{out_path}'").fetchone()[0]
+
+
 def main():
     paths = load_config()
 
@@ -177,23 +203,29 @@ def main():
     authorships_path  = f"{paths.openalex}/parquet/authorships/*.parquet"
     institutions_path = f"{paths.openalex}/parquet/institutions.parquet"
     topics_path       = f"{paths.openalex}/parquet/topics/*.parquet"
-    out_path          = str(paths.working / f"flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet")
+    refs_glob         = f"{paths.openalex}/parquet/references/*.parquet"
+    fw_path           = str(paths.working / f"flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet")
+    cr_path           = str(paths.working / f"corpus_references_{YEAR_MIN}_{YEAR_MAX}.parquet")
 
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
         db.execute("SET memory_limit = '56GB'")
         db.execute("SET preserve_insertion_order = false")
 
-        print(f"Building flat works table ({YEAR_MIN}–{YEAR_MAX}) ...")
-        n = build_flat_works(db, works_path, sources_path, authorships_path,
-                             institutions_path, topics_path, out_path)
-        print(f"Wrote {n:,} rows → {out_path}")
+        if not Path(fw_path).exists():
+            print(f"Building flat works table ({YEAR_MIN}–{YEAR_MAX}) ...")
+            n = build_flat_works(db, works_path, sources_path, authorships_path,
+                                 institutions_path, topics_path, fw_path)
+            print(f"Wrote {n:,} rows → {fw_path}")
+        else:
+            n = db.execute(f"SELECT COUNT(*) FROM '{fw_path}'").fetchone()[0]
+            print(f"flat_works exists: {n:,} rows  ({fw_path})")
 
-        print("\nSample (16 rows):")
-        import pandas as pd
-        pd.set_option('display.max_columns', None)
-        pd.set_option('display.width', 200)
-        print(db.execute(f"SELECT * FROM '{out_path}' LIMIT 16").df().to_string(index=False))
+        print(f"\nBuilding corpus references ...")
+        import time
+        t0 = time.time()
+        nr = build_corpus_references(db, fw_path, refs_glob, cr_path)
+        print(f"Wrote {nr:,} rows in {time.time()-t0:.0f}s → {cr_path}")
 
 
 if __name__ == "__main__":

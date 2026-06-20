@@ -46,11 +46,17 @@ def build_field_candidacy(db: duckdb.DuckDBPyConnection,
     """
     tc0, tc1 = (int(x) for x in window.split('_'))
 
+    # Deduplicate on work before summing: flat_works has one row per
+    # (work × institution × field), but field_weight is per-work not per-institution.
+    # Without DISTINCT, a work with N institutions contributes N × field_weight.
     db.execute(f"""
         COPY (
             SELECT field_idx, source_idx, SUM(field_weight) AS weighted_works
-            FROM '{fw_path}'
-            WHERE publication_year BETWEEN {tc0} AND {tc1}
+            FROM (
+                SELECT DISTINCT work_idx, source_idx, field_idx, field_weight
+                FROM '{fw_path}'
+                WHERE publication_year BETWEEN {tc0} AND {tc1}
+            )
             GROUP BY field_idx, source_idx
         ) TO '{out_src}' (FORMAT PARQUET)
     """)

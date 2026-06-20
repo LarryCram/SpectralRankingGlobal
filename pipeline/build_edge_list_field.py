@@ -2,9 +2,9 @@
 build_edge_list_field.py — Stage 3: build citation edge list for one field.
 
 Reads  : WORKING/flat_works_{ymin}_{ymax}.parquet
+         WORKING/corpus_references_{ymin}_{ymax}.parquet  (columns: citer_idx, cited_idx)
          WORKING/field_source_cands_{window}.parquet
          WORKING/field_inst_cands_{window}.parquet
-         OPENALEX/parquet/references/*.parquet  (columns: citer_idx, cited_idx)
 Writes : WORKING/el_{field_idx}_{window}_tauS{tau_s}_tauU{tau_u}.parquet
 
 Schema of output edge list (one row per citer_inst × cited_inst):
@@ -35,7 +35,7 @@ YEAR_MAX = 2025
 
 def build_edge_list(db: duckdb.DuckDBPyConnection,
                     fw_path: str,
-                    refs_path: str,
+                    corpus_refs_path: str,
                     sc_path: str,
                     ic_path: str,
                     run: Run,
@@ -101,7 +101,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
                cd.work_idx  AS cited_work_idx, cd.field_weight AS cited_fw,
                (cw.field_weight + cd.field_weight) / 2.0 AS edge_field_weight
         FROM _fw cw
-        JOIN '{refs_path}' ref ON cw.work_idx = ref.citer_idx
+        JOIN '{corpus_refs_path}' ref ON cw.work_idx = ref.citer_idx
         JOIN _fw cd ON ref.cited_idx = cd.work_idx
     """)
 
@@ -153,30 +153,38 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
 
 
 def main():
+    import argparse
     import time
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--field',  type=int, default=14)
+    parser.add_argument('--window', type=str, default='2020_2024')
+    parser.add_argument('--tau_s',  type=float, default=20.0)
+    parser.add_argument('--tau_u',  type=float, default=20.0)
+    args = parser.parse_args()
+
     paths = load_config()
 
     run = Run(
-        window='2020_2024',
-        field_idx=14,          # Business, Management and Accounting
-        tau_s=20.0,
-        tau_u=20.0,
+        window=args.window,
+        field_idx=args.field,
+        tau_s=args.tau_s,
+        tau_u=args.tau_u,
         m=(0, 1, 1, 0),
         alpha=1.0,
         rho=0,
-        label='business_baseline',
+        label='baseline',
     )
 
     fw_path   = str(paths.working / f'flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet')
-    refs_path = f'{paths.openalex}/parquet/references/*.parquet'
+    cr_path   = str(paths.working / f'corpus_references_{YEAR_MIN}_{YEAR_MAX}.parquet')
     sc_path   = run.sc_path(str(paths.working))
     ic_path   = run.ic_path(str(paths.working))
     out_path  = run.el_path(str(paths.working))
 
-    for p in [sc_path, ic_path]:
+    for p in [sc_path, ic_path, cr_path]:
         if not Path(p).exists():
             raise FileNotFoundError(
-                f"{p} not found — run build_field_candidacy.py first"
+                f"{p} not found — run build_flat_works.py / build_field_candidacy.py first"
             )
 
     with duckdb.connect() as db:
@@ -187,7 +195,7 @@ def main():
         print(f"Building edge list: field={run.field_idx}, window={run.window}, "
               f"τ_s={run.tau_s}/yr, τ_u={run.tau_u}/yr ...")
         t0 = time.time()
-        n = build_edge_list(db, fw_path, refs_path, sc_path, ic_path, run, out_path)
+        n = build_edge_list(db, fw_path, cr_path, sc_path, ic_path, run, out_path)
         elapsed = time.time() - t0
 
         print(f"  Edge list rows: {n:,}")
