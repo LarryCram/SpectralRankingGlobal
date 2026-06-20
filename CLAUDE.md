@@ -4,8 +4,9 @@
 `/home/lc/Projects/SpectralRankingGlobal`
 
 ## Purpose
-Generalised spectral ranking of institutions across all fields, using journal sets
-and topic sets as the left-side nodes of a bipartite (left × institution) ranking.
+Generalised spectral ranking of sources and institutions across all fields.
+Rankings are always over sources {S} and institutions {I}. Set type controls
+only how the corpus is filtered (by seed journals, or by OA subfield topics).
 See NEW_PROJECT_DESIGN.md for the full design rationale.
 
 ## Python environment
@@ -16,51 +17,70 @@ Always use `.venv/bin/python` and `.venv/bin/pip`. Never invoke bare `python` or
 Read via `util.load_config()` → `Paths`. Never inline yaml loading.
 
 ## Set types
-Two parallel set types, identical downstream pipeline:
-- `journal`: left entities = journals {S}; edge source is `work.source_id`
-- `topic`: left entities = OA topics {T} in a subfield; edge source is `work.topic_ids`
+Two parallel set types, identical downstream pipeline. Both rank sources {S} and
+institutions {I}; set type controls corpus filtering only:
+- `journal`: corpus = works in seed journals {S}; filter is `work.source_id IN {S}`
+- `topic`: corpus = works tagged with topics in a field; filter via `topics WHERE field_idx = X`
 
-## Config files (target — not yet created)
-- `sets.csv` — set definitions (set_id, set_type, set_name, discipline_or_subfield_id)
-- `runs.csv` — ranking runs (skip, set_id, window, fx, tau_u, tau_s, rho, m, chi, alpha)
+Topic-type sets are auto-generated from the 26 OA fields (`field_idx` 11–36).
+No explicit set config is needed for topic sets; only runs need a config file.
+
+## Run parameters (`util.Run` dataclass)
+- `window`: `{census_start}_{census_end}` e.g. `2020_2024`
+- `field_idx`: OA field index 11–36
+- `tau_s`, `tau_u`: retention thresholds in **weighted works per year**
+  (actual cutoff = tau × window_years applied to candidacy totals)
+- `m`: block mask `(m_SS, m_SI, m_IS, m_II)`; `(0,1,1,0)` = bipartite (standard)
+- `alpha`: Katz damping; `1.0` = pure Perron eigenvector
+- `rho`: `0` = fixed-count (R̄/Rᵢ); `1` = full-count
+- `chi`: source–institution mixing; `-1` = χ* = Nᵤ/(Nₛ+Nᵤ); only for `m=(1,1,1,1)`
+- `mu_type`: `''` for `alpha=1`; `'uniform'` or `'unit_scaled'` for `alpha<1`
 
 ## Folder structure
 ```
 SpectralRankingGlobal/
-  spectral_ranking/       # ranking engine
-    build_csr.py          #   CSR matrix assembly from edge lists
-    katz_ranker.py        #   spectral algorithms (Perron/Katz, bipartite)
-    run_rankings.py       #   parameter driver; reads runs.csv
+  pipeline/                  # all pipeline stages + ranking engine
+    build_flat_works.py      #   ✅ stage 1: flat works table (work×institution×field)
+    build_field_candidacy.py #   ✅ stage 2: per-field source/institution candidacy
+    build_edge_list_field.py #   ✅ stage 3: field citation edge list
+    build_csr_field.py       #   ☐ stage 4a: parquet edge list → CSRData
+    run_rankings.py          #   ☐ stage 4b: orchestrate all fields
+    katz_ranker.py           #   spectral algorithms (Perron/Katz, bipartite) — pure math
+    summary_flat_works.py    #   diagnostic summary of flat_works
     tests/
-  prepare_data/           # OpenAlex ingestion pipeline
-    build_edge_lists.py   #   builds citation edge lists in DuckDB
-    filter_mode_units.py  #   mode-specific SCC unit tables
-    load_corpus_entities.py #  extracts corpus parquets from OA snapshot
-    verify_edge_lists.py  #   invariant checks
-    tests/
+  spectral_analysis/         # future
   util/
-    load_config.py        #   load_config() → Paths, load_runs() → list
-  data/
-    oa_topic_df.csv       #   OA topic taxonomy (topic_id → subfield_id, …)
-  config.yaml             # machine-specific paths (gitignored)
-  runs.csv                # run schedule (not yet created)
-  sets.csv                # set registry (not yet created)
+    load_config.py           #   load_config() → Paths, load_runs() → list
+    runs.py                  #   Run dataclass
+  ZARCHIVE/                  # superseded EconomicsBusiness code
+  config.yaml                # machine-specific paths (gitignored)
   requirements.txt
-  NEW_PROJECT_DESIGN.md   # design rationale
+  NEW_PROJECT_DESIGN.md      # design rationale
 ```
 
-## Data persistence (current — DuckDB, pending migration to parquet)
+## Data persistence
 ```
+OPENALEX/parquet/
+  works/*.parquet            OA snapshot — works
+  authorships/*.parquet      OA snapshot — authorships
+  topics/*.parquet           OA snapshot — work×topic×score + full hierarchy
+  sources.parquet            OA snapshot — source metadata
+  institutions.parquet       OA snapshot — institution metadata
+  references/*.parquet       OA snapshot — (citer_idx, cited_idx)
+
 WORKING/
-  parquet/              pipeline intermediates from load_corpus_entities.py
-  edge_lists.duckdb     edge lists + unit tables (build_edge_lists.py output)
-  rankings.duckdb       ranking tables (run_rankings.py output)
+  flat_works_{ymin}_{ymax}.parquet              ✅ stage 1; ~97M rows
+                                                  (work×institution×field, with weights)
+  field_source_cands_{window}.parquet           ✅ stage 2; source weighted works per field
+  field_inst_cands_{window}.parquet             ✅ stage 2; inst weighted works per field
+  el_{field_idx}_{window}_tauS{s}_tauU{u}.parquet  stage 3; one per field
+  rankings_{field_idx}_{window}.parquet         stage 4; one per field (or combined)
 ```
+`window` = `{census_start}_{census_end}` (e.g. `2020_2024`).
 
-## Migration status
-The pipeline is ported from EconomicsBusiness but not yet migrated to the new design.
-Key remaining work:
-- Create `sets.csv` and `runs.csv`
-- Replace field-based corpus logic (`field_eb`, `fx` letter codes) with set-id logic
-- Replace DuckDB edge list / unit storage with parquet files
-- Parameterise `build_csr` with `left_col` to support topic sets
+## Pipeline status
+- ✅ Stage 1: `build_flat_works.py` — flat_works_2016_2025.parquet produced (~97M rows)
+- ✅ Stage 2: `build_field_candidacy.py` — candidacy parquets for 2020_2024
+- ✅ Stage 3: `build_edge_list_field.py` — edge list construction (tested on Business)
+- ☐ Stage 4a: `build_csr_field.py` — CSR matrix assembly
+- ☐ Stage 4b: `run_rankings.py` — parameter driver
