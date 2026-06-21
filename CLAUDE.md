@@ -32,11 +32,14 @@ No explicit set config is needed for topic sets; only runs need a config file.
   - `sc_path`/`ic_path` auto-select the right candidacy file for the level
 - `tau_s`, `tau_u`: retention thresholds in **weighted works per year**
   (actual cutoff = tau × window_years applied to candidacy totals)
+  Baseline: τ_s = τ_u = 10/yr → 50 w.w. over the 5-year window
 - `m`: block mask `(m_SS, m_SI, m_IS, m_II)`; `(0,1,1,0)` = bipartite (standard)
 - `alpha`: Katz damping; `1.0` = pure Perron eigenvector
 - `rho`: `0` = fixed-count (R̄/Rᵢ); `1` = full-count
 - `chi`: source–institution mixing; `-1` = χ* = Nᵤ/(Nₛ+Nᵤ); only for `m=(1,1,1,1)`
 - `mu_type`: `''` for `alpha=1`; `'uniform'` or `'unit_scaled'` for `alpha<1`
+- `label`: string encoded in all output filenames (e.g. `baseline`, `tau20`, `OECDG20CIA`)
+- `bloc`: key into `GlobalSettings.blocs`; `''` = all countries
 
 ## Institution types included
 `('education', 'nonprofit', 'government', 'healthcare', 'other')`
@@ -47,24 +50,35 @@ separately from education/nonprofit.
 ## Folder structure
 ```
 SpectralRankingGlobal/
-  pipeline/                  # all pipeline stages + ranking engine
-    build_flat_works.py      #   ✅ stage 1a/1b: flat works + corpus references
-    build_field_candidacy.py #   ✅ stage 2: per-field source/institution candidacy
-    build_edge_list_field.py #   ✅ stage 3: field citation edge list
-    build_csr_field.py       #   ✅ stage 4a: parquet edge list → CSRData
-    run_rankings.py          #   ✅ stage 4b: orchestrate all fields
-    show_rankings.py         #   display rankings with OA names
-    katz_ranker.py           #   spectral algorithms (Perron/Katz, bipartite) — pure math
-    summary_flat_works.py    #   diagnostic summary of flat_works
+  pipeline/                    # all pipeline stages + ranking engine
+    build_flat_works.py        #   ✅ stage 1a/1b: flat works + corpus references
+    build_field_candidacy.py   #   ✅ stage 2: per-field/leiden/subfield candidacy
+    build_edge_list_field.py   #   ✅ stage 3: field citation edge list
+    build_csr_field.py         #   ✅ stage 4a: parquet edge list → CSRData
+    run_rankings.py            #   ✅ stage 4b: rank one field
+    run_all_fields.py          #   ✅ orchestrate 26 OA fields
+    run_leiden_fields.py       #   ✅ orchestrate 5 Leiden groups (stages 3+4)
+    run_leiden_sensitivity.py  #   ✅ parameter sensitivity suite for Leiden
+    run_leiden_bloc.py         #   ✅ country-bloc Leiden rankings (OECDG20CIA, CIAA)
+    show_rankings.py           #   display rankings with OA names
+    katz_ranker.py             #   spectral algorithms (Perron/Katz, bipartite) — pure math
+    summary_flat_works.py      #   diagnostic summary of flat_works
     tests/
-  spectral_analysis/         # next: eigenvector community structure
+  analysis/
+    leiden_facets.py           #   ✅ 2×5 log(v) vs rank, multi-label overlay
+    leiden_bloc_facets.py      #   ✅ baseline vs one comparison per PDF (7 PDFs)
+    hep_heatmap.py             #   ✅ AU HEP influence heatmap across 26 fields
+  spectral_analysis/           # next: eigenvector community structure
   util/
-    load_config.py           #   load_config() → Paths, load_runs() → list
-    runs.py                  #   Run dataclass
-  ZARCHIVE/                  # superseded EconomicsBusiness code
-  config.yaml                # machine-specific paths (gitignored)
+    load_config.py             #   load_config() → Paths, load_runs() → list
+    runs.py                    #   Run dataclass + GlobalSettings + LEIDEN_GROUPS
+  data/
+    bloc.xlsx                  #   bloc_name → ISO-3166-1-alpha-2 country codes
+    HEP_concordances.xlsx      #   AU HEP name → institution_idx mapping
+  ZARCHIVE/                    # superseded EconomicsBusiness code
+  config.yaml                  # machine-specific paths (gitignored)
   requirements.txt
-  NEW_PROJECT_DESIGN.md      # design rationale
+  NEW_PROJECT_DESIGN.md        # design rationale
 ```
 
 ## Data persistence
@@ -78,35 +92,86 @@ OPENALEX/parquet/
   references/*.parquet       OA snapshot — (citer_idx, cited_idx)
 
 WORKING/
-  flat_works_{ymin}_{ymax}.parquet              ✅ stage 1a; ~112M rows
-                                                  (work×institution×field, with weights)
-                                                  institution types: edu+nonprofit+gov+healthcare+other
-  corpus_references_{ymin}_{ymax}.parquet       ✅ stage 1b; ~358M rows
-                                                  (citer_idx, cited_idx) both in flat_works
-  field_source_cands_{window}.parquet           ✅ stage 2; source weighted works per field
-  field_inst_cands_{window}.parquet             ✅ stage 2; inst weighted works per field
-  el_{field_idx}_{window}_tauS{s}_tauU{u}.parquet  ✅ stage 3; one per field (~2-20s each)
-  rankings_{field_idx}_{window}.parquet         ✅ stage 4; all 26 fields complete
-  rankings_{field_idx}_{window}_diag.json       ✅ stage 4; diagnostics per field
+  flat_works_2016_2025.parquet              ✅ stage 1a; 153.5M rows
+                                              (work×institution×subfield, with weights)
+                                              cols: work_idx, publication_year,
+                                                source_idx, institution_idx, country_code,
+                                                inst_weight, direct_inst_weight,
+                                                subfield_idx, subfield_name,
+                                                field_idx, field_weight,
+                                                leiden_idx, leiden_name,
+                                                referenced_works_count
+  corpus_references_2016_2025.parquet       ✅ stage 1b; ~358M rows
+                                              (citer_idx, cited_idx) both in flat_works
+  field_source_cands_{window}.parquet       ✅ stage 2; source weighted works per OA field
+  field_inst_cands_{window}.parquet         ✅ stage 2; inst weighted works per OA field
+  leiden_source_cands_{window}.parquet      ✅ stage 2; source weighted works per Leiden group
+  leiden_inst_cands_{window}.parquet        ✅ stage 2; inst weighted works per Leiden group
+  subfield_source_cands_{window}.parquet    ✅ stage 2; source weighted works per subfield
+  subfield_inst_cands_{window}.parquet      ✅ stage 2; inst weighted works per subfield
+  el_{field_idx}_{window}_{label}.parquet   ✅ stage 3; one per (field, label)
+  rankings_{field_idx}_{window}_{label}.parquet      ✅ stage 4; ranked units
+  rankings_{field_idx}_{window}_{label}_diag.json    ✅ stage 4; diagnostics
 ```
 `window` = `{census_start}_{census_end}` (e.g. `2020_2024`).
+`field_idx` = OA field 11–36, Leiden group 1–5, or subfield ≥ 1000.
 
 ## Pipeline status — window 2020_2024
-- ✅ Stage 1a: `build_flat_works.py` — flat_works_2016_2025.parquet (~112M rows, incl. healthcare)
-- ✅ Stage 1b: `build_flat_works.py` — corpus_references_2016_2025.parquet (~358M rows, 115s)
-- ✅ Stage 2: `build_field_candidacy.py` — candidacy parquets for 2020_2024
-- ✅ Stage 3: `build_edge_list_field.py` — edge list construction (~2s/field with corpus_refs)
-- ✅ Stage 4a: `build_csr_field.py` — CSR matrix assembly
-- ✅ Stage 4b: `run_rankings.py` — all 26 fields ranked (window 2020_2024)
+- ✅ Stage 1a: `build_flat_works.py` — flat_works_2016_2025.parquet (153.5M rows, subfield granularity)
+- ✅ Stage 1b: `build_flat_works.py` — corpus_references_2016_2025.parquet (~358M rows)
+- ✅ Stage 2: `build_field_candidacy.py` — all 6 candidacy parquets (field/leiden/subfield × source/inst)
+- ✅ Stage 3+4 baseline: `run_all_fields.py` — all 26 OA fields (label=`baseline`)
+- ✅ Stage 3+4 baseline: `run_leiden_fields.py` — all 5 Leiden groups (label=`baseline`)
+- ✅ Sensitivity suite: `run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups
+- 🔄 Bloc suite: `run_leiden_bloc.py` — OECDG20CIA, CIAA (in progress / pending)
+
+## Sensitivity variants (Leiden, window 2020_2024)
+Five one-at-a-time parameter variants against the baseline (τ=10, ρ=0, ε=0, ω=0, β=0):
+
+| label   | change        | needs new edge list? |
+|---------|---------------|----------------------|
+| tau20   | τ_s=τ_u=20/yr | yes                  |
+| rho1    | ρ=1           | no (symlink)         |
+| eps1    | ε=1           | yes                  |
+| om1     | ω=1           | no (symlink)         |
+| beta1   | β=1           | no (symlink)         |
+
+`run_leiden_sensitivity.py` uses symlinks for no-el variants to avoid duplicating
+5–9 GB edge lists for Leiden 3/4. Fresh DuckDB connection per leiden group prevents
+memory accumulation across large edge list builds.
+
+## Bloc runs (Leiden, window 2020_2024)
+All-in filter: a work is included only if EVERY affiliated institution is in the bloc.
+Candidacy parquets are global (shared with baseline); new edge lists built per bloc.
+
+| label      | bloc key     | countries |
+|------------|--------------|-----------|
+| OECDG20CIA | OECDG20-CIA  | 43        |
+| CIAA       | CIAA         | 4 (AU,CN,IN,US) |
+
+## Analysis outputs
+- `analysis/leiden_facets.pdf` — 2×5 log(v) vs rank; multi-label overlay, default all 6 labels
+- `analysis/leiden_{label}.pdf` — 7 PDFs from `leiden_bloc_facets.py`, one per comparison:
+  - `leiden_OECDG20CIA.pdf`, `leiden_CIAA.pdf` — bloc vs baseline (coloured scatter)
+  - `leiden_tau20.pdf`, `leiden_rho1.pdf`, `leiden_eps1.pdf`, `leiden_om1.pdf`, `leiden_beta1.pdf` — variants vs baseline (green scatter)
+- `analysis/hep_heatmap.pdf` — AU HEP institution scores across 26 OA fields
 
 ## Key bugs fixed
-- **Source candidacy overcounting**: `flat_works` has one row per (work×institution×field),
+- **Source candidacy overcounting**: `flat_works` has one row per (work×institution×subfield),
   so naïve `SUM(field_weight)` for sources counted field_weight once per institution per work.
   Fixed with `SELECT DISTINCT work_idx, source_idx, field_idx, field_weight` before summing.
   Institution candidacy (`SUM(field_weight * inst_weight)`) was correct.
+- **Stale unlabeled ranking files**: runners now write `rankings_{fid}_{window}_{label}.parquet`;
+  old unlabeled files were deleted manually after `run_all_fields.py` was updated.
+- **DuckDB segfault on large Leiden runs**: using a single connection across all leiden groups
+  caused memory accumulation → segfault on leiden 2 (39M citation pairs). Fixed by opening
+  a fresh connection per leiden group in the sensitivity and bloc runners.
+- **Corrupt edge list from crashed run**: if a build crashes mid-write, the parquet file exists
+  but has no magic bytes. Detection: `duckdb.execute("SELECT COUNT(*) FROM 'file'")` raises
+  `InvalidInputException`. Fix: delete and re-run.
 
 ## Field index mapping (OA → CWTS Leiden)
-26 OA fields, `field_idx` 11–36. OA Domain is OpenAlex's own grouping; CWTS Leiden Main Field is the Leiden Ranking grouping used for cross-field comparisons.
+26 OA fields, `field_idx` 11–36.
 
 | field_idx | OA Field                                      | OA Domain        | CWTS Leiden Main Field                  |
 |-----------|-----------------------------------------------|------------------|-----------------------------------------|
@@ -137,11 +202,12 @@ WORKING/
 | 35        | Dentistry                                     | Health Sciences  | 4. Biomedical and Health Sciences       |
 | 36        | Health Professions                            | Health Sciences  | 4. Biomedical and Health Sciences       |
 
-## Spectral gap by field (window 2020_2024, bipartite m=(0,1,1,0))
+## Spectral gap by field (window 2020_2024, bipartite m=(0,1,1,0), label=baseline)
 Small gap = near-reducible internal structure (sub-communities); large gap = unified hierarchy.
 The bipartite walk blends through institutions — only joint source+institution co-clusters
 survive as eigenvector signal. The second eigenvector reveals the dominant partition when gap is small.
 
+### OA fields (field_idx 11–36)
 | field_idx | Field                                  | gap   |
 |-----------|----------------------------------------|-------|
 | 11        | Agricultural and Biological Sciences   | 0.653 |
@@ -171,21 +237,24 @@ survive as eigenvector signal. The second eigenvector reveals the dominant parti
 | 35        | Dentistry                              | 0.856 |
 | 36        | Health Professions                     | 0.288 |
 
+### Leiden groups (field_idx 1–5)
+| field_idx | Leiden Group                          | n_s    | n_u    | gap   |
+|-----------|---------------------------------------|--------|--------|-------|
+| 1         | Mathematics and Computer Science      | 3,624  | 3,754  | 0.420 |
+| 2         | Physical Sciences and Engineering     | 6,724  | 5,694  | 0.298 |
+| 3         | Life and Earth Sciences               | 8,475  | 7,008  | 0.572 |
+| 4         | Biomedical and Health Sciences        | 11,585 | 10,069 | 0.423 |
+| 5         | Social Sciences and Humanities        | 16,082 | 7,251  | 0.455 |
+
 ## TODO — next: spectral_analysis/
-- Compute top-k eigenvectors for small-gap fields (Arts, Business, Econ, Vet, Engineering, Maths)
+- Compute top-k eigenvectors for small-gap fields (Arts 0.117, Business 0.091, Econ 0.149, Vet 0.110, Engineering 0.210, Maths 0.332)
 - Embed sources+institutions in eigenvector space → identify co-clusters / subfield structure
 - The second eigenvector sign-pattern partitions the field into its two dominant sub-communities
 
-## TODO — Leiden main field rankings
-- Aggregate the 26 OA fields into the 5 CWTS Leiden Main Fields (see field index mapping above)
-  and run spectral rankings at that coarser level; analyse how parameter choices (tau, alpha, rho, chi)
-  affect institution and source rankings relative to per-OA-field results
-
 ## TODO — Australian HEP heatmap
-- Obtain the official TEQSA/DESE table of Australian Higher Education Providers (HEPs)
-- Match HEPs to OA institutions by name/ROR
-- Build a heatmap: rows = HEPs, columns = fields (or Leiden main fields), colour = rank percentile
-  sorted so that highest-ranked HEPs appear at the bottom-right (ascending rank, descending field score)
+- `analysis/hep_heatmap.py` produces the heatmap for 26 OA fields with baseline rankings
+- Extension: Leiden-level heatmap (5 columns instead of 26)
+- Extension: bloc-filtered heatmap (OECDG20CIA, CIAA) once bloc runs complete
 
 ## TODO — Subfield rankings
 - Investigate running spectral ranking at the OA subfield level (below the 26 fields)
@@ -254,6 +323,6 @@ the full flat_works scan before the tau filter is applied).
 - `build_edge_list_field.py` — `build_edge_list(..., bloc_codes=())`: when non-empty,
   materialises `_excl_works` (works with any out-of-bloc institution) then applies
   `work_idx NOT IN (SELECT work_idx FROM _excl_works)` before the tau filter.
-- `run_all_fields.py` — resolves `settings.blocs[run.bloc]` and passes to `build_edge_list`.
+- `run_leiden_bloc.py` — resolves `settings.blocs[run.bloc]` and passes to `build_edge_list`.
 - Candidacy (`build_field_candidacy.py`) is NOT bloc-filtered; candidacy thresholds are
   global.  Bloc runs share the same candidacy parquets as the baseline run.

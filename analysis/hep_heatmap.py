@@ -61,13 +61,15 @@ def field_label(fid: int) -> str:
     return f"{fid} {FIELD_NAMES[fid].split()[0]}"
 
 
-def build_pivot(working: Path, keys: pd.DataFrame, window: str) -> pd.DataFrame:
+def build_pivot(working: Path, keys: pd.DataFrame, window: str,
+                label: str = '') -> pd.DataFrame:
     keys = keys.copy()
     keys['inst_id'] = keys['institution_idx'].str.lstrip('I').astype('int64')
 
+    suffix = f'_{label}' if label else ''
     records = []
     for fid in range(11, 37):
-        rk_path = working / f'rankings_{fid}_{window}.parquet'
+        rk_path = working / f'rankings_{fid}_{window}{suffix}.parquet'
         if not rk_path.exists():
             continue
         df = pd.read_parquet(rk_path, columns=['unit_idx', 'unit_type', 'v'])
@@ -113,17 +115,26 @@ def plot_heatmap(pivot: pd.DataFrame, out_path: Path) -> None:
     data = pivot.values.astype(float)
     masked = np.ma.masked_invalid(data)
 
-    # Scale within each column so colours are comparable across columns
-    # (each field has a different absolute scale)
+    # Per-column two-slope scaling: white anchored at v=1 (Perron mean).
+    # [lo, 1] → [0, 0.5]  (blue = below average)
+    # [1,  hi] → [0.5, 1] (orange = above average)
+    CENTER = 1.0
     scaled = np.zeros_like(data)
     for j in range(n_cols):
         col = data[:, j]
         valid = col[~np.isnan(col)]
         if len(valid) == 0:
             scaled[:, j] = np.nan
-        else:
-            lo, hi = valid.min(), valid.max()
-            scaled[:, j] = (col - lo) / (hi - lo) if hi > lo else 0.5
+            continue
+        lo, hi = valid.min(), valid.max()
+        lo_span = max(CENTER - lo, 1e-9)
+        hi_span = max(hi - CENTER, 1e-9)
+        out = np.where(
+            col <= CENTER,
+            0.5 * (col - lo) / lo_span,
+            0.5 + 0.5 * (col - CENTER) / hi_span,
+        )
+        scaled[:, j] = np.where(np.isnan(col), np.nan, np.clip(out, 0, 1))
     masked_scaled = np.ma.masked_invalid(scaled)
 
     fig_h = max(6, n_rows * 0.32)
@@ -142,14 +153,14 @@ def plot_heatmap(pivot: pd.DataFrame, out_path: Path) -> None:
     ax.set_ylabel('HEP', labelpad=8)
     ax.set_title(
         'Australian HEP influence scores by OA field\n'
-        '(column-normalised; rows and columns ordered by increasing sum)',
+        '(white = field mean v=1; rows and columns ordered by increasing sum)',
         fontsize=10,
     )
 
     cbar = fig.colorbar(im, ax=ax, fraction=0.02, pad=0.02)
-    cbar.set_label('Relative influence (within field)', fontsize=8)
+    cbar.set_label('Influence relative to field mean (v=1)', fontsize=8)
     cbar.set_ticks([0, 0.5, 1])
-    cbar.set_ticklabels(['low', 'mid', 'high'])
+    cbar.set_ticklabels(['low', 'mean', 'high'])
 
     plt.tight_layout()
     fig.savefig(out_path, dpi=150, bbox_inches='tight')
@@ -159,13 +170,14 @@ def plot_heatmap(pivot: pd.DataFrame, out_path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--window', default='2020_2024')
-    parser.add_argument('--out', default='analysis/hep_heatmap.png')
+    parser.add_argument('--label', default='baseline')
+    parser.add_argument('--out', default='analysis/hep_heatmap.pdf')
     args = parser.parse_args()
 
     paths = load_config()
     keys = pd.read_excel('data/HEP_concordances.xlsx', sheet_name='Keys')
 
-    pivot = build_pivot(paths.working, keys, args.window)
+    pivot = build_pivot(paths.working, keys, args.window, args.label)
     print(f"Pivot shape: {pivot.shape}  ({pivot.index.nunique()} HEPs × {len(pivot.columns)} fields)")
     print("Row sums (influence total):")
     print(pivot.sum(axis=1, min_count=1).sort_values().to_string())
