@@ -27,7 +27,9 @@ No explicit set config is needed for topic sets; only runs need a config file.
 
 ## Run parameters (`util.Run` dataclass)
 - `window`: `{census_start}_{census_end}` e.g. `2020_2024`
-- `field_idx`: OA field index 11–36
+- `field_idx`: grouping index — OA field 11–36, Leiden group 1–5, or OA subfield 1100–3616
+  - `run.is_leiden` = True when field_idx ∈ 1–5; `run.is_subfield` = True when field_idx ≥ 1000
+  - `sc_path`/`ic_path` auto-select the right candidacy file for the level
 - `tau_s`, `tau_u`: retention thresholds in **weighted works per year**
   (actual cutoff = tau × window_years applied to candidacy totals)
 - `m`: block mask `(m_SS, m_SI, m_IS, m_II)`; `(0,1,1,0)` = bipartite (standard)
@@ -189,28 +191,69 @@ survive as eigenvector signal. The second eigenvector reveals the dominant parti
 - Investigate running spectral ranking at the OA subfield level (below the 26 fields)
   to expose finer disciplinary structure; assess corpus sparsity vs. spectral signal trade-off
 
-## TODO — Parameter audit and unimplemented flags
-Three binary flags exist in `Run` and `runs.yaml` but are not yet wired into the pipeline.
-All three require changes to `build_edge_list_field.py` and `build_csr_field.py`.
+## Parameter flags (all implemented)
 
 ### ε — epsilon (cross-boundary sentinel, default 0)
-- ε=0: standard edge list (only within-field citations)
-- ε=1: add dummy sentinel units (`source_idx=1`, `institution_idx=1`) to absorb cross-field
-  citations; their v-scores are masked to NaN after ranking so they don't appear in output.
-  Origin: `EconomicsBusiness/spectral_ranking/build_csr.py` `SX_IDX`/`IX_IDX` logic.
-- TODO: port sentinel-edge injection into `build_edge_list_field.py`; add `is_sentinel_s`/
-  `is_sentinel_u` masks to `CSRData`; update `katz_ranker.py` to mask NaN on output.
+- ε=0: standard edge list (only within-field retained↔retained citations)
+- ε=1: append sentinel edges (`source_idx=1`, `institution_idx=1`) that absorb
+  cross-field citations; sentinel v-scores masked to NaN in output.
+
+**Semantics**: cross-field = any corpus_reference pair where citer xor cited is
+NOT in the retained `_fw` set for this field.
+- type1 (retained citer → sentinel cited): citer retained, cited not retained in this field
+- type2 (sentinel citer → retained cited): citer not retained in this field, cited retained
+- `edge_field_weight` = `field_weight / 2` (half of the retained side's weight, zero for the other)
+- type1 `R_i` = within-field `R_i` of citer (reuses `_Ri`); type2 `R_i` = `SUM(cited_fw/2)` for that citer
+
+**Status**: ✅ implemented
+- `build_edge_list_field.py`: `SX_IDX/IX_IDX = 1`, `_add_epsilon_edges()` inserts type1+type2 rows
+  into `_edges_out` before the final COPY when `run.epsilon == 1`.
+- `build_csr_field.py`: injects sentinel rows into `src_df`/`inst_df` (not in candidacy tables),
+  sets `is_sentinel_s`/`is_sentinel_u` bool masks on the returned `CSRData`.
+- `katz_ranker.py`: already masks sentinel positions to NaN in `v_s`/`v_u` via `_mask_nan()`.
 
 ### ω — omega (institution weighting mode, default 0)
 - ω=0: **author-fractional** weighting — institution credit proportional to author share
-  (`inst_weight / cited_inst_weight` columns from `flat_works`)
+  (`inst_weight / cited_inst_weight` columns from edge list)
 - ω=1: **direct 1/N_inst** weighting — equal credit per affiliated institution
-  (`direct_inst_weight / direct_cited_inst_weight` columns, not yet in `flat_works`)
-- TODO: add `direct_inst_weight` and `direct_cited_inst_weight` columns to `build_flat_works.py`;
-  wire the column selection into `build_csr_field.py` based on `run.omega`.
+  (`direct_inst_weight / direct_cited_inst_weight` columns from edge list)
+
+**Status**: ✅ implemented — `build_csr_field.py` selects `direct_inst_weight` /
+`direct_cited_inst_weight` when `run.omega == 1`, aliased as `inst_weight` /
+`cited_inst_weight` in `_el` so block queries are unchanged.
+Both columns have been in the edge list (and `flat_works`) since the original build.
 
 ### β — beta (unit self-reference exclusion, default 0)
 - β=0: self-references included (baseline)
 - β=1: exclude edges where `citer_source_idx == cited_source_idx`
-  AND `citer_inst_idx == cited_inst_idx` (zeroes the diagonal of C_SS and C_II)
-- TODO: add `WHERE` filter in `build_csr_field.py` `_tmp_el` materialisation when `run.beta == 1`.
+  AND `citer_inst_idx == cited_inst_idx`
+
+**Status**: ✅ implemented — `build_csr_field.py` appends
+`WHERE NOT (citer_source_idx = cited_source_idx AND citer_inst_idx = cited_inst_idx)`
+to the `_el` materialisation when `run.beta == 1`.
+The edge-list file itself is unchanged; the filter is applied at CSR-build time.
+
+### 🌐 bloc — country-group filter (default `''` = all countries)
+Restricts the works corpus to works affiliated with institutions in a named country bloc.
+Bloc → country code mapping is read from `data/bloc.xlsx` into `GlobalSettings.blocs`.
+
+- `bloc=''`: no filter; all countries included (current behavior)
+- `bloc='AU'`: Australia only
+- `bloc='CIAA'`: China, India, America, Australia (`{AU, CN, IN, US}`)
+- `bloc='OECDG20'`: union of OECD (38) and G20 (19 sovereign members), 46 countries total
+- `bloc='OECDG20-CIA'`: OECDG20 minus `{CN, IN, US}` (43 countries)
+
+**Semantics**: all-in — a work is included only if EVERY affiliated institution (in that
+field+window) has a country_code in the bloc.  A single out-of-bloc collaborator excludes
+the whole work.  Below-tau institutions still count for this test (they are checked in
+the full flat_works scan before the tau filter is applied).
+
+**Status**: ✅ implemented
+- `build_flat_works.py` — carries `country_code VARCHAR` from `institutions.country_code`
+  through `_valid_inst` → `_iw` → parquet output.
+- `build_edge_list_field.py` — `build_edge_list(..., bloc_codes=())`: when non-empty,
+  materialises `_excl_works` (works with any out-of-bloc institution) then applies
+  `work_idx NOT IN (SELECT work_idx FROM _excl_works)` before the tau filter.
+- `run_all_fields.py` — resolves `settings.blocs[run.bloc]` and passes to `build_edge_list`.
+- Candidacy (`build_field_candidacy.py`) is NOT bloc-filtered; candidacy thresholds are
+  global.  Bloc runs share the same candidacy parquets as the baseline run.

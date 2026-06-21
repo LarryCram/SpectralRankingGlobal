@@ -2,9 +2,26 @@
 util/runs.py — Run dataclass and GlobalSettings for SpectralRankingGlobal.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 VALID_M = frozenset({'1000', '0001', '0110', '1111'})
+
+# CWTS Leiden main field index → OA field_idx members
+LEIDEN_GROUPS: dict[int, tuple[int, ...]] = {
+    1: (17, 26),
+    2: (15, 16, 21, 22, 25, 31),
+    3: (11, 13, 19, 23, 24),
+    4: (27, 28, 29, 30, 34, 35, 36),
+    5: (12, 14, 18, 20, 32, 33),
+}
+
+LEIDEN_NAMES: dict[int, str] = {
+    1: 'Mathematics and Computer Science',
+    2: 'Physical Sciences and Engineering',
+    3: 'Life and Earth Sciences',
+    4: 'Biomedical and Health Sciences',
+    5: 'Social Sciences and Humanities',
+}
 
 
 @dataclass(frozen=True)
@@ -24,10 +41,15 @@ class GlobalSettings:
     katz_max_iter:            int
     field_first:              int
     field_last:               int
+    blocs:                    dict   = field(default_factory=dict)  # bloc_name → tuple of ISO-3166-1-alpha-2 codes
 
     @property
     def all_fields(self) -> range:
         return range(self.field_first, self.field_last + 1)
+
+    @property
+    def all_leiden_fields(self) -> range:
+        return range(1, 6)
 
 
 @dataclass
@@ -47,8 +69,8 @@ class Run:
     label     : user-defined run name; used in all output filenames
     field_idx : OA field 11–36; set per-field by the runner via dataclasses.replace()
 
-    Unimplemented flags (wired as int=0; see CLAUDE.md TODO section):
-    epsilon   : 0 = standard; 1 = include cross-boundary sentinel units
+    epsilon   : 0 = standard; 1 = add cross-field sentinel units (SX/IX idx=1)
+                  absorb cross-field citations; sentinel v-scores masked to NaN
     omega     : 0 = author-fractional inst weight; 1 = direct 1/N_inst weight
     beta      : 0 = include unit self-references; 1 = exclude
     """
@@ -65,9 +87,10 @@ class Run:
     field_idx: int    = 0     # set per-field by runner; 0 = not yet assigned
     tt0:       int    = 0
     tt1:       int    = 0
-    epsilon:   int    = 0     # TODO: sentinel cross-boundary flag
-    omega:     int    = 0     # TODO: institution weighting mode
-    beta:      int    = 0     # TODO: unit self-reference exclusion flag
+    epsilon:   int    = 0
+    omega:     int    = 0
+    beta:      int    = 0
+    bloc:      str    = ''
 
     def __post_init__(self):
         if self.alpha < 1.0 and not self.mu_type:
@@ -78,6 +101,16 @@ class Run:
             raise ValueError(
                 f"mu_type must be '' when alpha=1.0, got '{self.mu_type}'"
             )
+
+    @property
+    def is_leiden(self) -> bool:
+        """True when field_idx is a Leiden main field index (1–5)."""
+        return 1 <= self.field_idx <= 5
+
+    @property
+    def is_subfield(self) -> bool:
+        """True when field_idx is an OA subfield index (≥ 1000)."""
+        return self.field_idx >= 1000
 
     @property
     def window(self) -> str:
@@ -101,9 +134,17 @@ class Run:
         return f"{working_dir}/el_{self.field_idx}_{self.window}_{self.label}.parquet"
 
     def sc_path(self, working_dir: str) -> str:
+        if self.is_leiden:
+            return f"{working_dir}/leiden_source_cands_{self.window}.parquet"
+        if self.is_subfield:
+            return f"{working_dir}/subfield_source_cands_{self.window}.parquet"
         return f"{working_dir}/field_source_cands_{self.window}.parquet"
 
     def ic_path(self, working_dir: str) -> str:
+        if self.is_leiden:
+            return f"{working_dir}/leiden_inst_cands_{self.window}.parquet"
+        if self.is_subfield:
+            return f"{working_dir}/subfield_inst_cands_{self.window}.parquet"
         return f"{working_dir}/field_inst_cands_{self.window}.parquet"
 
     def rankings_path(self, working_dir: str) -> str:

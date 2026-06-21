@@ -70,15 +70,15 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str]:
     # institutions
     db.execute("""
         CREATE TABLE institutions AS FROM (VALUES
-            ('https://openalex.org/I201', 'education'),
-            ('https://openalex.org/I202', 'education'),
-            ('https://openalex.org/I203', 'education'),
-            ('https://openalex.org/I204', 'education'),
-            ('https://openalex.org/I205', 'education'),
-            ('https://openalex.org/I206', 'education'),
-            ('https://openalex.org/I207', 'education'),
-            ('https://openalex.org/I299', 'company')
-        ) t(id, type)
+            ('https://openalex.org/I201', 'education', 'AU'),
+            ('https://openalex.org/I202', 'education', 'AU'),
+            ('https://openalex.org/I203', 'education', 'AU'),
+            ('https://openalex.org/I204', 'education', 'AU'),
+            ('https://openalex.org/I205', 'education', 'AU'),
+            ('https://openalex.org/I206', 'education', 'NZ'),
+            ('https://openalex.org/I207', 'education', 'AU'),
+            ('https://openalex.org/I299', 'company',   'US')
+        ) t(id, type, country_code)
     """)
     inst = str(tmp_path / 'institutions.parquet')
     db.execute(f"COPY institutions TO '{inst}'")
@@ -116,14 +116,14 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str]:
     auth = str(tmp_path / 'authorships.parquet')
     db.execute(f"COPY authorships TO '{auth}'")
 
-    # topics
+    # topics — includes subfield hierarchy (subfield → field mapping is 1-to-1)
     db.execute("""
         CREATE TABLE topics AS FROM (VALUES
-            (101, 1, 0.9, 11),
-            (101, 2, 0.6, 13),
-            (102, 3, 0.8, 11),
-            (103, 4, 0.7, 17)
-        ) t(work_idx, topic_idx, score, field_idx)
+            (101, 1, 0.9, 1100, 'Ecology',          11),
+            (101, 2, 0.6, 1300, 'Genetics',         13),
+            (102, 3, 0.8, 1100, 'Ecology',          11),
+            (103, 4, 0.7, 1700, 'Machine Learning', 17)
+        ) t(work_idx, topic_idx, score, subfield_idx, subfield_name, field_idx)
     """)
     top = str(tmp_path / 'topics.parquet')
     db.execute(f"COPY topics TO '{top}'")
@@ -132,11 +132,21 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str]:
     return wks, src, inst, auth, top
 
 
+_SOURCE_TYPES = ('journal', 'conference', 'book series')
+_WORK_TYPES   = ('article', 'review')
+_INST_TYPES   = ('education', 'nonprofit', 'government', 'healthcare', 'other')
+
 def run(tmp_path):
     wks, src, inst, auth, top = make_test_parquets(tmp_path)
     out = str(tmp_path / 'flat_works.parquet')
     with duckdb.connect() as db:
-        build_flat_works(db, wks, src, auth, inst, top, out)
+        build_flat_works(
+            db, wks, src, auth, inst, top, out,
+            year_min=2016, year_max=2025,
+            source_types=_SOURCE_TYPES,
+            work_types=_WORK_TYPES,
+            institution_types=_INST_TYPES,
+        )
     return out
 
 
@@ -148,8 +158,11 @@ def test_output_schema(tmp_path):
         cols = {r[0] for r in db.execute(f"DESCRIBE SELECT * FROM '{out}'").fetchall()}
     expected = {
         'work_idx', 'publication_year', 'source_idx',
-        'institution_idx', 'inst_weight', 'direct_inst_weight',
-        'field_idx', 'field_weight', 'referenced_works_count',
+        'institution_idx', 'country_code', 'inst_weight', 'direct_inst_weight',
+        'subfield_idx', 'subfield_name',
+        'field_idx', 'field_weight',
+        'leiden_idx', 'leiden_name',
+        'referenced_works_count',
     }
     assert cols == expected
 
@@ -269,3 +282,56 @@ def test_field_weight_values_work101(tmp_path):
     w = {r[0]: r[1] for r in rows}
     assert abs(w[11] - 0.6) < 1e-9
     assert abs(w[13] - 0.4) < 1e-9
+
+
+# ─── subfield + leiden columns ────────────────────────────────────────────────
+
+def test_subfield_idx_present(tmp_path):
+    """Each row has a non-null subfield_idx from the topics table."""
+    out = run(tmp_path)
+    with duckdb.connect() as db:
+        nulls = db.execute(
+            f"SELECT COUNT(*) FROM '{out}' WHERE subfield_idx IS NULL"
+        ).fetchone()[0]
+    assert nulls == 0
+
+
+def test_subfield_values_work101(tmp_path):
+    """work 101: two subfields — 1100 (Ecology, field 11) and 1300 (Genetics, field 13)."""
+    out = run(tmp_path)
+    with duckdb.connect() as db:
+        rows = db.execute(f"""
+            SELECT DISTINCT subfield_idx, subfield_name, field_idx FROM '{out}'
+            WHERE work_idx = 101 ORDER BY subfield_idx
+        """).fetchall()
+    by_sf = {r[0]: (r[1], r[2]) for r in rows}
+    assert by_sf[1100] == ('Ecology', 11)
+    assert by_sf[1300] == ('Genetics', 13)
+
+
+def test_leiden_idx_derived_from_field(tmp_path):
+    """
+    field 11 → leiden_idx 3 (Life and Earth Sciences)
+    field 13 → leiden_idx 3 (Life and Earth Sciences)
+    field 17 → leiden_idx 1 (Mathematics and Computer Science)
+    """
+    out = run(tmp_path)
+    with duckdb.connect() as db:
+        rows = db.execute(f"""
+            SELECT DISTINCT field_idx, leiden_idx, leiden_name FROM '{out}'
+            ORDER BY field_idx
+        """).fetchall()
+    by_field = {r[0]: (r[1], r[2]) for r in rows}
+    assert by_field[11] == (3, 'Life and Earth Sciences')
+    assert by_field[13] == (3, 'Life and Earth Sciences')
+    assert by_field[17] == (1, 'Mathematics and Computer Science')
+
+
+def test_leiden_idx_not_null(tmp_path):
+    """All rows in the synthetic data have a known leiden_idx (no unmapped fields)."""
+    out = run(tmp_path)
+    with duckdb.connect() as db:
+        nulls = db.execute(
+            f"SELECT COUNT(*) FROM '{out}' WHERE leiden_idx IS NULL"
+        ).fetchone()[0]
+    assert nulls == 0

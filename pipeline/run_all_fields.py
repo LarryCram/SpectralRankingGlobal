@@ -70,7 +70,9 @@ def main():
 
                 if not Path(el_path).exists():
                     t0 = time.time()
-                    n_el = build_edge_list(db, fw_path, cr_path, sc_path, ic_path, run, el_path)
+                    bloc_codes = tuple(settings.blocs.get(run.bloc, ())) if run.bloc else ()
+                    n_el = build_edge_list(db, fw_path, cr_path, sc_path, ic_path, run, el_path,
+                                           bloc_codes=bloc_codes)
                     print(f"  edge list: {n_el:,} rows  [{time.time()-t0:.1f}s]")
                 else:
                     print(f"  edge list: cached  ({el_path})")

@@ -29,6 +29,90 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, load_settings, load_runs, Run
 
+SX_IDX = 1   # sentinel source_idx for ε=1 runs
+IX_IDX = 1   # sentinel institution_idx for ε=1 runs
+
+
+def _add_epsilon_edges(db: duckdb.DuckDBPyConnection,
+                       corpus_refs_path: str) -> None:
+    """
+    Insert cross-field sentinel edges into _edges_out (must already exist).
+
+    Requires _fw (retained works: work_idx, field_weight) and _fi (work×inst
+    rows with inst_weight etc.) and _Ri (within-field R_i per citer work) to
+    exist as temp tables in `db`.
+
+    type1 — retained citer  →  sentinel cited:
+        citer is in _fw; cited is in corpus_refs but NOT in _fw.
+        edge_field_weight = citer_fw / 2   (cited side has zero field weight)
+        R_i = within-field R_i of citer (reuses existing _Ri)
+
+    type2 — sentinel citer  →  retained cited:
+        cited is in _fw; citer is in corpus_refs but NOT in _fw.
+        edge_field_weight = cited_fw / 2   (citer side has zero field weight)
+        R_i = SUM(cited_fw / 2) over all retained works cited by this citer
+    """
+    # type1: retained citer → sentinel cited
+    db.execute(f"""
+        INSERT INTO _edges_out
+        WITH xf_cited AS (
+            SELECT ref.citer_idx, ref.cited_idx
+            FROM '{corpus_refs_path}' ref
+            WHERE ref.citer_idx IN (SELECT work_idx FROM _fw)
+              AND ref.cited_idx  NOT IN (SELECT work_idx FROM _fw)
+        )
+        SELECT
+            ci.work_idx                AS citer_work_idx,
+            ci.source_idx              AS citer_source_idx,
+            ci.institution_idx         AS citer_inst_idx,
+            ci.inst_weight,
+            ci.direct_inst_weight,
+            x.cited_idx                AS cited_work_idx,
+            {SX_IDX}::BIGINT           AS cited_source_idx,
+            {IX_IDX}::BIGINT           AS cited_inst_idx,
+            1.0                        AS cited_inst_weight,
+            1.0                        AS direct_cited_inst_weight,
+            ci.field_weight / 2.0      AS edge_field_weight,
+            ri.R_i
+        FROM xf_cited x
+        JOIN _fi ci ON x.citer_idx = ci.work_idx
+        JOIN _Ri ri ON x.citer_idx = ri.citer_work_idx
+    """)
+
+    # type2: sentinel citer → retained cited
+    db.execute(f"""
+        INSERT INTO _edges_out
+        WITH xf_citer AS (
+            SELECT ref.citer_idx, ref.cited_idx
+            FROM '{corpus_refs_path}' ref
+            WHERE ref.cited_idx  IN (SELECT work_idx FROM _fw)
+              AND ref.citer_idx NOT IN (SELECT work_idx FROM _fw)
+        ),
+        ri_t2 AS (
+            SELECT x.citer_idx AS work_idx,
+                   SUM(fw.field_weight / 2.0) AS R_i
+            FROM xf_citer x
+            JOIN _fw fw ON x.cited_idx = fw.work_idx
+            GROUP BY x.citer_idx
+        )
+        SELECT
+            x.citer_idx                AS citer_work_idx,
+            {SX_IDX}::BIGINT           AS citer_source_idx,
+            {IX_IDX}::BIGINT           AS citer_inst_idx,
+            1.0                        AS inst_weight,
+            1.0                        AS direct_inst_weight,
+            cd.work_idx                AS cited_work_idx,
+            cd.source_idx              AS cited_source_idx,
+            cd.institution_idx         AS cited_inst_idx,
+            cd.inst_weight             AS cited_inst_weight,
+            cd.direct_inst_weight      AS direct_cited_inst_weight,
+            cd.field_weight / 2.0      AS edge_field_weight,
+            ri.R_i
+        FROM xf_citer x
+        JOIN _fi cd ON x.cited_idx = cd.work_idx
+        JOIN ri_t2 ri ON x.citer_idx = ri.work_idx
+    """)
+
 
 def build_edge_list(db: duckdb.DuckDBPyConnection,
                     fw_path: str,
@@ -36,12 +120,17 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
                     sc_path: str,
                     ic_path: str,
                     run: Run,
-                    out_path: str) -> int:
+                    out_path: str,
+                    bloc_codes: tuple = ()) -> int:
     """
     Build field-specific citation edge list parquet for one Run.
 
     Retention filter: source/institution must have weighted_works >= tau * window_years
     in the candidacy tables (Stage 2 output).
+
+    bloc_codes: when non-empty, apply all-in country filter — a work is included only
+    if every institution affiliated with it (in this field+window) has a country_code
+    in bloc_codes.  Pass tuple(settings.blocs[run.bloc]) when run.bloc != ''.
 
     Returns row count of the output edge list.
     """
@@ -49,6 +138,17 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     field_idx = run.field_idx
     tau_s_abs = run.tau_s_abs()
     tau_u_abs = run.tau_u_abs()
+
+    # Dispatch filter column based on run type:
+    #   leiden   (field_idx 1–5)    → filter by leiden_idx
+    #   subfield (field_idx ≥ 1000) → filter by subfield_idx; no aggregation needed
+    #   field    (field_idx 11–36)  → filter by field_idx; aggregate subfields
+    if run.is_leiden:
+        filter_col = 'leiden_idx'
+    elif run.is_subfield:
+        filter_col = 'subfield_idx'
+    else:
+        filter_col = 'field_idx'
 
     # ── 1. Retained units ─────────────────────────────────────────────────────
     db.execute(f"""
@@ -69,17 +169,55 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     print(f"  Retained: {n_s:,} sources, {n_u:,} institutions  "
           f"(τ_s={tau_s_abs:.0f}, τ_u={tau_u_abs:.0f})")
 
-    # ── 2. Flat works for this field + window, filtered to retained units ─────
-    db.execute(f"""
-        CREATE OR REPLACE TEMP TABLE _fi AS
-        SELECT work_idx, source_idx, institution_idx,
-               inst_weight, direct_inst_weight, field_weight
-        FROM '{fw_path}'
-        WHERE field_idx = {field_idx}
-          AND publication_year BETWEEN {tc0} AND {tc1}
-          AND source_idx      IN (SELECT source_idx      FROM _cands_s)
-          AND institution_idx IN (SELECT institution_idx FROM _cands_u)
-    """)
+    # ── 2. Flat works for this field/leiden/subfield + window ─────────────────
+    # All-in bloc filter: exclude any work whose institution set is not fully
+    # within bloc_codes.  Checked across ALL institutions in this group+window
+    # (not just retained units) so even below-tau collaborators trigger exclusion.
+    if bloc_codes:
+        codes_sql = ', '.join(f"'{c}'" for c in bloc_codes)
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _excl_works AS
+            SELECT DISTINCT work_idx FROM '{fw_path}'
+            WHERE {filter_col} = {field_idx}
+              AND publication_year BETWEEN {tc0} AND {tc1}
+              AND country_code NOT IN ({codes_sql})
+        """)
+        n_excl = db.execute("SELECT COUNT(*) FROM _excl_works").fetchone()[0]
+        print(f"  Bloc filter: {n_excl:,} works excluded (not all-in bloc)")
+        bloc_clause = "AND work_idx NOT IN (SELECT work_idx FROM _excl_works)"
+    else:
+        bloc_clause = ""
+
+    # For field and leiden modes, flat_works is at subfield granularity so we
+    # GROUP BY (work, source, institution) to aggregate subfield weights.
+    # For subfield mode, rows are already at the right granularity.
+    if run.is_subfield:
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _fi AS
+            SELECT work_idx, source_idx, institution_idx,
+                   inst_weight, direct_inst_weight, field_weight
+            FROM '{fw_path}'
+            WHERE {filter_col} = {field_idx}
+              AND publication_year BETWEEN {tc0} AND {tc1}
+              AND source_idx      IN (SELECT source_idx      FROM _cands_s)
+              AND institution_idx IN (SELECT institution_idx FROM _cands_u)
+              {bloc_clause}
+        """)
+    else:
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _fi AS
+            SELECT work_idx, source_idx, institution_idx,
+                   ANY_VALUE(inst_weight)        AS inst_weight,
+                   ANY_VALUE(direct_inst_weight) AS direct_inst_weight,
+                   SUM(field_weight)             AS field_weight
+            FROM '{fw_path}'
+            WHERE {filter_col} = {field_idx}
+              AND publication_year BETWEEN {tc0} AND {tc1}
+              AND source_idx      IN (SELECT source_idx      FROM _cands_s)
+              AND institution_idx IN (SELECT institution_idx FROM _cands_u)
+              {bloc_clause}
+            GROUP BY work_idx, source_idx, institution_idx
+        """)
 
     n_rows = db.execute("SELECT COUNT(*) FROM _fi").fetchone()[0]
     n_works = db.execute("SELECT COUNT(DISTINCT work_idx) FROM _fi").fetchone()[0]
@@ -118,33 +256,39 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
 
     # ── 6. Full edge list: expand pairs to (citer_inst × cited_inst) ─────────
     db.execute(f"""
-        COPY (
-            SELECT
-                ci.work_idx          AS citer_work_idx,
-                ci.source_idx        AS citer_source_idx,
-                ci.institution_idx   AS citer_inst_idx,
-                ci.inst_weight,
-                ci.direct_inst_weight,
-                cd.work_idx          AS cited_work_idx,
-                cd.source_idx        AS cited_source_idx,
-                cd.institution_idx   AS cited_inst_idx,
-                cd.inst_weight       AS cited_inst_weight,
-                cd.direct_inst_weight AS direct_cited_inst_weight,
-                p.edge_field_weight,
-                ri.R_i
-            FROM _pairs p
-            JOIN _fi ci ON p.citer_work_idx = ci.work_idx
-            JOIN _fi cd ON p.cited_work_idx = cd.work_idx
-            JOIN _Ri ri ON p.citer_work_idx = ri.citer_work_idx
-        ) TO '{out_path}' (FORMAT PARQUET)
+        CREATE OR REPLACE TEMP TABLE _edges_out AS
+        SELECT
+            ci.work_idx          AS citer_work_idx,
+            ci.source_idx        AS citer_source_idx,
+            ci.institution_idx   AS citer_inst_idx,
+            ci.inst_weight,
+            ci.direct_inst_weight,
+            cd.work_idx          AS cited_work_idx,
+            cd.source_idx        AS cited_source_idx,
+            cd.institution_idx   AS cited_inst_idx,
+            cd.inst_weight       AS cited_inst_weight,
+            cd.direct_inst_weight AS direct_cited_inst_weight,
+            p.edge_field_weight,
+            ri.R_i
+        FROM _pairs p
+        JOIN _fi ci ON p.citer_work_idx = ci.work_idx
+        JOIN _fi cd ON p.cited_work_idx = cd.work_idx
+        JOIN _Ri ri ON p.citer_work_idx = ri.citer_work_idx
     """)
+
+    if run.epsilon:
+        _add_epsilon_edges(db, corpus_refs_path)
+
+    db.execute(f"COPY (SELECT * FROM _edges_out) TO '{out_path}' (FORMAT PARQUET)")
 
     db.execute("DROP TABLE IF EXISTS _cands_s")
     db.execute("DROP TABLE IF EXISTS _cands_u")
+    db.execute("DROP TABLE IF EXISTS _excl_works")
     db.execute("DROP TABLE IF EXISTS _fi")
     db.execute("DROP TABLE IF EXISTS _fw")
     db.execute("DROP TABLE IF EXISTS _pairs")
     db.execute("DROP TABLE IF EXISTS _Ri")
+    db.execute("DROP TABLE IF EXISTS _edges_out")
 
     return db.execute(f"SELECT COUNT(*) FROM '{out_path}'").fetchone()[0]
 
@@ -176,10 +320,13 @@ def main():
         db.execute(f"SET memory_limit = '{settings.memory_limit}'")
         db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
 
+        bloc_codes = tuple(settings.blocs.get(run.bloc, ())) if run.bloc else ()
         print(f"Building edge list: field={run.field_idx}, window={run.window}, "
-              f"τ_s={run.tau_s}/yr, τ_u={run.tau_u}/yr, label={run.label!r} ...")
+              f"τ_s={run.tau_s}/yr, τ_u={run.tau_u}/yr, label={run.label!r}"
+              + (f", bloc={run.bloc!r} ({len(bloc_codes)} countries)" if bloc_codes else "") + " ...")
         t0 = time.time()
-        n = build_edge_list(db, fw_path, cr_path, sc_path, ic_path, run, out_path)
+        n = build_edge_list(db, fw_path, cr_path, sc_path, ic_path, run, out_path,
+                            bloc_codes=bloc_codes)
         elapsed = time.time() - t0
 
         print(f"  Edge list rows: {n:,}")

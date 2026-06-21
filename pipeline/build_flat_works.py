@@ -1,5 +1,5 @@
 """
-build_flat_works.py — Build the flat works table: one row per (work × institution × field).
+build_flat_works.py — Build the flat works table: one row per (work × institution × subfield).
 
 Filters applied:
   - publication_year 2016–2025
@@ -22,11 +22,20 @@ Schema:
   publication_year       BIGINT
   source_idx             BIGINT
   institution_idx        BIGINT
+  country_code           VARCHAR  -- institution's country (ISO 3166-1 alpha-2)
   inst_weight            DOUBLE   -- author-fractional: SUM(1/n_authors/n_inst_per_author)
   direct_inst_weight     DOUBLE   -- institution-fractional: 1/n_qualifying_institutions
-  field_idx              BIGINT
-  field_weight           DOUBLE   -- score-normalised, sums to 1 per work across fields
+  subfield_idx           BIGINT   -- OA subfield index (1100–3616); row granularity
+  subfield_name          VARCHAR  -- OA subfield name
+  field_idx              BIGINT   -- OA field index (11–36); one per subfield
+  field_weight           DOUBLE   -- subfield weight; sums to 1 per work across all subfields
+  leiden_idx             BIGINT   -- CWTS Leiden main field (1–5); derived from field_idx
+  leiden_name            VARCHAR  -- CWTS Leiden main field name
   referenced_works_count BIGINT
+
+Row granularity: one row per (work × institution × subfield).
+field-level weight  = SUM(field_weight WHERE field_idx  = X) per (work, institution).
+leiden-level weight = SUM(field_weight WHERE leiden_idx = L) per (work, institution).
 """
 
 import sys
@@ -62,7 +71,8 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
     db.execute(f"""
         CREATE OR REPLACE TEMP TABLE _valid_inst AS
         SELECT CAST(REGEXP_REPLACE(id, 'https://openalex.org/I', '') AS BIGINT)
-                   AS institution_idx
+                   AS institution_idx,
+               country_code
         FROM '{institutions_path}'
         WHERE type IN ({inst_types})
     """)
@@ -112,21 +122,23 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
         )
         SELECT a.work_idx,
                a.institution_idx,
-               SUM(1.0 / wac.n_authors / aic.n_inst) AS inst_weight,
-               1.0 / ANY_VALUE(wic.n_institutions)    AS direct_inst_weight
+               ANY_VALUE(vi.country_code)              AS country_code,
+               SUM(1.0 / wac.n_authors / aic.n_inst)  AS inst_weight,
+               1.0 / ANY_VALUE(wic.n_institutions)     AS direct_inst_weight
         FROM auth a
         JOIN wac ON a.work_idx = wac.work_idx
         JOIN aic ON a.work_idx = aic.work_idx AND a.author_idx = aic.author_idx
         JOIN wic ON a.work_idx = wic.work_idx
+        JOIN _valid_inst vi ON a.institution_idx = vi.institution_idx
         GROUP BY a.work_idx, a.institution_idx
     """)
 
     db.execute(f"""
         CREATE OR REPLACE TEMP TABLE _top AS
-        SELECT work_idx, field_idx, SUM(score) AS field_score
+        SELECT work_idx, subfield_idx, subfield_name, field_idx, SUM(score) AS subfield_score
         FROM '{topics_path}'
         WHERE work_idx IN (SELECT work_idx FROM _fw)
-        GROUP BY work_idx, field_idx
+        GROUP BY work_idx, subfield_idx, subfield_name, field_idx
     """)
 
     # ── pass 3: join small tables and write output ────────────────────────────
@@ -135,13 +147,29 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
         COPY (
         WITH
         work_total_scores AS (
-            SELECT work_idx, SUM(field_score) AS total_score
+            SELECT work_idx, SUM(subfield_score) AS total_score
             FROM _top GROUP BY work_idx
         ),
         fw_fields AS (
             SELECT t.work_idx,
+                   t.subfield_idx,
+                   t.subfield_name,
                    t.field_idx,
-                   t.field_score / wts.total_score AS field_weight
+                   t.subfield_score / wts.total_score AS field_weight,
+                   CASE
+                       WHEN t.field_idx IN (17, 26)                     THEN 1
+                       WHEN t.field_idx IN (15, 16, 21, 22, 25, 31)     THEN 2
+                       WHEN t.field_idx IN (11, 13, 19, 23, 24)         THEN 3
+                       WHEN t.field_idx IN (27, 28, 29, 30, 34, 35, 36) THEN 4
+                       WHEN t.field_idx IN (12, 14, 18, 20, 32, 33)     THEN 5
+                   END AS leiden_idx,
+                   CASE
+                       WHEN t.field_idx IN (17, 26)                     THEN 'Mathematics and Computer Science'
+                       WHEN t.field_idx IN (15, 16, 21, 22, 25, 31)     THEN 'Physical Sciences and Engineering'
+                       WHEN t.field_idx IN (11, 13, 19, 23, 24)         THEN 'Life and Earth Sciences'
+                       WHEN t.field_idx IN (27, 28, 29, 30, 34, 35, 36) THEN 'Biomedical and Health Sciences'
+                       WHEN t.field_idx IN (12, 14, 18, 20, 32, 33)     THEN 'Social Sciences and Humanities'
+                   END AS leiden_name
             FROM _top t
             JOIN work_total_scores wts ON t.work_idx = wts.work_idx
         )
@@ -150,10 +178,15 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
             fw.publication_year,
             fw.source_idx,
             iw.institution_idx,
+            iw.country_code,
             iw.inst_weight,
             iw.direct_inst_weight,
+            ff.subfield_idx,
+            ff.subfield_name,
             ff.field_idx,
             ff.field_weight,
+            ff.leiden_idx,
+            ff.leiden_name,
             fw.referenced_works_count
         FROM _fw fw
         JOIN _iw      iw ON fw.work_idx = iw.work_idx

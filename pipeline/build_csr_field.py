@@ -31,6 +31,9 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import Run
 
+SX_IDX = 1   # sentinel source_idx for ε=1 runs
+IX_IDX = 1   # sentinel institution_idx for ε=1 runs
+
 # Re-use the CSRData dataclass from ZARCHIVE — import directly rather than
 # duplicating; if it moves, update this import.
 sys.path.insert(0, str(Path(__file__).parent))
@@ -98,6 +101,19 @@ def build_csr_field(db: duckdb.DuckDBPyConnection,
         ORDER BY ic.institution_idx
     """).df()
 
+    # ── ε: inject sentinel units (not in candidacy tables) ───────────────────────
+    if run.epsilon:
+        if SX_IDX not in src_df['source_idx'].values:
+            src_df = pd.concat([
+                pd.DataFrame({'source_idx': [SX_IDX], 'a_p': [1.0]}),
+                src_df,
+            ], ignore_index=True).sort_values('source_idx').reset_index(drop=True)
+        if IX_IDX not in inst_df['institution_idx'].values:
+            inst_df = pd.concat([
+                pd.DataFrame({'institution_idx': [IX_IDX], 'a_p': [1.0]}),
+                inst_df,
+            ], ignore_index=True).sort_values('institution_idx').reset_index(drop=True)
+
     source_ids = src_df['source_idx'].to_numpy(dtype=np.int64)
     inst_ids   = inst_df['institution_idx'].to_numpy(dtype=np.int64)
     a_s = src_df['a_p'].to_numpy(dtype=np.float64)
@@ -115,14 +131,24 @@ def build_csr_field(db: duckdb.DuckDBPyConnection,
     else:
         rho_expr = "1.0"
 
+    # ── ω: select author-fractional (ω=0) or direct 1/N_inst (ω=1) weights ──
+    iw_col  = "direct_inst_weight"       if run.omega else "inst_weight"
+    ciw_col = "direct_cited_inst_weight" if run.omega else "cited_inst_weight"
+
+    # ── β: exclude (source, inst) unit self-references ────────────────────────
+    beta_clause = ("WHERE NOT (citer_source_idx = cited_source_idx "
+                   "AND citer_inst_idx = cited_inst_idx)") if run.beta else ""
+
     # ── Slim working table with ew pre-computed ───────────────────────────────
     db.execute(f"""
         CREATE OR REPLACE TEMP TABLE _el AS
         SELECT citer_work_idx, citer_source_idx, citer_inst_idx,
                cited_work_idx,  cited_source_idx, cited_inst_idx,
-               inst_weight, cited_inst_weight,
+               {iw_col}  AS inst_weight,
+               {ciw_col} AS cited_inst_weight,
                edge_field_weight * {rho_expr} AS ew
         FROM '{el_path}'
+        {beta_clause}
     """)
 
     src_idx  = pd.Index(source_ids)
@@ -178,9 +204,14 @@ def build_csr_field(db: duckdb.DuckDBPyConnection,
 
     db.execute("DROP TABLE IF EXISTS _el")
 
+    is_sentinel_s = (source_ids == SX_IDX) if run.epsilon else None
+    is_sentinel_u = (inst_ids   == IX_IDX) if run.epsilon else None
+
     return CSRData(
         C_SS=C_SS, C_SI=C_SI, C_IS=C_IS, C_II=C_II,
         source_ids=source_ids, inst_ids=inst_ids,
         a_s=a_s, a_u=a_u,
         n_s=n_s, n_u=n_u,
+        is_sentinel_s=is_sentinel_s,
+        is_sentinel_u=is_sentinel_u,
     )
