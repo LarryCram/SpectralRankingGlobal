@@ -103,6 +103,38 @@ WORKING/
   Fixed with `SELECT DISTINCT work_idx, source_idx, field_idx, field_weight` before summing.
   Institution candidacy (`SUM(field_weight * inst_weight)`) was correct.
 
+## Field index mapping (OA → CWTS Leiden)
+26 OA fields, `field_idx` 11–36. OA Domain is OpenAlex's own grouping; CWTS Leiden Main Field is the Leiden Ranking grouping used for cross-field comparisons.
+
+| field_idx | OA Field                                      | OA Domain        | CWTS Leiden Main Field                  |
+|-----------|-----------------------------------------------|------------------|-----------------------------------------|
+| 11        | Agricultural and Biological Sciences          | Life Sciences    | 3. Life and Earth Sciences              |
+| 12        | Arts and Humanities                           | Social Sciences  | 5. Social Sciences and Humanities       |
+| 13        | Biochemistry, Genetics and Molecular Biology  | Life Sciences    | 3. Life and Earth Sciences              |
+| 14        | Business, Management and Accounting           | Social Sciences  | 5. Social Sciences and Humanities       |
+| 15        | Chemical Engineering                          | Physical Sciences| 2. Physical Sciences and Engineering    |
+| 16        | Chemistry                                     | Physical Sciences| 2. Physical Sciences and Engineering    |
+| 17        | Computer Science                              | Physical Sciences| 1. Mathematics and Computer Science     |
+| 18        | Decision Sciences                             | Social Sciences  | 5. Social Sciences and Humanities       |
+| 19        | Earth and Planetary Sciences                  | Physical Sciences| 3. Life and Earth Sciences              |
+| 20        | Economics, Econometrics and Finance           | Social Sciences  | 5. Social Sciences and Humanities       |
+| 21        | Energy                                        | Physical Sciences| 2. Physical Sciences and Engineering    |
+| 22        | Engineering                                   | Physical Sciences| 2. Physical Sciences and Engineering    |
+| 23        | Environmental Science                         | Physical Sciences| 3. Life and Earth Sciences              |
+| 24        | Immunology and Microbiology                   | Life Sciences    | 3. Life and Earth Sciences              |
+| 25        | Materials Science                             | Physical Sciences| 2. Physical Sciences and Engineering    |
+| 26        | Mathematics                                   | Physical Sciences| 1. Mathematics and Computer Science     |
+| 27        | Medicine                                      | Health Sciences  | 4. Biomedical and Health Sciences       |
+| 28        | Neuroscience                                  | Life Sciences    | 4. Biomedical and Health Sciences       |
+| 29        | Nursing                                       | Health Sciences  | 4. Biomedical and Health Sciences       |
+| 30        | Pharmacology, Toxicology and Pharmaceutics    | Life Sciences    | 4. Biomedical and Health Sciences       |
+| 31        | Physics and Astronomy                         | Physical Sciences| 2. Physical Sciences and Engineering    |
+| 32        | Psychology                                    | Social Sciences  | 5. Social Sciences and Humanities       |
+| 33        | Social Sciences                               | Social Sciences  | 5. Social Sciences and Humanities       |
+| 34        | Veterinary                                    | Health Sciences  | 4. Biomedical and Health Sciences       |
+| 35        | Dentistry                                     | Health Sciences  | 4. Biomedical and Health Sciences       |
+| 36        | Health Professions                            | Health Sciences  | 4. Biomedical and Health Sciences       |
+
 ## Spectral gap by field (window 2020_2024, bipartite m=(0,1,1,0))
 Small gap = near-reducible internal structure (sub-communities); large gap = unified hierarchy.
 The bipartite walk blends through institutions — only joint source+institution co-clusters
@@ -141,3 +173,44 @@ survive as eigenvector signal. The second eigenvector reveals the dominant parti
 - Compute top-k eigenvectors for small-gap fields (Arts, Business, Econ, Vet, Engineering, Maths)
 - Embed sources+institutions in eigenvector space → identify co-clusters / subfield structure
 - The second eigenvector sign-pattern partitions the field into its two dominant sub-communities
+
+## TODO — Leiden main field rankings
+- Aggregate the 26 OA fields into the 5 CWTS Leiden Main Fields (see field index mapping above)
+  and run spectral rankings at that coarser level; analyse how parameter choices (tau, alpha, rho, chi)
+  affect institution and source rankings relative to per-OA-field results
+
+## TODO — Australian HEP heatmap
+- Obtain the official TEQSA/DESE table of Australian Higher Education Providers (HEPs)
+- Match HEPs to OA institutions by name/ROR
+- Build a heatmap: rows = HEPs, columns = fields (or Leiden main fields), colour = rank percentile
+  sorted so that highest-ranked HEPs appear at the bottom-right (ascending rank, descending field score)
+
+## TODO — Subfield rankings
+- Investigate running spectral ranking at the OA subfield level (below the 26 fields)
+  to expose finer disciplinary structure; assess corpus sparsity vs. spectral signal trade-off
+
+## TODO — Parameter audit and unimplemented flags
+Three binary flags exist in `Run` and `runs.yaml` but are not yet wired into the pipeline.
+All three require changes to `build_edge_list_field.py` and `build_csr_field.py`.
+
+### ε — epsilon (cross-boundary sentinel, default 0)
+- ε=0: standard edge list (only within-field citations)
+- ε=1: add dummy sentinel units (`source_idx=1`, `institution_idx=1`) to absorb cross-field
+  citations; their v-scores are masked to NaN after ranking so they don't appear in output.
+  Origin: `EconomicsBusiness/spectral_ranking/build_csr.py` `SX_IDX`/`IX_IDX` logic.
+- TODO: port sentinel-edge injection into `build_edge_list_field.py`; add `is_sentinel_s`/
+  `is_sentinel_u` masks to `CSRData`; update `katz_ranker.py` to mask NaN on output.
+
+### ω — omega (institution weighting mode, default 0)
+- ω=0: **author-fractional** weighting — institution credit proportional to author share
+  (`inst_weight / cited_inst_weight` columns from `flat_works`)
+- ω=1: **direct 1/N_inst** weighting — equal credit per affiliated institution
+  (`direct_inst_weight / direct_cited_inst_weight` columns, not yet in `flat_works`)
+- TODO: add `direct_inst_weight` and `direct_cited_inst_weight` columns to `build_flat_works.py`;
+  wire the column selection into `build_csr_field.py` based on `run.omega`.
+
+### β — beta (unit self-reference exclusion, default 0)
+- β=0: self-references included (baseline)
+- β=1: exclude edges where `citer_source_idx == cited_source_idx`
+  AND `citer_inst_idx == cited_inst_idx` (zeroes the diagonal of C_SS and C_II)
+- TODO: add `WHERE` filter in `build_csr_field.py` `_tmp_el` materialisation when `run.beta == 1`.

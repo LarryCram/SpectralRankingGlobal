@@ -1,0 +1,22 @@
+# settings.yaml — Global pipeline settings (version-controlled)
+# Machine-specific paths remain in config.yaml (gitignored).
+# Run schedule and per-experiment parameters are in params.csv.
+
+corpus:
+  year_min: 2016
+  year_max: 2025
+  source_types:      [journal, conference, "book series"]
+  work_types:        [article, review]
+  institution_types: [education, nonprofit, government, healthcare, other]
+
+duckdb:
+  memory_limit: "56GB"
+  preserve_insertion_order: false
+
+katz:
+  tol:      1.0e-9
+  max_iter: 500
+
+fields:
+  first: 11
+  last:  36

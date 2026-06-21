@@ -19,10 +19,7 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config
-
-YEAR_MIN = 2016
-YEAR_MAX = 2025
+from util import load_config, load_settings, load_runs
 
 
 def build_field_candidacy(db: duckdb.DuckDBPyConnection,
@@ -78,16 +75,18 @@ def build_field_candidacy(db: duckdb.DuckDBPyConnection,
 
 def main():
     import time
-    paths  = load_config()
-    window = '2020_2024'
-    fw     = str(paths.working / f'flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet')
-    out_s  = str(paths.working / f'field_source_cands_{window}.parquet')
-    out_u  = str(paths.working / f'field_inst_cands_{window}.parquet')
+    paths    = load_config()
+    settings = load_settings()
+    runs     = load_runs()
+    window   = runs[0].window
+    fw       = str(paths.working / f'flat_works_{settings.year_min}_{settings.year_max}.parquet')
+    out_s    = str(paths.working / f'field_source_cands_{window}.parquet')
+    out_u    = str(paths.working / f'field_inst_cands_{window}.parquet')
 
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
-        db.execute("SET memory_limit = '56GB'")
-        db.execute("SET preserve_insertion_order = false")
+        db.execute(f"SET memory_limit = '{settings.memory_limit}'")
+        db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
 
         print(f"Building field candidacy for window {window} ...")
         t0 = time.time()

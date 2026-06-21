@@ -22,7 +22,6 @@ Schema:
 """
 
 import sys
-import argparse
 from pathlib import Path
 import time
 
@@ -33,7 +32,7 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from util import load_config, Run
+from util import load_config, load_settings, load_runs, Run
 from build_csr_field import build_csr_field
 from katz_ranker import rank as katz_rank
 
@@ -206,26 +205,16 @@ def show_top(df: pd.DataFrame, unit_type: str, n: int = 20,
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--field', type=int, default=14,
-                        help='field_idx to rank (default: 14 = Business)')
-    args = parser.parse_args()
+    from dataclasses import replace as dc_replace
+    import json
 
-    paths = load_config()
-    working = str(paths.working)
+    paths    = load_config()
+    settings = load_settings()
+    runs     = load_runs()
+    working  = str(paths.working)
 
-    run = Run(
-        window='2020_2024',
-        field_idx=args.field,
-        tau_s=20.0,
-        tau_u=20.0,
-        m=(0, 1, 1, 0),
-        alpha=1.0,
-        rho=0,
-        label='baseline',
-    )
-
-    out_path = str(paths.working / f'rankings_{run.field_idx}_{run.window}.parquet')
+    run      = dc_replace(runs[0], field_idx=14)   # single-field entry point: default field 14
+    out_path = run.rankings_path(working)
 
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', 160)
@@ -233,16 +222,16 @@ def main():
 
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
-        db.execute("SET memory_limit = '56GB'")
+        db.execute(f"SET memory_limit = '{settings.memory_limit}'")
+        db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
 
-        print(f"Ranking field {run.field_idx}, window {run.window} "
+        print(f"Ranking field {run.field_idx}, window {run.window}, label={run.label!r} "
               f"(τ={run.tau_s}/yr, m={run.m}, α={run.alpha}, ρ={run.rho}) ...")
         t0 = time.time()
         df, diag = rank_field(db, run, working, out_path)
         print(f"\n  Total: {time.time()-t0:.1f}s  →  {out_path}")
 
-    import json
-    diag_path = out_path.replace('.parquet', '_diag.json')
+    diag_path = run.diag_path(working)
     Path(diag_path).write_text(json.dumps(diag, indent=2))
     print(f"  Diagnostics → {diag_path}")
 

@@ -34,14 +34,7 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config
-
-YEAR_MIN = 2016
-YEAR_MAX = 2025
-
-SOURCE_TYPES      = ('journal', 'conference', 'book series')
-WORK_TYPES        = ('article', 'review')
-INSTITUTION_TYPES = ('education', 'nonprofit', 'government', 'healthcare', 'other')
+from util import load_config, load_settings
 
 
 def build_flat_works(db: duckdb.DuckDBPyConnection,
@@ -51,15 +44,18 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
                      institutions_path: str,
                      topics_path: str,
                      out_path: str,
-                     year_min: int = YEAR_MIN,
-                     year_max: int = YEAR_MAX) -> int:
+                     year_min: int,
+                     year_max: int,
+                     source_types: tuple,
+                     work_types: tuple,
+                     institution_types: tuple) -> int:
     """
     Build flat works table and write to out_path as parquet.
     Returns row count.
     """
-    src_types  = ', '.join(f"'{t}'" for t in SOURCE_TYPES)
-    work_types = ', '.join(f"'{t}'" for t in WORK_TYPES)
-    inst_types = ', '.join(f"'{t}'" for t in INSTITUTION_TYPES)
+    src_types  = ', '.join(f"'{t}'" for t in source_types)
+    work_types = ', '.join(f"'{t}'" for t in work_types)
+    inst_types = ', '.join(f"'{t}'" for t in institution_types)
 
     # ── pass 1: small lookup tables and filtered works ────────────────────────
 
@@ -196,7 +192,8 @@ def build_corpus_references(db: duckdb.DuckDBPyConnection,
 
 
 def main():
-    paths = load_config()
+    paths    = load_config()
+    settings = load_settings()
 
     works_path        = f"{paths.openalex}/parquet/works/*.parquet"
     sources_path      = f"{paths.openalex}/parquet/sources.parquet"
@@ -204,18 +201,22 @@ def main():
     institutions_path = f"{paths.openalex}/parquet/institutions.parquet"
     topics_path       = f"{paths.openalex}/parquet/topics/*.parquet"
     refs_glob         = f"{paths.openalex}/parquet/references/*.parquet"
-    fw_path           = str(paths.working / f"flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet")
-    cr_path           = str(paths.working / f"corpus_references_{YEAR_MIN}_{YEAR_MAX}.parquet")
+    fw_path  = str(paths.working / f"flat_works_{settings.year_min}_{settings.year_max}.parquet")
+    cr_path  = str(paths.working / f"corpus_references_{settings.year_min}_{settings.year_max}.parquet")
 
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
-        db.execute("SET memory_limit = '56GB'")
-        db.execute("SET preserve_insertion_order = false")
+        db.execute(f"SET memory_limit = '{settings.memory_limit}'")
+        db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
 
         if not Path(fw_path).exists():
-            print(f"Building flat works table ({YEAR_MIN}–{YEAR_MAX}) ...")
-            n = build_flat_works(db, works_path, sources_path, authorships_path,
-                                 institutions_path, topics_path, fw_path)
+            print(f"Building flat works table ({settings.year_min}–{settings.year_max}) ...")
+            n = build_flat_works(
+                db, works_path, sources_path, authorships_path,
+                institutions_path, topics_path, fw_path,
+                settings.year_min, settings.year_max,
+                settings.source_types, settings.work_types, settings.institution_types,
+            )
             print(f"Wrote {n:,} rows → {fw_path}")
         else:
             n = db.execute(f"SELECT COUNT(*) FROM '{fw_path}'").fetchone()[0]

@@ -27,10 +27,7 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, Run
-
-YEAR_MIN = 2016
-YEAR_MAX = 2025
+from util import load_config, load_settings, load_runs, Run
 
 
 def build_edge_list(db: duckdb.DuckDBPyConnection,
@@ -153,33 +150,20 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
 
 
 def main():
-    import argparse
     import time
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--field',  type=int, default=14)
-    parser.add_argument('--window', type=str, default='2020_2024')
-    parser.add_argument('--tau_s',  type=float, default=20.0)
-    parser.add_argument('--tau_u',  type=float, default=20.0)
-    args = parser.parse_args()
+    paths    = load_config()
+    settings = load_settings()
+    runs     = load_runs()
+    run      = runs[0]
 
-    paths = load_config()
+    fw_path  = str(paths.working / f'flat_works_{settings.year_min}_{settings.year_max}.parquet')
+    cr_path  = str(paths.working / f'corpus_references_{settings.year_min}_{settings.year_max}.parquet')
+    sc_path  = run.sc_path(str(paths.working))
+    ic_path  = run.ic_path(str(paths.working))
 
-    run = Run(
-        window=args.window,
-        field_idx=args.field,
-        tau_s=args.tau_s,
-        tau_u=args.tau_u,
-        m=(0, 1, 1, 0),
-        alpha=1.0,
-        rho=0,
-        label='baseline',
-    )
-
-    fw_path   = str(paths.working / f'flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet')
-    cr_path   = str(paths.working / f'corpus_references_{YEAR_MIN}_{YEAR_MAX}.parquet')
-    sc_path   = run.sc_path(str(paths.working))
-    ic_path   = run.ic_path(str(paths.working))
-    out_path  = run.el_path(str(paths.working))
+    from dataclasses import replace
+    run      = replace(run, field_idx=14)   # single-field entry point: default field 14
+    out_path = run.el_path(str(paths.working))
 
     for p in [sc_path, ic_path, cr_path]:
         if not Path(p).exists():
@@ -189,11 +173,11 @@ def main():
 
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
-        db.execute("SET memory_limit = '56GB'")
-        db.execute("SET preserve_insertion_order = false")
+        db.execute(f"SET memory_limit = '{settings.memory_limit}'")
+        db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
 
         print(f"Building edge list: field={run.field_idx}, window={run.window}, "
-              f"τ_s={run.tau_s}/yr, τ_u={run.tau_u}/yr ...")
+              f"τ_s={run.tau_s}/yr, τ_u={run.tau_u}/yr, label={run.label!r} ...")
         t0 = time.time()
         n = build_edge_list(db, fw_path, cr_path, sc_path, ic_path, run, out_path)
         elapsed = time.time() - t0
