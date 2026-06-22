@@ -33,6 +33,7 @@ from run_rankings import rank_field
 
 # (file_label, settings_key)
 BLOCS = [
+    ('OECDG20',    'OECDG20'),
     ('OECDG20CIA', 'OECDG20-CIA'),
     ('CIAA',       'CIAA'),
 ]

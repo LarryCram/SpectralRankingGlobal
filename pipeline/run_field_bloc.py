@@ -28,6 +28,7 @@ from build_edge_list_field import build_edge_list
 from run_rankings import rank_field
 
 BLOCS = [
+    ('OECDG20',    'OECDG20'),
     ('OECDG20CIA', 'OECDG20-CIA'),
     ('CIAA',       'CIAA'),
 ]

@@ -68,6 +68,11 @@ SpectralRankingGlobal/
     leiden_facets.py           #   ✅ 2×5 log(v) vs rank, multi-label overlay
     leiden_bloc_facets.py      #   ✅ baseline vs one comparison per PDF (7 PDFs)
     hep_heatmap.py             #   ✅ AU HEP influence heatmap across 26 fields
+    impact_facets.py           #   🔄 in development
+  enclaves/
+    build_enclave_hcw.py       #   ✅ HCW detection + v attachment (stages E1)
+    tfidf_enclave.py           #   ✅ TF-IDF term lift per field (stage E2)
+    nmf_enclave.py             #   ✅ NMF topic clustering per field (stage E3)
   spectral_analysis/           # next: eigenvector community structure
   util/
     load_config.py             #   load_config() → Paths, load_runs() → list
@@ -112,6 +117,13 @@ WORKING/
   el_{field_idx}_{window}_{label}.parquet   ✅ stage 3; one per (field, label)
   rankings_{field_idx}_{window}_{label}.parquet      ✅ stage 4; ranked units
   rankings_{field_idx}_{window}_{label}_diag.json    ✅ stage 4; diagnostics
+  enclave_hcw_{window}_{label}.parquet     ✅ stage E1; HCW with v scores + titles
+                                             cols: field_idx, work_idx, publication_year,
+                                               source_idx, n_intra, year_threshold,
+                                               source_v, mean_inst_v, mean_citer_v,
+                                               n_citer_hi, n_citer_lo, mean_inst_v, gap, title
+  enclave_tfidf_{window}_{label}.parquet   ✅ stage E2; enclave-distinctive TF-IDF terms
+  enclave_nmf_{window}_{label}.parquet     ✅ stage E3; NMF topic assignments per enclave work
 ```
 `window` = `{census_start}_{census_end}` (e.g. `2020_2024`).
 `field_idx` = OA field 11–36, Leiden group 1–5, or subfield ≥ 1000.
@@ -245,6 +257,43 @@ survive as eigenvector signal. The second eigenvector reveals the dominant parti
 | 3         | Life and Earth Sciences               | 8,475  | 7,008  | 0.572 |
 | 4         | Biomedical and Health Sciences        | 11,585 | 10,069 | 0.423 |
 | 5         | Social Sciences and Humanities        | 16,082 | 7,251  | 0.455 |
+
+## HCW analysis (enclaves/ pipeline)
+
+Identifies Highly Cited Works (HCW) with below-average unit scores — works that punch
+above their citation weight relative to their publishing context.
+
+### Definitions
+- **HCW**: top 1% of `n_intra` (retained-corpus citation count) per `(publication_year, field_idx)`.
+  Year range: 2016–2024. Rankings window: 2020_2024.
+- **n_intra**: count of citations received from any retained work in ANY field
+  (cross-field citations included; citer v = MAX source_v across all fields that work appears in).
+- **work_v**: `(source_v + mean_inst_v) / 2` — equal 50/50 weight between source and institution pool.
+  `mean_inst_v` = unweighted mean v of affiliated institutions in the field's ranking.
+  Null mean_inst_v (no retained institutions) filled with source_v.
+- **HCW with work_v < 1**: ~15% of all HCW (~49,858 / 341,695 total HCW).
+
+### Counts (window 2020_2024, label=baseline)
+341,695 total HCW across 26 fields; ~49,858 have work_v < 1 (~14.6% overall).
+Fraction varies by field: Pharmacology 34.9%, Vet 37.8%, Nursing 29.8% at high end;
+Arts&Hum 7.5%, SocSci 7.9%, Ag&Bio 10.5% at low end.
+
+### Pipeline stages
+- **E1** `build_enclave_hcw.py`: single-pass over flat_works + corpus_references using
+  DuckDB TEMP TABLEs; attaches source_v and mean_inst_v from field rankings; adds titles
+  from OA works parquet. Runtime ~218s. Output: `enclave_hcw_{window}_{label}.parquet`.
+- **E2** `tfidf_enclave.py`: TF-IDF lift analysis comparing HCW with work_v<1 vs rest.
+  Output: `enclave_tfidf_{window}_{label}.parquet`.
+- **E3** `nmf_enclave.py`: NMF topic clustering on HCW titles per field.
+  Adaptive k = min(10, n_enc // 20); min 30 works to run.
+  Output: `enclave_nmf_{window}_{label}.parquet`.
+
+### Connectivity check (Engineering field 22, Maths field 26)
+HCW with work_v < 1 are NOT tightly connected citation rings:
+- Engineering: 2,922 HCW, 259K distinct citers, 0.5% loop rate, 11% internal citation rate
+- Maths: 1,016 HCW, 40K distinct citers, 1.4% loop rate, 25% internal citation rate
+These are large diffuse sub-fields, not orchestrated citation rings (unlike EconBusiness
+where the corpus was more curated and rings were visible against a tighter background).
 
 ## TODO — next: spectral_analysis/
 - Compute top-k eigenvectors for small-gap fields (Arts 0.117, Business 0.091, Econ 0.149, Vet 0.110, Engineering 0.210, Maths 0.332)
