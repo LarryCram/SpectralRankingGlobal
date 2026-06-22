@@ -27,16 +27,9 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from util import load_config, load_settings, load_runs
+from util import load_config, load_settings, load_runs, BLOC_RUNS
 from build_edge_list_field import build_edge_list
 from run_rankings import rank_field
-
-# (file_label, settings_key)
-BLOCS = [
-    ('OECDG20',    'OECDG20'),
-    ('OECDG20CIA', 'OECDG20-CIA'),
-    ('CIAA',       'CIAA'),
-]
 
 
 def main():
@@ -70,7 +63,7 @@ def main():
         if not Path(p).exists():
             raise FileNotFoundError(f"{p} not found — run build_field_candidacy.py first")
 
-    for file_label, bloc_key in BLOCS:
+    for file_label, bloc_key in BLOC_RUNS:
         bloc_codes = settings.blocs[bloc_key]
 
         print(f"\n{'='*72}")

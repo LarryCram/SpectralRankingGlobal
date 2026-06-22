@@ -40,21 +40,11 @@ import duckdb
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings
+from util import load_config, load_settings, FIELD_NAMES
 
 HCW_PCT = 99
 YEAR_LO = 2016
 YEAR_HI = 2024
-
-FIELD_NAMES = {
-    11: 'Ag&Bio',      12: 'Arts&Hum',    13: 'Biochem',     14: 'Business',
-    15: 'ChemEng',     16: 'Chemistry',   17: 'CompSci',     18: 'Decision',
-    19: 'Earth',       20: 'Economics',   21: 'Energy',      22: 'Engineering',
-    23: 'EnvSci',      24: 'Immunol',     25: 'Materials',   26: 'Maths',
-    27: 'Medicine',    28: 'Neurosci',    29: 'Nursing',     30: 'Pharma',
-    31: 'Physics',     32: 'Psychology',  33: 'SocSci',      34: 'Vet',
-    35: 'Dentistry',   36: 'HealthProf',
-}
 
 
 # ── pure-logic functions (no file I/O; testable with synthetic DataFrames) ────
@@ -149,33 +139,45 @@ def build_scratch(
     src_v_all: pd.DataFrame,
 ) -> duckdb.DuckDBPyConnection:
     """
-    Build an in-memory DuckDB with three TEMP TABLEs:
-      retained_works  — one flat_works scan
-      intra_counts    — one corpus_references scan (all fields at once)
-      work_inst       — second flat_works scan
+    Build an in-memory DuckDB with TEMP TABLEs using a single flat_works scan.
+
+    _fw_base        — single flat_works scan (retained works + institution_idx)
+    retained_works  — derived from _fw_base; one row per (field_idx, work_idx)
+    retained_citers — MAX source_v per citer work across all fields
+    intra_counts    — single corpus_references scan (all fields at once)
+    work_inst       — derived from _fw_base; no second parquet scan
+
     Returns the open connection; caller must close it.
     """
     con = duckdb.connect()
     con.register('_src_v', src_v_all)
 
-    print('  Building retained_works (flat_works scan)...')
+    print('  Building _fw_base (single flat_works scan)...')
     t0 = time.time()
     con.execute(f"""
-        CREATE TEMP TABLE retained_works AS
+        CREATE TEMP TABLE _fw_base AS
         SELECT DISTINCT
             fw.field_idx,
             fw.work_idx,
             fw.source_idx,
             fw.publication_year,
-            sv.v AS source_v
+            sv.v            AS source_v,
+            fw.institution_idx
         FROM parquet_scan('{fw_path}') fw
         JOIN _src_v sv
             ON  sv.field_idx  = fw.field_idx
             AND sv.source_idx = fw.source_idx
         WHERE fw.publication_year BETWEEN {YEAR_LO} AND {YEAR_HI}
     """)
+    print(f'  _fw_base done  [{time.time()-t0:.1f}s]')
+
+    con.execute("""
+        CREATE TEMP TABLE retained_works AS
+        SELECT DISTINCT field_idx, work_idx, source_idx, publication_year, source_v
+        FROM _fw_base
+    """)
     n = con.execute("SELECT COUNT(*) FROM retained_works").fetchone()[0]
-    print(f'  retained_works: {n:,} rows  [{time.time()-t0:.1f}s]')
+    print(f'  retained_works: {n:,} rows')
 
     # One row per citer work with its best (MAX) source_v across all fields.
     # Avoids double-counting when a citer is retained in multiple fields.
@@ -198,25 +200,21 @@ def build_scratch(
             COUNT(CASE WHEN rc.source_v > 1 THEN 1 END)   AS n_citer_hi,
             COUNT(CASE WHEN rc.source_v < 1 THEN 1 END)   AS n_citer_lo
         FROM parquet_scan('{cr_path}') cr
-        JOIN retained_citers rc  ON rc.work_idx  = cr.citer_idx
+        JOIN retained_citers rc   ON rc.work_idx  = cr.citer_idx
         JOIN retained_works  rw_d ON rw_d.work_idx = cr.cited_idx
         GROUP BY rw_d.field_idx, rw_d.work_idx
     """)
     n = con.execute("SELECT COUNT(*) FROM intra_counts").fetchone()[0]
     print(f'  intra_counts: {n:,} rows  [{time.time()-t0:.1f}s]')
 
-    print('  Building work_inst (second flat_works scan)...')
-    t0 = time.time()
-    con.execute(f"""
+    con.execute("""
         CREATE TEMP TABLE work_inst AS
-        SELECT DISTINCT fw.work_idx, fw.institution_idx
-        FROM parquet_scan('{fw_path}') fw
-        JOIN (SELECT DISTINCT work_idx FROM retained_works) rw
-            ON rw.work_idx = fw.work_idx
-        WHERE fw.institution_idx IS NOT NULL
+        SELECT DISTINCT work_idx, institution_idx
+        FROM _fw_base
+        WHERE institution_idx IS NOT NULL
     """)
     n = con.execute("SELECT COUNT(*) FROM work_inst").fetchone()[0]
-    print(f'  work_inst: {n:,} rows  [{time.time()-t0:.1f}s]')
+    print(f'  work_inst: {n:,} rows')
 
     return con
 
@@ -254,8 +252,7 @@ def build_enclave_hcw(window: str, label: str, paths, settings) -> pd.DataFrame:
 
     # ── 1. Rankings ──────────────────────────────────────────────────────────
     print('Loading retained units...')
-    all_fields = range(settings.field_first, settings.field_last + 1)
-    src_v_all, inst_v_all = _load_all_rankings(working, window, label, all_fields)
+    src_v_all, inst_v_all = _load_all_rankings(working, window, label, settings.all_fields)
     print(f'  {len(src_v_all):,} (field, source) pairs  '
           f'{len(inst_v_all):,} (field, institution) pairs')
 

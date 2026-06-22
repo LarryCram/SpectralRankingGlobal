@@ -174,69 +174,55 @@ def draw_influence_panel(ax, base_df: pd.DataFrame, cmp_df: pd.DataFrame | None,
 
 # ── figure builders ──────────────────────────────────────────────────────────
 
-def make_ordinal(working: Path, window: str, cmp_label: str,
-                 cmp_disp: str, cmp_color: str, out_path: Path) -> None:
-    fig, axes = plt.subplots(2, 5, figsize=(16, 7), sharey=True,
+def _make_figure(
+    working: Path, window: str, cmp_label: str,
+    cmp_disp: str, cmp_color: str, out_path: Path,
+    draw_fn, figsize: tuple, ylabel_fn, suptitle: str, y: float,
+    sharex: bool = False,
+) -> None:
+    fig, axes = plt.subplots(2, 5, figsize=figsize, sharex=sharex, sharey=True,
                              gridspec_kw={'hspace': 0.38, 'wspace': 0.08})
-
-    for col, lid in enumerate(range(1, 6)):
-        base_df, diag = load_rankings(working, lid, window, 'baseline')
-        cmp_df, _     = load_rankings(working, lid, window, cmp_label) if cmp_label != 'baseline' else (None, {})
+    for col, lid in enumerate(LEIDEN_NAMES):
+        base_df, _ = load_rankings(working, lid, window, 'baseline')
+        cmp_df, _  = load_rankings(working, lid, window, cmp_label) if cmp_label != 'baseline' else (None, {})
         if base_df is None:
             continue
-
         for row, utype in enumerate(('S', 'U')):
-            draw_ordinal_panel(
-                axes[row, col], base_df, cmp_df,
-                unit_type=utype,
-                cmp_color=cmp_color, cmp_disp=cmp_disp,
-                title=_panel_title(row, col, lid),
-                ylabel=r'$\log_{10}(v)$' if col == 0 else '',
-                xlabel=(row == 1),
-            )
-            if col > 0:
+            draw_fn(axes[row, col], base_df, cmp_df,
+                    unit_type=utype, cmp_color=cmp_color, cmp_disp=cmp_disp,
+                    title=_panel_title(row, col, lid),
+                    ylabel=ylabel_fn(col), xlabel=(row == 1))
+            if not sharex and col > 0:
                 axes[row, col].tick_params(labelleft=False)
-
-    fig.suptitle(
-        f'Spectral ranking: baseline vs {cmp_disp}  (window {window})',
-        fontsize=10, y=1.01,
-    )
+    fig.suptitle(suptitle, fontsize=10, y=y)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, bbox_inches='tight', dpi=150)
     print(f'Saved: {out_path}')
     plt.close(fig)
+
+
+def make_ordinal(working: Path, window: str, cmp_label: str,
+                 cmp_disp: str, cmp_color: str, out_path: Path) -> None:
+    _make_figure(
+        working, window, cmp_label, cmp_disp, cmp_color, out_path,
+        draw_fn=draw_ordinal_panel,
+        figsize=(16, 7), sharex=False,
+        ylabel_fn=lambda col: r'$\log_{10}(v)$' if col == 0 else '',
+        suptitle=f'Spectral ranking: baseline vs {cmp_disp}  (window {window})',
+        y=1.01,
+    )
 
 
 def make_influence(working: Path, window: str, cmp_label: str,
                    cmp_disp: str, cmp_color: str, out_path: Path) -> None:
-    fig, axes = plt.subplots(2, 5, figsize=(14, 7),
-                             sharex=True, sharey=True,
-                             gridspec_kw={'hspace': 0.38, 'wspace': 0.08})
-
-    for col, lid in enumerate(range(1, 6)):
-        base_df, _ = load_rankings(working, lid, window, 'baseline')
-        cmp_df, _  = load_rankings(working, lid, window, cmp_label)
-        if base_df is None:
-            continue
-
-        for row, utype in enumerate(('S', 'U')):
-            draw_influence_panel(
-                axes[row, col], base_df, cmp_df,
-                unit_type=utype,
-                cmp_color=cmp_color, cmp_disp=cmp_disp,
-                title=_panel_title(row, col, lid),
-                ylabel=rf'$\log_{{10}}(v_{{\rm {cmp_disp}}})$' if col == 0 else '',
-                xlabel=(row == 1),
-            )
-
-    fig.suptitle(
-        f'Influence comparison: baseline vs {cmp_disp}  (window {window})',
-        fontsize=10, y=1.02,
+    _make_figure(
+        working, window, cmp_label, cmp_disp, cmp_color, out_path,
+        draw_fn=draw_influence_panel,
+        figsize=(14, 7), sharex=True,
+        ylabel_fn=lambda col: rf'$\log_{{10}}(v_{{\rm {cmp_disp}}})$' if col == 0 else '',
+        suptitle=f'Influence comparison: baseline vs {cmp_disp}  (window {window})',
+        y=1.02,
     )
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, bbox_inches='tight', dpi=150)
-    print(f'Saved: {out_path}')
-    plt.close(fig)
 
 
 # ── main ─────────────────────────────────────────────────────────────────────

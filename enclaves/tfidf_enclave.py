@@ -28,17 +28,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config
-
-FIELD_NAMES = {
-    11: 'Ag&Bio',      12: 'Arts&Hum',    13: 'Biochem',     14: 'Business',
-    15: 'ChemEng',     16: 'Chemistry',   17: 'CompSci',     18: 'Decision',
-    19: 'Earth',       20: 'Economics',   21: 'Energy',      22: 'Engineering',
-    23: 'EnvSci',      24: 'Immunol',     25: 'Materials',   26: 'Maths',
-    27: 'Medicine',    28: 'Neurosci',    29: 'Nursing',     30: 'Pharma',
-    31: 'Physics',     32: 'Psychology',  33: 'SocSci',      34: 'Vet',
-    35: 'Dentistry',   36: 'HealthProf',
-}
+from util import load_config, FIELD_NAMES
 
 EPS = 1e-9
 
