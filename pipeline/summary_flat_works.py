@@ -19,8 +19,8 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config
 
-YEAR_MIN = 2016
-YEAR_MAX = 2025
+YEAR_LO = 2000
+YEAR_HI = 2025
 
 
 def section(title: str) -> None:
@@ -104,7 +104,7 @@ def _print_unit_rank_table(db, fw: str, top_p: str, unit: str) -> None:
 
 def main():
     paths   = load_config()
-    fw      = str(paths.working / f"flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet")
+    fw      = str(paths.working / f"flat_works_{YEAR_LO}_{YEAR_HI}.parquet")
     src_p   = f"{paths.openalex}/parquet/sources.parquet"
     inst_p  = f"{paths.openalex}/parquet/institutions.parquet"
     top_p   = f"{paths.openalex}/parquet/topics/*.parquet"

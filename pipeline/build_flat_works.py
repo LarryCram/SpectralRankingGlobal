@@ -2,7 +2,7 @@
 build_flat_works.py — Build the flat works table: one row per (work × institution × subfield).
 
 Filters applied:
-  - publication_year 2016–2025
+  - publication_year 2000–2025
   - type in ('article', 'review')
   - is_paratext = false, is_retracted = false
   - source type in ('journal', 'conference', 'book series')

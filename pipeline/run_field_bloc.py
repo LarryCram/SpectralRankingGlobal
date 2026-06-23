@@ -1,9 +1,11 @@
 """
 run_field_bloc.py — OA field rankings filtered to country blocs.
 
-Runs stages 3+4 for OA field_idx 11–36, for two country blocs:
-  OECDG20CIA : OECDG20 minus {CN, IN, US}  (label: OECDG20CIA)
-  CIAA       : {AU, CN, IN, US}            (label: CIAA)
+Runs stages 3+4 for OA field_idx 11–36 for each entry in BLOC_RUNS:
+  OECDG20     : OECD ∪ G20 (46 countries)
+  OECDG20CIA  : OECDG20 − CIA  (43 countries)
+  CIAA        : {AU, CN, IN, US}
+  BASELINECIA : WORLD − CIA  (all OA countries except CN, IN, US)
 
 Candidacy parquets are global (shared with baseline).
 Both edge lists and rankings are cached by file existence.
@@ -23,7 +25,7 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from util import load_config, load_settings, load_runs, BLOC_RUNS
+from util import load_config, load_settings, load_runs, load_world, BLOC_RUNS, CIA
 from build_edge_list_field import build_edge_list
 from run_rankings import rank_field
 
@@ -41,12 +43,16 @@ def main():
         if not Path(p).exists():
             raise FileNotFoundError(f"{p} not found — run build_flat_works.py first")
 
+    world = load_world(fw_path)
+    blocs = {**settings.blocs, 'BASELINE-CIA': tuple(sorted(world - CIA))}
+    print(f"WORLD: {len(world)} countries  BASELINE-CIA: {len(blocs['BASELINE-CIA'])} countries")
+
     base_run = runs[0]
     sc_path  = base_run.sc_path(working)
     ic_path  = base_run.ic_path(working)
 
     for file_label, bloc_key in BLOC_RUNS:
-        bloc_codes = settings.blocs[bloc_key]
+        bloc_codes = blocs[bloc_key]
 
         print(f"\n{'='*72}")
         print(f"Bloc: {file_label}  ({bloc_key})  {len(bloc_codes)} countries")

@@ -6,6 +6,11 @@ from dataclasses import dataclass, field
 
 VALID_M = frozenset({'1000', '0001', '0110', '1111'})
 
+# Named country sets — combine with set operators to define blocs
+CIA  = frozenset({'CN', 'IN', 'US'})        # China, India, America
+CIAA = frozenset({'AU', 'CN', 'IN', 'US'})  # + Australia
+AU   = frozenset({'AU'})
+
 # CWTS Leiden main field index → OA field_idx members
 LEIDEN_GROUPS: dict[int, tuple[int, ...]] = {
     1: (17, 26),
@@ -34,11 +39,12 @@ FIELD_NAMES: dict[int, str] = {
     35: 'Dentistry',   36: 'HealthProf',
 }
 
-# (file_label, settings_key) pairs for standard country-bloc runs
+# (file_label, blocs_key) pairs for country-bloc runs
 BLOC_RUNS: list[tuple[str, str]] = [
-    ('OECDG20',    'OECDG20'),
-    ('OECDG20CIA', 'OECDG20-CIA'),
-    ('CIAA',       'CIAA'),
+    ('OECDG20',     'OECDG20'),
+    ('OECDG20CIA',  'OECDG20-CIA'),
+    ('CIAA',        'CIAA'),
+    ('BASELINECIA', 'BASELINE-CIA'),   # WORLD − CIA
 ]
 
 

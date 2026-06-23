@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import yaml
 
-from .runs import GlobalSettings, Run, VALID_M
+from .runs import GlobalSettings, Run, VALID_M, CIA, CIAA, AU
 
 _CONFIG_PATH   = Path(__file__).parent.parent / 'config.yaml'
 _SETTINGS_PATH = Path(__file__).parent.parent / 'settings.yaml'
@@ -72,14 +72,13 @@ def _load_blocs(path: Path) -> dict[str, tuple[str, ...]]:
 
     oecd    = base.get('OECD', set())
     g20     = base.get('G20',  set())
-    cia     = {'CN', 'IN', 'US'}
     oecdg20 = oecd | g20
     return {
         **{name: tuple(sorted(codes)) for name, codes in base.items()},
         'OECDG20':     tuple(sorted(oecdg20)),
-        'OECDG20-CIA': tuple(sorted(oecdg20 - cia)),
-        'CIAA':        ('AU', 'CN', 'IN', 'US'),
-        'AU':          ('AU',),
+        'OECDG20-CIA': tuple(sorted(oecdg20 - CIA)),
+        'CIAA':        tuple(sorted(CIAA)),
+        'AU':          tuple(sorted(AU)),
     }
 
 
@@ -105,6 +104,16 @@ def load_settings(settings_path: Path = _SETTINGS_PATH,
         field_last               = int(fi['last']),
         blocs                    = _load_blocs(blocs_path),
     )
+
+
+def load_world(fw_path: str) -> frozenset[str]:
+    """Return all distinct country codes present in flat_works."""
+    import duckdb
+    with duckdb.connect() as db:
+        rows = db.execute(
+            f"SELECT DISTINCT country_code FROM '{fw_path}' WHERE country_code IS NOT NULL"
+        ).fetchall()
+    return frozenset(r[0] for r in rows)
 
 
 def load_runs(runs_path: Path = _RUNS_PATH) -> list[Run]:

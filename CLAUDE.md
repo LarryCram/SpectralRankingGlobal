@@ -56,10 +56,9 @@ SpectralRankingGlobal/
     build_edge_list_field.py   #   ✅ stage 3: field citation edge list
     build_csr_field.py         #   ✅ stage 4a: parquet edge list → CSRData
     run_rankings.py            #   ✅ stage 4b: rank one field
-    run_all_fields.py          #   ✅ orchestrate 26 OA fields
-    run_leiden_fields.py       #   ✅ orchestrate 5 Leiden groups (stages 3+4)
     run_leiden_sensitivity.py  #   ✅ parameter sensitivity suite for Leiden
-    run_leiden_bloc.py         #   ✅ country-bloc Leiden rankings (OECDG20CIA, CIAA)
+    run_leiden_bloc.py         #   ✅ country-bloc Leiden rankings
+    run_field_bloc.py          #   ✅ country-bloc OA field rankings
     show_rankings.py           #   display rankings with OA names
     katz_ranker.py             #   spectral algorithms (Perron/Katz, bipartite) — pure math
     summary_flat_works.py      #   diagnostic summary of flat_works
@@ -132,8 +131,8 @@ WORKING/
 - ✅ Stage 1a: `build_flat_works.py` — flat_works_2016_2025.parquet (153.5M rows, subfield granularity)
 - ✅ Stage 1b: `build_flat_works.py` — corpus_references_2016_2025.parquet (~358M rows)
 - ✅ Stage 2: `build_field_candidacy.py` — all 6 candidacy parquets (field/leiden/subfield × source/inst)
-- ✅ Stage 3+4 baseline: `run_all_fields.py` — all 26 OA fields (label=`baseline`)
-- ✅ Stage 3+4 baseline: `run_leiden_fields.py` — all 5 Leiden groups (label=`baseline`)
+- ✅ Stage 3+4 baseline: `run_field_bloc.py` — all 26 OA fields (label=`baseline`)
+- ✅ Stage 3+4 baseline: `run_leiden_bloc.py` — all 5 Leiden groups (label=`baseline`)
 - ✅ Sensitivity suite: `run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups
 - 🔄 Bloc suite: `run_leiden_bloc.py` — OECDG20CIA, CIAA (in progress / pending)
 
@@ -174,7 +173,7 @@ Candidacy parquets are global (shared with baseline); new edge lists built per b
   Fixed with `SELECT DISTINCT work_idx, source_idx, field_idx, field_weight` before summing.
   Institution candidacy (`SUM(field_weight * inst_weight)`) was correct.
 - **Stale unlabeled ranking files**: runners now write `rankings_{fid}_{window}_{label}.parquet`;
-  old unlabeled files were deleted manually after `run_all_fields.py` was updated.
+  old unlabeled files were deleted manually after the field runner was updated.
 - **DuckDB segfault on large Leiden runs**: using a single connection across all leiden groups
   caused memory accumulation → segfault on leiden 2 (39M citation pairs). Fixed by opening
   a fresh connection per leiden group in the sensitivity and bloc runners.

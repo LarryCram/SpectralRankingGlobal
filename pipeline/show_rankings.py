@@ -20,7 +20,7 @@ import duckdb
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config
+from util import load_config, load_settings
 
 
 def show_rankings(field_idx: int, window: str, n: int = 25) -> None:
@@ -57,8 +57,9 @@ def show_rankings(field_idx: int, window: str, n: int = 25) -> None:
               f"{diag['n_u_ranked']:,} in edge list  ({n_u_drop:,} dropped)")
         print()
 
+    settings = load_settings()
     tc0, tc1 = window.split('_')
-    fw_path = str(paths.working / 'flat_works_2016_2025.parquet')
+    fw_path = str(paths.working / f'flat_works_{settings.year_min}_{settings.year_max}.parquet')
 
     with duckdb.connect() as db:
 

@@ -3,7 +3,7 @@
 # Run schedule and per-experiment parameters are in params.csv.
 
 corpus:
-  year_min: 2016
+  year_min: 2000
   year_max: 2025
   source_types:      [journal, conference, "book series"]
   work_types:        [article, review]

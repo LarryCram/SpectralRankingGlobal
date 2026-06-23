@@ -1,13 +1,18 @@
 """
 run_leiden_bloc.py — Leiden rankings filtered to country blocs.
 
-Runs stages 3+4 for leiden_idx 1–5, for two country blocs:
-  OECDG20CIA : OECDG20 minus {CN, IN, US}  (label in filenames: OECDG20CIA)
-  CIAA       : {AU, CN, IN, US}            (label in filenames: CIAA)
+Runs stages 3+4 for leiden_idx 1–5 for each entry in BLOC_RUNS:
+  OECDG20     : OECD ∪ G20 (46 countries)
+  OECDG20CIA  : OECDG20 − CIA  (43 countries)
+  CIAA        : {AU, CN, IN, US}
+  BASELINECIA : WORLD − CIA  (all OA countries except CN, IN, US)
 
 Bloc filtering is applied at edge list build time (all-in semantics: a work
 is included only if EVERY affiliated institution has a country_code in the
 bloc).  Candidacy parquets are global and shared with the baseline run.
+
+BASELINE-CIA codes are derived at runtime by querying flat_works for all
+distinct country_codes, then subtracting CIA = {CN, IN, US}.
 
 A fresh DuckDB connection is used per leiden group to prevent memory
 accumulation across the large leiden 3/4 edge list builds.
@@ -27,7 +32,7 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from util import load_config, load_settings, load_runs, BLOC_RUNS
+from util import load_config, load_settings, load_runs, load_world, BLOC_RUNS, CIA
 from build_edge_list_field import build_edge_list
 from run_rankings import rank_field
 
@@ -45,6 +50,10 @@ def main():
     for p in [fw_path, cr_path]:
         if not Path(p).exists():
             raise FileNotFoundError(f"{p} not found — run build_flat_works.py first")
+
+    world = load_world(fw_path)
+    blocs = {**settings.blocs, 'BASELINE-CIA': tuple(sorted(world - CIA))}
+    print(f"WORLD: {len(world)} countries  BASELINE-CIA: {len(blocs['BASELINE-CIA'])} countries")
 
     base_run = runs[0]
 
@@ -64,7 +73,7 @@ def main():
             raise FileNotFoundError(f"{p} not found — run build_field_candidacy.py first")
 
     for file_label, bloc_key in BLOC_RUNS:
-        bloc_codes = settings.blocs[bloc_key]
+        bloc_codes = blocs[bloc_key]
 
         print(f"\n{'='*72}")
         print(f"Bloc: {file_label}  ({bloc_key})  {len(bloc_codes)} countries")
