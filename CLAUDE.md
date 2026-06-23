@@ -56,6 +56,7 @@ SpectralRankingGlobal/
     build_edge_list_field.py   #   ✅ stage 3: field citation edge list
     build_csr_field.py         #   ✅ stage 4a: parquet edge list → CSRData
     run_rankings.py            #   ✅ stage 4b: rank one field
+    build_work_v.py            #   ✅ stage 4c: work_v = (v_S + mean(v_I))/2 for all retained works
     run_leiden_sensitivity.py  #   ✅ parameter sensitivity suite for Leiden
     run_leiden_bloc.py         #   ✅ country-bloc Leiden rankings
     run_field_bloc.py          #   ✅ country-bloc OA field rankings
@@ -69,9 +70,12 @@ SpectralRankingGlobal/
     hep_heatmap.py             #   ✅ AU HEP influence heatmap across 26 fields
     impact_facets.py           #   🔄 in development
   enclaves/
-    build_enclave_hcw.py       #   ✅ HCW detection + v attachment (stages E1)
+    build_enclave_hcw.py       #   ✅ HCW detection + v attachment (stage E1)
     tfidf_enclave.py           #   ✅ TF-IDF term lift per field (stage E2)
     nmf_enclave.py             #   ✅ NMF topic clustering per field (stage E3)
+    network_enclave.py         #   ✅ 1-hop citation network per enclave (stage E4)
+    researcher_enclaves.py     #   ✅ top-3 frequent authors per enclave network (stage E5)
+    reports/                   #   per-field MD reports (network + researcher)
   spectral_analysis/           # next: eigenvector community structure
   util/
     load_config.py             #   load_config() → Paths, load_runs() → list
@@ -123,6 +127,17 @@ WORKING/
                                                n_citer_hi, n_citer_lo, mean_inst_v, gap, title
   enclave_tfidf_{window}_{label}.parquet   ✅ stage E2; enclave-distinctive TF-IDF terms
   enclave_nmf_{window}_{label}.parquet     ✅ stage E3; NMF topic assignments per enclave work
+  work_v_{window}_{label}.parquet          ✅ stage 4c; work_v for all retained works
+                                             cols: work_idx, field_idx, source_v,
+                                               mean_inst_v (null if no retained insts),
+                                               work_v = (source_v + COALESCE(mean_inst_v,source_v))/2
+                                             59,783,745 rows across 26 OA fields
+```
+Stage E4 + E5 outputs are MD files in `enclaves/reports/`:
+```
+enclaves/reports/
+  {fid}_{window}_{label}.md              ✅ stage E4; 1-hop network report per field
+  {fid}_{window}_{label}_researchers.md  ✅ stage E5; top-3 authors per enclave per field
 ```
 `window` = `{census_start}_{census_end}` (e.g. `2020_2024`).
 `field_idx` = OA field 11–36, Leiden group 1–5, or subfield ≥ 1000.
@@ -134,7 +149,17 @@ WORKING/
 - ✅ Stage 3+4 baseline: `run_field_bloc.py` — all 26 OA fields (label=`baseline`)
 - ✅ Stage 3+4 baseline: `run_leiden_bloc.py` — all 5 Leiden groups (label=`baseline`)
 - ✅ Sensitivity suite: `run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups
+- ✅ Stage 4c: `build_work_v.py` — work_v_2020_2024_baseline.parquet (59.8M rows, 13.7s)
 - 🔄 Bloc suite: `run_leiden_bloc.py` — OECDG20CIA, CIAA (in progress / pending)
+- ✅ Stage E1–E3: HCW detection, TF-IDF, NMF — all 26 fields
+- ✅ Stage E4: `network_enclave.py` — 181 enclave network MD reports (26 fields)
+  - Summary cols: n_hcw--, ⟨v⟩--, ⟨v⟩net, n_hcw-+/%-+, n_hcw+-/%+-, n_hcw++/%++,
+                  citers, loop%, n_comp, lg_hcw, lg%
+  - ⟨v⟩net covers ALL 1-hop network works (seeds + citers) with retained source
+- ✅ Stage E5: `researcher_enclaves.py` — 26 researcher MD reports
+  - Top-3 authors per enclave by distinct works in the 1-hop network
+  - Fields: display_name, h_index, works_count, cited_by_count, in_network count
+  - One DuckDB pass over all 1980 authorship partitions (25M rows, 4.6s)
 
 ## Sensitivity variants (Leiden, window 2020_2024)
 Five one-at-a-time parameter variants against the baseline (τ=10, ρ=0, ε=0, ω=0, β=0):
@@ -264,7 +289,7 @@ above their citation weight relative to their publishing context.
 
 ### Definitions
 - **HCW**: top 1% of `n_intra` (retained-corpus citation count) per `(publication_year, field_idx)`.
-  Year range: 2016–2024. Rankings window: 2020_2024.
+  Year range: 2014–2023 (10-year window). Rankings window: 2020_2024.
 - **n_intra**: count of citations received from any retained work in ANY field
   (cross-field citations included; citer v = MAX source_v across all fields that work appears in).
 - **work_v**: `(source_v + mean_inst_v) / 2` — equal 50/50 weight between source and institution pool.

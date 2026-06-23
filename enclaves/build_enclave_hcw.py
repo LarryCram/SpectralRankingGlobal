@@ -15,7 +15,7 @@ Three measurements per HCW:
   mean_inst_v : mean v across distinct affiliated institutions
   gap         : source_v − mean_inst_v
 
-Publication year range: YEAR_LO_HCW–YEAR_HI_HCW (2016–2024); flat_works begins 2000 but pre-2016 OA coverage is too sparse for HCW analysis.
+Publication year range: YEAR_LO_HCW–YEAR_HI_HCW (2014–2023); 10-year window.
 
 Strategy for scale (153M flat_works, 358M corpus_references):
   Phase 1 — in-memory DuckDB TEMP TABLEs (two flat_works scans, one corpus_references scan):
@@ -43,9 +43,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, load_settings, FIELD_NAMES
 
 HCW_PCT = 99
-YEAR_LO         = 2000  # flat_works corpus start
-YEAR_LO_HCW = 2016  # HCW analysis start (pre-2016 OA coverage too sparse)
-YEAR_HI_HCW = 2024
+YEAR_LO     = 2000  # flat_works corpus start
+YEAR_LO_HCW = 2014  # HCW analysis start: 10-year window 2014–2023
+YEAR_HI_HCW = 2023
 
 
 # ── pure-logic functions (no file I/O; testable with synthetic DataFrames) ────

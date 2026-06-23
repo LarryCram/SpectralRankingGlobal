@@ -23,7 +23,7 @@ source rankings and institution rankings; the bipartite spectral machinery
 ## Scale
 
 - ~2000 institutions
-- ~2000 journals
+s- ~2000 journals
 
 ## OA topic hierarchy
 

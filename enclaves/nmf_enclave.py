@@ -106,7 +106,15 @@ def compute_enclave_nmf(
 
         t0 = time.time()
         W, labels = compute_field_nmf(titles, k, seed)
-        topic_idx = W.argmax(axis=1)
+        topic_idx_raw = W.argmax(axis=1)
+
+        # sort topics by size descending; remap indices so topic 0 is largest
+        counts = np.bincount(topic_idx_raw, minlength=k)
+        order  = counts.argsort()[::-1]          # original idx → rank position
+        remap  = np.empty(k, dtype=int)
+        remap[order] = np.arange(k)
+        topic_idx    = remap[topic_idx_raw]
+        labels       = [labels[o] for o in order]
 
         print(f'  field {fid:>3} {FIELD_NAMES.get(fid,"?"):>12}: '
               f'n_enc={n_enc:>5,}  k={k}  [{time.time()-t0:.1f}s]')
@@ -142,14 +150,194 @@ def print_summary(result: pd.DataFrame) -> None:
             print(f'    topic {t}: n={len(tgrp):>4,}  {lbl}')
 
 
+def apply_names(nmf_path: Path, field_idx: int, json_src: str) -> None:
+    """
+    Apply Claude's merge+name JSON to the NMF parquet for one field.
+
+    json_src : path to a JSON file, or '-' to read from stdin.
+
+    Merge semantics: all topic_idx values in a merge set are remapped to the
+    minimum index in that set.  topic_name is set from the names dict.
+    Saves the parquet in place and prints the resulting named summary.
+    """
+    import json
+
+    if json_src == '-':
+        payload = json.loads(sys.stdin.read())
+    elif json_src.lstrip().startswith('{'):
+        payload = json.loads(json_src)
+    else:
+        payload = json.loads(Path(json_src).read_text())
+
+    merges: list[list[int]] = [[int(i) for i in m] for m in payload.get('merges', [])]
+    names:  dict[int, str]  = {int(k): v for k, v in payload['names'].items()}
+
+    # build remap: absorbed indices → canonical (lowest) index
+    remap: dict[int, int] = {}
+    for merge_set in merges:
+        canon = min(merge_set)
+        for idx in merge_set:
+            remap[idx] = canon
+
+    df = pd.read_parquet(nmf_path)
+    mask = df['field_idx'] == field_idx
+    if not mask.any():
+        print(f'ERROR: field_idx={field_idx} not in {nmf_path.name}')
+        sys.exit(1)
+
+    if remap:
+        df.loc[mask, 'topic_idx'] = df.loc[mask, 'topic_idx'].replace(remap)
+
+    if 'topic_name' not in df.columns:
+        df['topic_name'] = ''
+    df.loc[mask, 'topic_name'] = df.loc[mask, 'topic_idx'].replace(names).where(
+        df.loc[mask, 'topic_idx'].isin(names), ''
+    )
+
+    df.to_parquet(nmf_path, index=False)
+
+    field_name = FIELD_NAMES.get(field_idx, str(field_idx))
+    print(f'{field_idx} {field_name}  →  {nmf_path.name}')
+    grp = df[mask].groupby('topic_idx').agg(
+        n    = ('work_idx',    'count'),
+        name = ('topic_name',  'first'),
+        terms= ('topic_label', 'first'),
+    ).sort_values('n', ascending=False)
+    for tid, row in grp.iterrows():
+        print(f'  {int(tid):>2}  n={int(row["n"]):>4,}  '  # type: ignore[arg-type]
+              f'{str(row["name"]):30s}  {row["terms"]}')
+
+
+def _build_prompt(nmf_path: Path, field_idx: int) -> str:
+    """Build and return the merge+name prompt string for one field."""
+    if not nmf_path.exists():
+        print(f'ERROR: {nmf_path} not found — run nmf_enclave.py first')
+        sys.exit(1)
+    df = pd.read_parquet(nmf_path)
+    grp = df[df['field_idx'] == field_idx]
+    if grp.empty:
+        print(f'ERROR: field_idx={field_idx} not found in {nmf_path.name}')
+        sys.exit(1)
+
+    field_name = FIELD_NAMES.get(field_idx, str(field_idx))
+    topics = (
+        grp.groupby('topic_idx')
+        .agg(n=('work_idx', 'count'), terms=('topic_label', 'first'))
+        .sort_index()
+        .reset_index()
+    )
+
+    lines = [
+        f'Field: {field_name} (field_idx={field_idx})',
+        f'These are NMF topic groups from enclave works (highly cited, low-influence',
+        f'source and citing context) clustered by TF-IDF of their titles.',
+        f'Each group is described by its top TF-IDF terms ("|" separated).',
+        f'',
+        f'Tasks (in order):',
+        f'1. Identify groups that represent the same research area and should be merged.',
+        f'   List each merge as a set of group indices.',
+        f'2. Name each resulting group (≤3 words). For merged groups use the lowest',
+        f'   index in the merge set as the key. Omit indices absorbed into a merge.',
+        f'',
+        f'Return ONLY a JSON object:',
+        f'  "merges": [[i, j, ...], ...]  — omit key if no merges',
+        f'  "names":  {{"idx": "name", ...}}  — one entry per resulting group',
+        f'',
+        f'Groups:',
+    ]
+    for _, row in topics.iterrows():
+        lines.append(f'  {int(row["topic_idx"])}: n={int(row["n"]):,}  {row["terms"]}')
+    return '\n'.join(lines)
+
+
+def print_claude_prompt(nmf_path: Path, field_idx: int) -> None:
+    print(_build_prompt(nmf_path, field_idx))
+
+
+def auto_name_field(nmf_path: Path, field_idx: int,
+                    model: str = 'gemini-2.5-flash') -> None:
+    """
+    Call the Gemini API (via OpenAI-compatible endpoint) to merge and name
+    NMF topics for one field, then apply results to the parquet.
+
+    Requires GEMINI_API_KEY environment variable.
+    """
+    import json
+    import os
+    from openai import OpenAI
+
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent.parent / '.env')
+
+    api_key = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
+    if not api_key:
+        print('ERROR: set GEMINI_API_KEY in .env or environment')
+        sys.exit(1)
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url='https://generativelanguage.googleapis.com/v1beta/openai/',
+    )
+
+    prompt = _build_prompt(nmf_path, field_idx)
+    field_name = FIELD_NAMES.get(field_idx, str(field_idx))
+    print(f'  field {field_idx} {field_name} — calling {model}...')
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{'role': 'user', 'content': prompt}],
+    )
+    raw = (response.choices[0].message.content or '').strip()
+
+    # strip markdown fences if the model wraps the JSON
+    if raw.startswith('```'):
+        raw = '\n'.join(raw.split('\n')[1:]).rstrip('`').strip()
+
+    print(f'  {raw}')
+    try:
+        json.loads(raw)  # validate before applying
+    except json.JSONDecodeError as e:
+        print(f'ERROR: response is not valid JSON — {e}')
+        print(f'  full response ({len(raw)} chars): {repr(raw)}')
+        sys.exit(1)
+
+    apply_names(nmf_path, field_idx, raw)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--window', default='2020_2024')
-    parser.add_argument('--label',  default='baseline')
-    parser.add_argument('--nmf-k',  type=int, default=10)
+    parser.add_argument('--window',       default='2020_2024')
+    parser.add_argument('--label',        default='baseline')
+    parser.add_argument('--nmf-k',        type=int, default=10)
+    parser.add_argument('--prompt-field',    type=int, default=0,
+                        help='print naming prompt for this field_idx and exit')
+    parser.add_argument('--apply-names',     default='',
+                        help='JSON file (or - for stdin) with merges+names; '
+                             'requires --prompt-field to specify the field')
+    parser.add_argument('--auto-name-field', type=int, default=0,
+                        help='call Gemini API to merge+name topics for this field_idx')
+    parser.add_argument('--model',           default='gemini-2.5-flash',
+                        help='Gemini model for --auto-name-field (default: gemini-2.0-flash)')
     args = parser.parse_args()
 
-    paths    = load_config()
+    paths = load_config()
+    nmf_path = paths.working / f'enclave_nmf_{args.window}_{args.label}.parquet'
+
+    if args.auto_name_field:
+        auto_name_field(nmf_path, args.auto_name_field, model=args.model)
+        return
+
+    if args.apply_names:
+        if not args.prompt_field:
+            print('ERROR: --apply-names requires --prompt-field <field_idx>')
+            sys.exit(1)
+        apply_names(nmf_path, args.prompt_field, args.apply_names)
+        return
+
+    if args.prompt_field:
+        print_claude_prompt(nmf_path, args.prompt_field)
+        return
+
     hcw_path = paths.working / f'enclave_hcw_{args.window}_{args.label}.parquet'
     if not hcw_path.exists():
         print(f'ERROR: {hcw_path} not found — run build_enclave_hcw.py first')
