@@ -6,3 +6,15 @@ __pycache__/
 .DS_Store
 .env
 
+# LaTeX build artifacts
+latex_*/*.aux
+latex_*/*.bbl
+latex_*/*.blg
+latex_*/*.fdb_latexmk
+latex_*/*.fls
+latex_*/*.log
+latex_*/*.out
+latex_*/*.synctex.gz
+latex_*/*.toc
+latex_*/*.lof
+latex_*/*.lot

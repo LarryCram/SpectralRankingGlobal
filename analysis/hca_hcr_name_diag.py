@@ -50,15 +50,25 @@ def _alpha_len(s: str) -> int:
     return sum(c.isalpha() for c in s)
 
 
+def _de_umlaut(s: str) -> str:
+    """Collapse German umlaut digraphs: ae→a, oe→o, ue→u."""
+    for dig, rep in [('ae', 'a'), ('oe', 'o'), ('ue', 'u')]:
+        s = s.replace(dig, rep)
+    return s
+
+
 def _parse_hcr_name(first: str, last: str) -> tuple[str, str, str]:
     """
     Returns (last_norm, first_norm, first_initial) for a HCR entry.
-    Uses nameparser so middle initials in the First Name field are stripped.
+    Passes the full name to nameparser so that Jr./III land in suffix and
+    parenthetical nicknames land in nickname — both stripped from last/first.
+    Takes the last WORD of hn.last so particles ("van der", "de la") are dropped,
+    matching OA's last-token indexing convention.
     """
-    raw = _norm(f'{first} {last}')
-    hn  = HumanName(raw)
+    hn = HumanName(_norm(f'{first} {last}'))
     first_n = hn.first.strip(' .,')
-    last_n  = hn.last.strip(' .,')
+    last_words = hn.last.strip(' .,').split()
+    last_n = last_words[-1].strip('.,') if last_words else ''
     return last_n, first_n, _first_alpha(first_n)
 
 
@@ -91,13 +101,16 @@ def names_compatible(hcr_first: str, hcr_fi: str,
     Rejects when:
       - first initials differ (different first letter)
       - BOTH sides are full names (≥4 alpha chars) but first-3-char prefix disagrees
+        after Germanic umlaut normalisation (ae→a, oe→o, ue→u)
     """
     if hcr_fi != oax_fi:
         return False
     hcr_full = _alpha_len(hcr_first) >= 4
     oax_full = _alpha_len(oax_first) >= 4
     if hcr_full and oax_full:
-        return hcr_first[:3] == oax_first[:3]
+        if hcr_first[:3] == oax_first[:3]:
+            return True
+        return _de_umlaut(hcr_first)[:3] == _de_umlaut(oax_first)[:3]
     return True
 
 
@@ -108,23 +121,39 @@ def build_oax_index(
     works_min: int,
 ) -> dict[str, list[tuple[str, str, str]]]:
     """
-    Scan OA authors parquet, extract (last_norm, first_norm, first_initial) for
-    each author with works_count >= works_min.
+    Scan OA authorships parquet: get distinct (author_idx, author_name) pairs
+    for authors with >= works_min distinct works.
 
-    Returns: {last_norm: [(author_id, first_norm, first_initial), ...]}
+    Returns: {last_norm: [(author_idx, first_norm, first_initial), ...]}
     """
-    print(f'Loading OA authors (works_count >= {works_min})...')
+    print(f'Loading OA authorships (works_count >= {works_min})...')
     t0 = time.time()
+    import glob as _glob
+    files = sorted(_glob.glob(au_glob))
+    # skip any parquet files that contain invalid UTF-8 strings
+    bad_names = {'updated_date=2025-11-06_part_0070.parquet'}
+    files = [f for f in files if Path(f).name not in bad_names]
+    file_list = str(files).replace("'", '"')  # DuckDB needs double-quoted strings in list
     con = duckdb.connect()
+    con.execute(f"""
+        CREATE TEMP TABLE _wc AS
+        SELECT author_idx, COUNT(DISTINCT work_idx) AS n_works
+        FROM read_parquet({file_list})
+        WHERE author_idx IS NOT NULL
+        GROUP BY author_idx
+        HAVING COUNT(DISTINCT work_idx) >= {works_min}
+    """)
+    print(f'  work-count table built  [{time.time()-t0:.1f}s]')
+    t1 = time.time()
     df = con.execute(f"""
-        SELECT id, display_name
-        FROM parquet_scan('{au_glob}')
-        WHERE works_count >= {works_min}
-          AND display_name IS NOT NULL
-          AND length(trim(display_name)) > 2
+        SELECT DISTINCT a.author_idx, a.author_name AS display_name
+        FROM read_parquet({file_list}) a
+        JOIN _wc w ON a.author_idx = w.author_idx
+        WHERE a.author_name IS NOT NULL
+          AND length(trim(a.author_name)) > 2
     """).df()
     con.close()
-    print(f'  {len(df):,} rows  [{time.time()-t0:.1f}s]')
+    print(f'  {len(df):,} (author_idx, name) pairs  [{time.time()-t1:.1f}s]')
 
     print('Building name index...')
     t0 = time.time()
@@ -136,7 +165,7 @@ def build_oax_index(
             n_skipped += 1
             continue
         last_n, first_n, fi = parsed
-        idx[last_n].append((row.id, first_n, fi))
+        idx[last_n].append((row.author_idx, first_n, fi))
     print(f'  indexed {len(idx):,} distinct last_norms  '
           f'| {n_skipped:,} skipped  [{time.time()-t0:.1f}s]')
     return dict(idx)
@@ -168,7 +197,7 @@ def main() -> None:
     args = parser.parse_args()
 
     paths   = load_config()
-    au_glob = str(paths.openalex / 'parquet' / 'authors' / '*.parquet')
+    au_glob = str(paths.openalex / 'parquet' / 'authorships' / '*.parquet')
     hcr_path = Path(__file__).parent.parent / 'data' / '2025_HCR.xlsx'
 
     if not hcr_path.exists():
