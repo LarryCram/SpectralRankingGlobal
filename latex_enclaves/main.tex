@@ -1,0 +1,45 @@
+\documentclass[11pt]{article}
+\setlength\parindent{10pt}
+\usepackage{booktabs, natbib, amsmath, amssymb, mathrsfs, tabularx, booktabs, makecell}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage{authblk}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\pagestyle{plain}
+
+\captionsetup[table]{skip=10pt}
+\captionsetup[figure]{skip=10pt}
+
+\title{Enclaves of Highly Cited Research in Low-Ranked Venues:\\
+A Spectral Analysis across 26 Scientific Fields}
+
+\author[1]{Domingo Docampo}
+\author[2]{Lawrence Cram}
+
+\affil[1]{Atlantic Research Center for Information and Communication Technologies \newline
+University of Vigo, Vigo, Spain}
+\affil[2]{Research School of Physics, Australian National University, Canberra, 2600, ACT, Australia \newline
+Charles Darwin University, Brinkin, 0810, NT, Australia}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+% TODO
+\end{abstract}
+
+\input{sections/01_introduction}
+\input{sections/02_spectral_ranking}
+\input{sections/03_data}
+\input{sections/04_enclaves}
+\input{sections/05_results}
+\input{sections/06_discussion}
+
+\bibliographystyle{spbasic}
+\bibliography{MyLibrary}
+\end{document}
