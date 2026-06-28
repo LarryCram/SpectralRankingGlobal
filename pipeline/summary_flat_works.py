@@ -237,7 +237,7 @@ def main():
     fw      = str(paths.working / f"flat_works_{YEAR_LO}_{YEAR_HI}.parquet")
     src_p   = f"{paths.openalex}/parquet/sources.parquet"
     inst_p  = f"{paths.openalex}/parquet/institutions.parquet"
-    top_p   = f"{paths.openalex}/parquet/topics/*.parquet"
+    top_p   = f"{paths.openalex}/parquet/work_topics/*.parquet"
 
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")

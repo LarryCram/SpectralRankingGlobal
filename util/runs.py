@@ -41,6 +41,7 @@ FIELD_NAMES: dict[int, str] = {
 
 # (file_label, blocs_key) pairs for country-bloc runs
 BLOC_RUNS: list[tuple[str, str]] = [
+    ('baseline',    'WORLD'),          # all countries — no filter
     ('OECDG20',     'OECDG20'),
     ('OECDG20CIA',  'OECDG20-CIA'),
     ('CIAA',        'CIAA'),

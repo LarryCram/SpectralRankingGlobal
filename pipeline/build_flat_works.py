@@ -52,6 +52,7 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
                      authorships_path: str,
                      institutions_path: str,
                      topics_path: str,
+                     topics_meta_path: str,
                      out_path: str,
                      year_min: int,
                      year_max: int,
@@ -134,11 +135,29 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
     """)
 
     db.execute(f"""
+        CREATE OR REPLACE TEMP TABLE _topic_meta AS
+        SELECT topic_idx,
+               CAST(REGEXP_REPLACE(subfield.id, 'https://openalex.org/subfields/', '') AS BIGINT) AS subfield_idx,
+               subfield.display_name AS subfield_name,
+               CAST(REGEXP_REPLACE(field.id, 'https://openalex.org/fields/', '') AS BIGINT) AS field_idx
+        FROM '{topics_meta_path}'
+    """)
+
+    db.execute(f"""
         CREATE OR REPLACE TEMP TABLE _top AS
-        SELECT work_idx, subfield_idx, subfield_name, field_idx, SUM(score) AS subfield_score
-        FROM '{topics_path}'
-        WHERE work_idx IN (SELECT work_idx FROM _fw)
-        GROUP BY work_idx, subfield_idx, subfield_name, field_idx
+        WITH flat AS (
+            SELECT work_idx, t.topic_idx AS topic_idx, CAST(t.score AS DOUBLE) AS score
+            FROM (
+                SELECT work_idx, UNNEST(topics) AS t
+                FROM '{topics_path}'
+                WHERE work_idx IN (SELECT work_idx FROM _fw)
+            ) sub
+        )
+        SELECT f.work_idx, m.subfield_idx, m.subfield_name, m.field_idx,
+               SUM(f.score) AS subfield_score
+        FROM flat f
+        JOIN _topic_meta m ON f.topic_idx = m.topic_idx
+        GROUP BY f.work_idx, m.subfield_idx, m.subfield_name, m.field_idx
     """)
 
     # ── pass 3: join small tables and write output ────────────────────────────
@@ -197,6 +216,7 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
     db.execute("DROP TABLE IF EXISTS _valid_inst")
     db.execute("DROP TABLE IF EXISTS _fw")
     db.execute("DROP TABLE IF EXISTS _iw")
+    db.execute("DROP TABLE IF EXISTS _topic_meta")
     db.execute("DROP TABLE IF EXISTS _top")
 
     return db.execute(f"SELECT COUNT(*) FROM '{out_path}'").fetchone()[0]
@@ -215,10 +235,13 @@ def build_corpus_references(db: duckdb.DuckDBPyConnection,
     """
     db.execute(f"""
         COPY (
-            SELECT ref.citer_idx, ref.cited_idx
-            FROM '{refs_glob}' ref
-            WHERE ref.citer_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
-              AND ref.cited_idx  IN (SELECT DISTINCT work_idx FROM '{fw_path}')
+            SELECT citer_idx, cited_idx
+            FROM (
+                SELECT citer_idx, UNNEST(cited_list) AS cited_idx
+                FROM '{refs_glob}'
+                WHERE citer_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
+            ) sub
+            WHERE cited_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
         ) TO '{out_path}' (FORMAT PARQUET)
     """)
     return db.execute(f"SELECT COUNT(*) FROM '{out_path}'").fetchone()[0]
@@ -232,7 +255,8 @@ def main():
     sources_path      = f"{paths.openalex}/parquet/sources.parquet"
     authorships_path  = f"{paths.openalex}/parquet/authorships/*.parquet"
     institutions_path = f"{paths.openalex}/parquet/institutions.parquet"
-    topics_path       = f"{paths.openalex}/parquet/topics/*.parquet"
+    topics_path       = f"{paths.openalex}/parquet/work_topics/*.parquet"
+    topics_meta_path  = f"{paths.openalex}/parquet/topics.parquet"
     refs_glob         = f"{paths.openalex}/parquet/references/*.parquet"
     fw_path  = str(paths.working / f"flat_works_{settings.year_min}_{settings.year_max}.parquet")
     cr_path  = str(paths.working / f"corpus_references_{settings.year_min}_{settings.year_max}.parquet")
@@ -246,7 +270,7 @@ def main():
             print(f"Building flat works table ({settings.year_min}–{settings.year_max}) ...")
             n = build_flat_works(
                 db, works_path, sources_path, authorships_path,
-                institutions_path, topics_path, fw_path,
+                institutions_path, topics_path, topics_meta_path, fw_path,
                 settings.year_min, settings.year_max,
                 settings.source_types, settings.work_types, settings.institution_types,
             )

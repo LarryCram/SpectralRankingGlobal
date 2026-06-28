@@ -86,11 +86,13 @@ def identify_hcw_full_cites(
     t0 = time.time()
     con.execute(f"""
         CREATE TEMP TABLE _cite_counts AS
-        SELECT r.cited_idx AS work_idx, COUNT(*) AS n_total
-        FROM parquet_scan('{refs_glob}') r
-        JOIN (SELECT DISTINCT work_idx FROM _cands) cw
-            ON cw.work_idx = r.cited_idx
-        GROUP BY r.cited_idx
+        SELECT cited_idx AS work_idx, COUNT(*) AS n_total
+        FROM (
+            SELECT UNNEST(cited_list) AS cited_idx
+            FROM parquet_scan('{refs_glob}')
+        ) sub
+        WHERE cited_idx IN (SELECT DISTINCT work_idx FROM _cands)
+        GROUP BY cited_idx
     """)
     n_cited = con.execute('SELECT COUNT(*) FROM _cite_counts').fetchone()[0]
     print(f'  works with ≥1 citation: {n_cited:,}  [{time.time()-t0:.1f}s]')
@@ -136,8 +138,9 @@ def main() -> None:
 
     fw_path   = str(paths.working   / f'flat_works_{settings.year_min}_{settings.year_max}.parquet')
     refs_glob = str(paths.openalex  / 'parquet' / 'references' / '*.parquet')
-    auth_glob = str(paths.openalex  / 'parquet' / 'authorships' / '*.parquet')
-    au_glob   = str(paths.openalex  / 'parquet' / 'authors'     / '*.parquet')
+    auth_glob = str(paths.openalex  / 'parquet' / 'authorships'      / '*.parquet')
+    inst_path = str(paths.openalex  / 'parquet' / 'institutions.parquet')
+    au_glob   = str(paths.openalex  / 'parquet' / 'authors'           / '*.parquet')
     out_path  = paths.working / f'hca_hcr_{args.window}_{args.label}.parquet'
 
     # ── 1. HCW via full OA citation counts ───────────────────────────────────
@@ -147,7 +150,7 @@ def main() -> None:
     # ── 3. Author HCW counts (authorship scan, >30-author filter) ────────────
     print('\nCounting HCW per author (authorship scan)...')
     t0 = time.time()
-    counts = count_author_hcw(hcw, auth_glob)
+    counts = count_author_hcw(hcw, auth_glob, inst_path)
     print(f'  {len(counts):,} (field × author) pairs  [{time.time()-t0:.1f}s]')
 
     # ── 4. Allocations ────────────────────────────────────────────────────────

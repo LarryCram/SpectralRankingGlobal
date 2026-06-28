@@ -112,6 +112,9 @@ def _eigs_rank(M: csr_matrix, tol: float = 0) -> tuple:
 
     N = M.shape[0]
 
+    if N == 0:
+        return np.array([]), 0.0, 0.0
+
     if N < 4:
         # Dense fallback: ARPACK eigs requires k < N-1, so N >= 4 for k=2
         A = M.T.toarray()

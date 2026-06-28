@@ -168,8 +168,9 @@ def draw_influence_panel(ax, base_df: pd.DataFrame, cmp_df: pd.DataFrame | None,
     ax.text(_LOG_LO + 0.08, 0.70, f'baseline  n={n_base:,}',
             ha='left', va='center', fontsize=8, color='#111111',
             bbox=dict(boxstyle='round,pad=0.15', facecolor='white', alpha=0.8, edgecolor='none'))
-    ax.legend(fontsize=7, framealpha=0.85, loc='upper left',
-              markerscale=2.0, handlelength=1.2)
+    if ax.get_legend_handles_labels()[0]:
+        ax.legend(fontsize=7, framealpha=0.85, loc='upper left',
+                  markerscale=2.0, handlelength=1.2)
 
 
 # ── figure builders ──────────────────────────────────────────────────────────

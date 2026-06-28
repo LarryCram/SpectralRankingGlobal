@@ -65,7 +65,7 @@ def compute_hca_allocations(author_tots: pd.Series, hca_tot: int) -> pd.Series:
 MAX_AUTHORS = 30   # mirror Clarivate: exclude HCW with > 30 authors
 
 
-def count_author_hcw(hcw: pd.DataFrame, auth_glob: str) -> pd.DataFrame:
+def count_author_hcw(hcw: pd.DataFrame, auth_glob: str, inst_path: str) -> pd.DataFrame:
     """
     Single DuckDB pass over all authorships, then in-memory filter.
 
@@ -80,16 +80,23 @@ def count_author_hcw(hcw: pd.DataFrame, auth_glob: str) -> pd.DataFrame:
     con = duckdb.connect()
     con.register('_hcw', hcw[['field_idx', 'work_idx']])
 
+    con.execute(f"""
+        CREATE TEMP TABLE _inst_lookup AS
+        SELECT institution_idx, display_name AS institution_name
+        FROM '{inst_path}'
+    """)
+
     t0 = time.time()
     con.execute(f"""
         CREATE TEMP TABLE _auth_hcw_raw AS
         SELECT h.field_idx,
                a.author_idx,
                a.work_idx,
-               a.institution_name,
+               il.institution_name,
                a.country_code
         FROM parquet_scan('{auth_glob}') a
         JOIN _hcw h ON h.work_idx = a.work_idx
+        LEFT JOIN _inst_lookup il ON il.institution_idx = a.institution_idx
         WHERE a.author_idx IS NOT NULL
     """)
     n_raw = (con.execute('SELECT COUNT(*) FROM _auth_hcw_raw').fetchone() or (0,))[0]
@@ -196,15 +203,14 @@ def fetch_author_metadata(author_ids: list[int], au_glob: str) -> pd.DataFrame:
     t0 = time.time()
     meta = con.execute(f"""
         SELECT
-            CAST(REGEXP_EXTRACT(a.id, 'A([0-9]+)$', 1) AS BIGINT) AS author_idx,
+            a.author_idx,
             a.display_name,
-            a.summary_stats.h_index                                 AS h_index,
+            a.h_index,
             a.works_count,
             a.cited_by_count,
             a.orcid
         FROM parquet_scan('{au_glob}') a
-        JOIN _aid t
-          ON CAST(REGEXP_EXTRACT(a.id, 'A([0-9]+)$', 1) AS BIGINT) = t.author_idx
+        JOIN _aid t ON a.author_idx = t.author_idx
     """).df()
     con.close()
     print(f'  author metadata: {len(meta):,} rows  [{time.time()-t0:.1f}s]')
@@ -249,8 +255,9 @@ def main() -> None:
     hcw_path  = paths.working / f'enclave_hcw_{args.window}_{args.label}.parquet'
     out_path  = paths.working / f'hca_{args.window}_{args.label}.parquet'
     oa        = paths.openalex / 'parquet'
-    auth_glob = str(oa / 'authorships' / '*.parquet')
-    au_glob   = str(oa / 'authors'     / '*.parquet')
+    auth_glob = str(oa / 'authorships'   / '*.parquet')
+    inst_path = str(oa / 'institutions.parquet')
+    au_glob   = str(oa / 'authors'       / '*.parquet')
 
     if not hcw_path.exists():
         print(f'ERROR: {hcw_path} not found'); sys.exit(1)
@@ -264,7 +271,7 @@ def main() -> None:
     # ── 2. Author HCW counts (full authorship scan) ───────────────────────────
     print('\nCounting HCW per author (authorship scan)...')
     t0 = time.time()
-    counts = count_author_hcw(hcw, auth_glob)
+    counts = count_author_hcw(hcw, auth_glob, inst_path)
     print(f'  {len(counts):,} (field × author) pairs  [{time.time()-t0:.1f}s]')
 
     # ── 3. Allocations from author-pool size (Clarivate recipe) ──────────────

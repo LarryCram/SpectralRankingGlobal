@@ -16,7 +16,7 @@ from build_flat_works import build_flat_works
 
 # ─── synthetic data ───────────────────────────────────────────────────────────
 
-def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str]:
+def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str, str]:
     """
     Write minimal synthetic parquet files to tmp_path.
 
@@ -116,20 +116,42 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str]:
     auth = str(tmp_path / 'authorships.parquet')
     db.execute(f"COPY authorships TO '{auth}'")
 
-    # topics — includes subfield hierarchy (subfield → field mapping is 1-to-1)
+    # work_topics — nested struct format: (work_idx, topics STRUCT(topic_idx, score)[])
     db.execute("""
-        CREATE TABLE topics AS FROM (VALUES
-            (101, 1, 0.9, 1100, 'Ecology',          11),
-            (101, 2, 0.6, 1300, 'Genetics',         13),
-            (102, 3, 0.8, 1100, 'Ecology',          11),
-            (103, 4, 0.7, 1700, 'Machine Learning', 17)
-        ) t(work_idx, topic_idx, score, subfield_idx, subfield_name, field_idx)
+        CREATE TABLE work_topics AS
+        SELECT work_idx,
+               LIST({'topic_idx': topic_idx, 'score': CAST(score AS FLOAT)}) AS topics
+        FROM (VALUES
+            (101, 1, 0.9),
+            (101, 2, 0.6),
+            (102, 3, 0.8),
+            (103, 4, 0.7)
+        ) t(work_idx, topic_idx, score)
+        GROUP BY work_idx
     """)
-    top = str(tmp_path / 'topics.parquet')
-    db.execute(f"COPY topics TO '{top}'")
+    top = str(tmp_path / 'work_topics.parquet')
+    db.execute(f"COPY work_topics TO '{top}'")
+
+    # topics_meta — topic hierarchy: topic_idx → subfield/field structs with URL ids
+    db.execute("""
+        CREATE TABLE topics_meta AS
+        SELECT topic_idx,
+               {'id': 'https://openalex.org/subfields/' || CAST(subfield_idx AS VARCHAR),
+                'display_name': subfield_name} AS subfield,
+               {'id': 'https://openalex.org/fields/' || CAST(field_idx AS VARCHAR),
+                'display_name': field_name} AS field
+        FROM (VALUES
+            (1, 1100, 'Ecology',          11, 'Agricultural and Biological Sciences'),
+            (2, 1300, 'Genetics',         13, 'Biochemistry, Genetics and Molecular Biology'),
+            (3, 1100, 'Ecology',          11, 'Agricultural and Biological Sciences'),
+            (4, 1700, 'Machine Learning', 17, 'Computer Science')
+        ) t(topic_idx, subfield_idx, subfield_name, field_idx, field_name)
+    """)
+    tm = str(tmp_path / 'topics_meta.parquet')
+    db.execute(f"COPY topics_meta TO '{tm}'")
 
     db.close()
-    return wks, src, inst, auth, top
+    return wks, src, inst, auth, top, tm
 
 
 _SOURCE_TYPES = ('journal', 'conference', 'book series')
@@ -137,11 +159,11 @@ _WORK_TYPES   = ('article', 'review')
 _INST_TYPES   = ('education', 'nonprofit', 'government', 'healthcare', 'other')
 
 def run(tmp_path):
-    wks, src, inst, auth, top = make_test_parquets(tmp_path)
+    wks, src, inst, auth, top, tm = make_test_parquets(tmp_path)
     out = str(tmp_path / 'flat_works.parquet')
     with duckdb.connect() as db:
         build_flat_works(
-            db, wks, src, auth, inst, top, out,
+            db, wks, src, auth, inst, top, tm, out,
             year_min=2016, year_max=2025,
             source_types=_SOURCE_TYPES,
             work_types=_WORK_TYPES,
@@ -280,8 +302,8 @@ def test_field_weight_values_work101(tmp_path):
             GROUP BY field_idx, field_weight ORDER BY field_idx
         """).fetchall()
     w = {r[0]: r[1] for r in rows}
-    assert abs(w[11] - 0.6) < 1e-9
-    assert abs(w[13] - 0.4) < 1e-9
+    assert abs(w[11] - 0.6) < 1e-6
+    assert abs(w[13] - 0.4) < 1e-6
 
 
 # ─── subfield + leiden columns ────────────────────────────────────────────────

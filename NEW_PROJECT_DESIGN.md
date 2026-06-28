@@ -35,12 +35,12 @@ domain (4)  →  field (26)  →  subfield (~300)  →  topic (~4,500)
 
 We filter at the **field** level, producing one topic-type set per field (26 sets).
 `field_idx` runs 11–36 (not 1–26). The full hierarchy is already denormalised in
-`parquet/topics/*.parquet` — no auxiliary lookup table needed.
+`parquet/work_topics/*.parquet` — no auxiliary lookup table needed.
 
 ## Data sources
 
 - OpenAlex citation data (existing pipeline)
-- `parquet/topics/*.parquet` — OA snapshot table, one row per (work_idx, topic_idx).
+- `parquet/work_topics/*.parquet` — OA snapshot table, one row per (work_idx, topic_idx).
   Columns: `work_idx, topic_idx, score, subfield_idx, subfield_name, field_idx, field_name, domain_idx, domain_name`.
   The hierarchy is fully denormalised; no auxiliary join needed.
   `score` is an independent per-topic confidence score (not a probability); values cluster near 1.0.

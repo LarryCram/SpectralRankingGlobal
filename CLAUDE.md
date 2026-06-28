@@ -94,7 +94,7 @@ SpectralRankingGlobal/
 OPENALEX/parquet/
   works/*.parquet            OA snapshot — works
   authorships/*.parquet      OA snapshot — authorships
-  topics/*.parquet           OA snapshot — work×topic×score + full hierarchy
+  work_topics/*.parquet      OA snapshot — work×topic×score + full hierarchy
   sources.parquet            OA snapshot — source metadata
   institutions.parquet       OA snapshot — institution metadata
   references/*.parquet       OA snapshot — (citer_idx, cited_idx)

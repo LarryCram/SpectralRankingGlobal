@@ -127,7 +127,7 @@ def build_csr_field(db: duckdb.DuckDBPyConnection,
             SELECT AVG(R_i)
             FROM (SELECT DISTINCT citer_work_idx, R_i FROM '{el_path}')
         """).fetchone()[0]
-        rho_expr = f"({r_bar} / R_i)"
+        rho_expr = f"({r_bar} / R_i)" if r_bar is not None else "1.0"
     else:
         rho_expr = "1.0"
 

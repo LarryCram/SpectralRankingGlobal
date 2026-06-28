@@ -46,15 +46,17 @@ def _write_refs(db: duckdb.DuckDBPyConnection,
                 tmp_path: Path,
                 pairs: list[tuple[int, int]],
                 name: str = 'refs.parquet') -> str:
-    """Write OA-style references parquet with (citer_idx, cited_idx) pairs."""
+    """Write OA-style references parquet with (citer_idx, cited_list BIGINT[]) format."""
     if pairs:
         vals = ', '.join(f'({c}::BIGINT, {d}::BIGINT)' for c, d in pairs)
         db.execute(
             f"CREATE OR REPLACE TABLE _refs AS "
-            f"SELECT * FROM (VALUES {vals}) t(citer_idx, cited_idx)"
+            f"SELECT citer_idx, LIST(cited_idx) AS cited_list "
+            f"FROM (VALUES {vals}) t(citer_idx, cited_idx) "
+            f"GROUP BY citer_idx"
         )
     else:
-        db.execute("CREATE OR REPLACE TABLE _refs (citer_idx BIGINT, cited_idx BIGINT)")
+        db.execute("CREATE OR REPLACE TABLE _refs (citer_idx BIGINT, cited_list BIGINT[])")
     path = str(tmp_path / name)
     db.execute(f"COPY _refs TO '{path}'")
     return path

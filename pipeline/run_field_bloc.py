@@ -2,6 +2,7 @@
 run_field_bloc.py — OA field rankings filtered to country blocs.
 
 Runs stages 3+4 for OA field_idx 11–36 for each entry in BLOC_RUNS:
+  baseline    : all countries — no filter
   OECDG20     : OECD ∪ G20 (46 countries)
   OECDG20CIA  : OECDG20 − CIA  (43 countries)
   CIAA        : {AU, CN, IN, US}
@@ -44,7 +45,7 @@ def main():
             raise FileNotFoundError(f"{p} not found — run build_flat_works.py first")
 
     world = load_world(fw_path)
-    blocs = {**settings.blocs, 'BASELINE-CIA': tuple(sorted(world - CIA))}
+    blocs = {**settings.blocs, 'WORLD': (), 'BASELINE-CIA': tuple(sorted(world - CIA))}
     print(f"WORLD: {len(world)} countries  BASELINE-CIA: {len(blocs['BASELINE-CIA'])} countries")
 
     base_run = runs[0]
