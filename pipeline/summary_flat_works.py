@@ -18,10 +18,18 @@ import duckdb
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config
+from util import load_config, FIELD_NAMES
 
 YEAR_LO = 2000
 YEAR_HI = 2025
+
+# Build once — used as a VALUES CTE in every query that needs field names.
+# Replaces the old approach of reading field_name from work_topics parquet
+# (which only has work_idx + nested topics struct, not top-level field_idx/name).
+_FIELD_NAMES_SQL = "VALUES " + ", ".join(
+    f"({fid}, '{name.replace(chr(39), chr(39)+chr(39))}')"
+    for fid, name in FIELD_NAMES.items()
+)
 
 
 def section(title: str) -> None:
@@ -33,7 +41,7 @@ def section(title: str) -> None:
 RANKS = [1, 500, 1000, 1500, 2000]
 
 
-def _print_unit_rank_table(db, fw: str, top_p: str, unit: str) -> None:
+def _print_unit_rank_table(db, fw: str, unit: str) -> None:
     """
     Print one row per field showing cumulative % of total topic weight up to each rank cutoff.
 
@@ -84,9 +92,7 @@ def _print_unit_rank_table(db, fw: str, top_p: str, unit: str) -> None:
             FROM ranked
             GROUP BY field_idx
         ),
-        field_names AS (
-            SELECT DISTINCT field_idx, field_name FROM '{top_p}'
-        )
+        field_names (field_idx, field_name) AS ({_FIELD_NAMES_SQL})
         SELECT fn.field_name,
                p.pct_1,
                p.pct_500,
@@ -237,8 +243,6 @@ def main():
     fw      = str(paths.working / f"flat_works_{YEAR_LO}_{YEAR_HI}.parquet")
     src_p   = f"{paths.openalex}/parquet/sources.parquet"
     inst_p  = f"{paths.openalex}/parquet/institutions.parquet"
-    top_p   = f"{paths.openalex}/parquet/work_topics/*.parquet"
-
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
         db.execute("SET memory_limit = '56GB'")
@@ -296,10 +300,7 @@ def main():
         # ── 5. Fields ─────────────────────────────────────────────────────────
         section("Fields (works, sources, institutions per field)")
         db.sql(f"""
-            WITH field_names AS (
-                SELECT DISTINCT field_idx, field_name
-                FROM '{top_p}'
-            )
+            WITH field_names (field_idx, field_name) AS ({_FIELD_NAMES_SQL})
             SELECT fw.field_idx,
                    fn.field_name,
                    COUNT(DISTINCT fw.work_idx)        AS n_works,
@@ -312,8 +313,8 @@ def main():
         """).show(max_width=120)
 
         # ── 6. Unit rank tables ───────────────────────────────────────────────
-        _print_unit_rank_table(db, fw, top_p, 'source')
-        _print_unit_rank_table(db, fw, top_p, 'institution')
+        _print_unit_rank_table(db, fw, 'source')
+        _print_unit_rank_table(db, fw, 'institution')
 
         # ── 7. Top 5 units per field ──────────────────────────────────────────
         _print_top_units(db, fw, src_p, inst_p)
@@ -328,10 +329,7 @@ def main():
                 SELECT DISTINCT work_idx, field_idx
                 FROM '{fw}'
             ),
-            field_names AS (
-                SELECT DISTINCT field_idx, field_name
-                FROM '{top_p}'
-            )
+            field_names (field_idx, field_name) AS ({_FIELD_NAMES_SQL})
             SELECT
                 na.field_name AS field_a,
                 nb.field_name AS field_b,
