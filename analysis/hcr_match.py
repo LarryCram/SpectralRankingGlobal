@@ -124,6 +124,12 @@ def load_hcr(path: Path) -> tuple[pd.DataFrame, dict[int, HumanName]]:
         idx: HumanName(clean_name(f"{fn} {ln}"))
         for idx, fn, ln in zip(hcr.index.tolist(), hcr['first_name'], hcr['last_name'])
     }
+    hcr['hn'] = pd.Series(
+        {idx: {'title': hn.title, 'first': hn.first, 'middle': hn.middle,
+               'last': hn.last, 'suffix': hn.suffix}
+         for idx, hn in row_hn.items()},
+        dtype=object
+    )
     return hcr, row_hn
 
 
@@ -146,6 +152,7 @@ def collapse_persons(hcr: pd.DataFrame) -> pd.DataFrame:
             'affil':        r['affil'],
             'last_norm':    r['last_norm'],
             'fi':           r['fi'],
+            'hn':           r['hn'],
             'categories':   sorted(grp['category'].tolist()),
             'n_categories': len(grp),
         })
@@ -346,6 +353,34 @@ def main() -> None:
     print('Phase 2b: unresolved clusters')
     print(SEP)
     _print_remaining_multi_name_clusters(persons)
+
+    from util import load_config
+    working = load_config().working
+
+    # hcr_persons: full 7131 rows, one per (person × category)
+    out_persons = working / 'hcr_persons.parquet'
+    hcr.to_parquet(out_persons, index=False)
+    print(f'\nWrote {len(hcr):,} rows → {out_persons.name}')
+
+    # hcr_clusters: one row per person_hash, with categories as list
+    cluster_n = hcr.groupby('cluster_hash')['person_hash'].nunique().rename('cluster_n')
+    hcr_clusters = (
+        hcr.drop_duplicates(subset='person_hash')
+        .join(cluster_n, on='cluster_hash')
+        [['person_hash', 'cluster_hash', 'cluster_n',
+          'first_name', 'last_name', 'affil',
+          'last_norm', 'fi', 'hn']]
+        .copy()
+    )
+    cats = (hcr.groupby('person_hash')['category']
+               .apply(sorted)
+               .reset_index(name='categories'))
+    hcr_clusters = hcr_clusters.merge(cats, on='person_hash')
+    hcr_clusters['n_categories'] = hcr_clusters['categories'].apply(len)
+
+    out_clusters = working / 'hcr_clusters.parquet'
+    hcr_clusters.to_parquet(out_clusters, index=False)
+    print(f'Wrote {len(hcr_clusters):,} rows → {out_clusters.name}')
 
 
 if __name__ == '__main__':

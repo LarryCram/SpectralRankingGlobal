@@ -25,13 +25,35 @@ from nameparser.config import CONSTANTS as _NP
 # Applied once on import; affects all HumanName() calls in this process.
 
 _NP.titles.remove('se')            # Korean given-name component, not Señor
-_NP.titles.remove('shaik')         # South Asian first-name component, not a title
+_NP.titles.remove('shaik')         # South Asian given name, not a title
+_NP.titles.remove('shaikh')        # South Asian given name variant
+_NP.titles.remove('sheikh')        # South Asian/Arabic given name variant
 _NP.titles.remove('mahdi')         # Arabic given name, not a title
 _NP.titles.remove('sultan')        # Arabic/Turkish given name, not a title
 _NP.titles.remove('ab')            # South Asian name initials, not a degree title
 _NP.titles.remove('sa')            # name initials, not a title
 _NP.titles.remove('gen')           # Chinese given name, not a military title
 _NP.titles.remove('prince')        # given name, not a royal title
+_NP.titles.remove('princess')      # given name
+_NP.titles.remove('abbot')         # given name (English)
+_NP.titles.remove('baron')         # given name
+_NP.titles.remove('bard')          # given name
+_NP.titles.remove('buddha')        # given name (South/SE Asian)
+_NP.titles.remove('arhat')         # given name (Buddhist term, South/SE Asian)
+_NP.titles.remove('cheikh')        # West African/Arabic given name
+_NP.titles.remove('doyen')         # given name
+_NP.titles.remove('guru')          # South Asian given name
+_NP.titles.remove('hon')           # Chinese given name
+_NP.titles.remove('imam')          # South/SE Asian given name
+_NP.titles.remove('lama')          # given name (Levantine)
+_NP.titles.remove('maj')           # Scandinavian female given name
+_NP.titles.remove('mufti')         # South Asian given name
+_NP.titles.remove('pope')          # given name (Southern US tradition)
+_NP.titles.remove('prime')         # given name (African)
+_NP.titles.remove('rock')          # given name
+_NP.titles.remove('swami')         # Indian given name
+_NP.titles.remove('wing')          # Chinese given name
+_NP.titles.remove('st')            # given name prefix (St Patrick etc.), no saints here
 _NP.suffix_acronyms.remove('chi')  # Chinese/Korean surname
 _NP.suffix_acronyms.remove('asa')  # Scandinavian/Hebrew surname
 _NP.suffix_acronyms.remove('ma')   # Chinese surname (also MA degree)
