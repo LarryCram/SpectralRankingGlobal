@@ -238,6 +238,40 @@ Candidacy parquets are global (shared with baseline); new edge lists built per b
 | 35        | Dentistry                                     | Health Sciences  | 4. Biomedical and Health Sciences       |
 | 36        | Health Professions                            | Health Sciences  | 4. Biomedical and Health Sciences       |
 
+## Field index mapping (OA → Clarivate HCR categories)
+Clarivate HCR uses ESI categories, not OA fields. Several OA fields map to the same Clarivate
+category; fields with no dedicated category are subsumed under a broader one.
+Source: `analysis/hca_report.py` (CONCORDANCE list, now archived).
+
+| field_idx | OA Field                                      | Clarivate HCR Category                       | Note |
+|-----------|-----------------------------------------------|----------------------------------------------|------|
+| 11        | Agricultural and Biological Sciences          | Agricultural Sciences + Plant and Animal Science | Ag+plant/animal covers ag+bio scope; misses pure cell biology |
+| 12        | Arts and Humanities                           | Social Sciences                              | No dedicated Arts & Humanities category; Social Sciences is closest |
+| 13        | Biochemistry, Genetics and Molecular Biology  | Biology and Biochemistry + Molecular Biology and Genetics | Both categories together span biochem/genetics/molbio |
+| 14        | Business, Management and Accounting           | Economics and Business                       | Same Clarivate category used for fields 18, 20 |
+| 15        | Chemical Engineering                          | Engineering                                  | Shared with fields 21, 22; chemical engineering subsumed in Engineering |
+| 16        | Chemistry                                     | Chemistry                                    | Good match |
+| 17        | Computer Science                              | Computer Science                             | Good match |
+| 18        | Decision Sciences                             | Economics and Business                       | Shared with fields 14, 20; Decision Sciences subsumed |
+| 19        | Earth and Planetary Sciences                  | Geosciences                                  | Good match; Space Science excluded (planetary astro minor) |
+| 20        | Economics, Econometrics and Finance           | Economics and Business                       | Shared with fields 14, 18 |
+| 21        | Energy                                        | Engineering                                  | Shared with fields 15, 22; energy subsumed in Engineering |
+| 22        | Engineering                                   | Engineering                                  | Good match |
+| 23        | Environmental Science                         | Environment and Ecology                      | Good match |
+| 24        | Immunology and Microbiology                   | Immunology + Microbiology                    | Two Clarivate categories combine cleanly |
+| 25        | Materials Science                             | Materials Science                            | Good match |
+| 26        | Mathematics                                   | Mathematics                                  | Good match |
+| 27        | Medicine                                      | Clinical Medicine                            | Good match; shared with fields 29, 35, 36 |
+| 28        | Neuroscience                                  | Neuroscience and Behavior                    | Good match |
+| 29        | Nursing                                       | Clinical Medicine                            | Shared with field 27; Nursing subsumed |
+| 30        | Pharmacology, Toxicology and Pharmaceutics    | Pharmacology and Toxicology                  | Good match |
+| 31        | Physics and Astronomy                         | Physics + Space Science                      | Physics+Space Science spans field 31 well |
+| 32        | Psychology                                    | Psychiatry and Psychology                    | Partial — Clarivate combines psychiatry with psychology |
+| 33        | Social Sciences                               | Social Sciences                              | Shared with field 12 |
+| 34        | Veterinary                                    | Plant and Animal Science                     | Partial — animal science overlaps; no dedicated veterinary category |
+| 35        | Dentistry                                     | Clinical Medicine                            | Shared with field 27; Dentistry subsumed |
+| 36        | Health Professions                            | Clinical Medicine                            | Shared with field 27; Health Professions subsumed |
+
 ## Spectral gap by field (window 2020_2024, bipartite m=(0,1,1,0), label=baseline)
 Small gap = near-reducible internal structure (sub-communities); large gap = unified hierarchy.
 The bipartite walk blends through institutions — only joint source+institution co-clusters

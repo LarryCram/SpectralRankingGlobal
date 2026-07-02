@@ -41,10 +41,17 @@ Columns added to the HCR row:
   hca_inst_country     : country of modal institution
   hca_cand_hashes      : list of candidate cluster_hashes (for ambiguous)
   hca_cand_names       : list of candidate display_names  (for ambiguous)
+
+Cross-field columns (joined from hca_crossfield_{window}_{label}.parquet;
+  null if crossfield file absent or person unmatched):
+  hca_cf_paper_score   : sum of n_hcw/thresh_paper across all fields (cluster total)
+  hca_cf_cite_score    : sum of sum_cites/thresh_cite across all fields (cluster total)
+  hca_cf_qualified     : bool — both scores >= 1.0 (Clarivate cross-field criterion)
 """
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -191,6 +198,11 @@ def _match_person(
 # ── main ──────────────────────────────────────────────────────────────────────
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--window', default='2020_2024')
+    parser.add_argument('--label',  default='baseline')
+    args = parser.parse_args()
+
     paths   = load_config()
     working = paths.working
 
@@ -205,6 +217,33 @@ def main() -> None:
     hca['middle_norm'] = hca['hn'].apply(lambda h: norm(h.get('middle', '') if isinstance(h, dict) else ''))
     hca_c = hca.drop_duplicates('cluster_hash').copy()
     print(f'  {len(hca_c):,} distinct HCA clusters')
+
+    # ── cross-field scores at cluster level ───────────────────────────────────
+    xf_path = working / f'hca_crossfield_{args.window}_{args.label}.parquet'
+    cluster_xf: pd.DataFrame | None = None
+    if xf_path.exists():
+        print(f'Loading cross-field scores ({xf_path.name})...')
+        xf = pd.read_parquet(
+            xf_path,
+            columns=['author_idx', 'cf_paper_score', 'cf_cite_score'],
+        )
+        # aggregate to cluster level: sum scores across all author_idxes in cluster
+        cluster_xf = (
+            hca[['author_idx', 'cluster_hash']]
+            .merge(xf, on='author_idx', how='inner')
+            .groupby('cluster_hash', as_index=False)
+            .agg(
+                hca_cf_paper_score=('cf_paper_score', 'sum'),
+                hca_cf_cite_score =('cf_cite_score',  'sum'),
+            )
+        )
+        cluster_xf['hca_cf_qualified'] = (
+            (cluster_xf['hca_cf_paper_score'] >= 1.0) &
+            (cluster_xf['hca_cf_cite_score']  >= 1.0)
+        )
+        print(f'  {len(cluster_xf):,} clusters with cross-field scores')
+    else:
+        print(f'  (no crossfield file — run hca_crossfield.py first)')
 
     print('Building name indices...')
     idx_fml:  dict[tuple, list] = {}
@@ -287,6 +326,43 @@ def main() -> None:
         .sort_values('miss_pct', ascending=False)
     )
     print(cat_stats.to_string())
+
+    # ── join cross-field scores ───────────────────────────────────────────────
+    if cluster_xf is not None:
+        out = out.merge(
+            cluster_xf.rename(columns={'cluster_hash': 'hca_cluster_hash'}),
+            on='hca_cluster_hash',
+            how='left',
+        )
+
+        matched = out.drop_duplicates('person_hash')
+        matched_cf = matched[matched['match_status'].isin(['unique', 'inst_resolved'])]
+        n_matched  = len(matched_cf)
+        n_qual     = int(matched_cf['hca_cf_qualified'].fillna(False).sum())
+        n_cf_pp    = int((matched_cf['hca_cf_paper_score'] >= 1.0).sum())
+        n_cf_cc    = int((matched_cf['hca_cf_cite_score']  >= 1.0).sum())
+
+        print(f'\nCross-field scores (matched HCR persons, n={n_matched:,}):')
+        print(f'  cf_paper_score >= 1.0:    {n_cf_pp:>5,}  ({n_cf_pp*100/n_matched:.1f}%)')
+        print(f'  cf_cite_score  >= 1.0:    {n_cf_cc:>5,}  ({n_cf_cc*100/n_matched:.1f}%)')
+        print(f'  Both >= 1.0 (qualified):  {n_qual:>5,}  ({n_qual*100/n_matched:.1f}%)')
+
+        cf_by_cat = (
+            out[out['match_status'].isin(['unique', 'inst_resolved'])]
+            .groupby('category')['hca_cf_qualified']
+            .agg(
+                n_matched='count',
+                n_cf_qual=lambda x: x.fillna(False).sum(),
+            )
+            .assign(cf_pct=lambda d: (d['n_cf_qual'] * 100 / d['n_matched']).round(1))
+            .sort_values('cf_pct', ascending=False)
+        )
+        print('\n  Cross-field qualified by category:')
+        print(f"  {'category':<35} {'matched':>7}  {'cf_qual':>7}  {'cf_%':>6}")
+        print('  ' + '-' * 62)
+        for cat, row in cf_by_cat.iterrows():
+            print(f"  {cat:<35} {int(row['n_matched']):>7,}  "
+                  f"{int(row['n_cf_qual']):>7,}  {row['cf_pct']:>6.1f}%")
 
     # ── write ─────────────────────────────────────────────────────────────────
     out_path = working / 'hcr_hca_map.parquet'
