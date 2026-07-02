@@ -7,14 +7,15 @@ __pycache__/
 .env
 
 # LaTeX build artifacts
-latex_*/*.aux
-latex_*/*.bbl
-latex_*/*.blg
-latex_*/*.fdb_latexmk
-latex_*/*.fls
-latex_*/*.log
-latex_*/*.out
-latex_*/*.synctex.gz
-latex_*/*.toc
-latex_*/*.lof
-latex_*/*.lot
+latex/**/*.aux
+latex/**/*.bbl
+latex/**/*.blg
+latex/**/*.fdb_latexmk
+latex/**/*.fls
+latex/**/*.log
+latex/**/*.out
+latex/**/*.synctex.gz
+latex/**/*.toc
+latex/**/*.lof
+latex/**/*.lot
+latex/**/*.pdf

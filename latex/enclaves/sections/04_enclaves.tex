@@ -3,3 +3,208 @@
 \label{sec:enclaves}
 % ---------------------------------------------------------------
 
+\subsection{Motivation}
+
+Citation-based rankings rest on an implicit assumption: that highly cited work
+flows from high-prestige sources and institutions, and that low-prestige
+sources produce work that the rest of the field largely ignores.  In mature
+disciplines with well-established journal hierarchies this is broadly true, but
+it is not universally so.  A substantial minority of highly cited papers appear
+in sources that the spectral ranking places below the corpus average.  Such
+papers constitute what we call \emph{enclaves}: clusters of high-impact work
+embedded in a low-prestige publication environment.
+
+Enclaves are scientifically significant for at least two reasons.  First, they
+suggest that the publication venue is, for some research communities, a poor
+signal of work quality.  The mismatch between citation impact and venue prestige
+may reflect disciplinary norms (some communities routinely publish landmark
+work in domain-specific journals that receive few citations from outside the
+subfield), linguistic or geographic segmentation (non-anglophone research
+communities may prefer national journals that are poorly integrated into the
+global citation network), or active field formation (emerging sub-disciplines
+that have not yet converged on a set of high-prestige flagship journals).
+Second, enclaves are relevant to the design of ranking systems: if a ranking
+systematically misclassifies a coherent research community, analyses that
+depend on that ranking inherit the error.
+
+\subsection{Highly Cited Works}
+
+The foundation of the enclave analysis is the identification of
+\emph{Highly Cited Works} (HCW) — works that receive substantially more
+citations from within the retained corpus than is typical for their publication
+year and field.
+
+For each work $p$ retained in field $f$ (i.e.\ published in a retained source
+in field $f$), we count $n_{\mathrm{intra}}(p, f)$: the number of distinct
+citations received by $p$ from any work whose source is retained in any field.
+This cross-field definition avoids penalising interdisciplinary work: a paper
+in Biochemistry that is heavily cited by Immunology researchers counts those
+citations regardless of which field's retained set the citers belong to.  When
+a citer work appears in multiple field rankings, its prestige score is taken as
+the maximum $v$ across all retained fields, preventing the same citation from
+being attributed multiple prestige levels simultaneously.
+
+A work $p$ is classified as HCW in field $f$ if
+\[
+  n_{\mathrm{intra}}(p, f) \;\geq\; Q_{99}\!\left(n_{\mathrm{intra}}(\cdot,
+  f)\;\middle|\;\mathrm{year}(p)\right),
+\]
+where $Q_{99}$ is the 99th percentile of intra-field citation counts among all
+works retained in field $f$ that were published in the same year as $p$.  The
+year-specific threshold is essential: a paper published in 2014 has had
+substantially longer to accumulate citations than one published in 2023, and a
+common threshold across years would mechanically assign HCW status almost
+exclusively to older works.  We restrict the HCW analysis to works published
+between 2014 and 2023, a ten-year window that is wide enough to capture the
+citation lifecycles of most research outputs while falling fully within the
+flat works corpus (2000--2025) and the citation window (2016--2025).
+
+Across all 26 fields and the 2020--2024 census window, the procedure identifies
+341,695 HCW records (one per (work, field) pair; a work retained in multiple
+fields can be HCW in each).  These represent approximately 230,000 distinct
+works, covering the most-cited $\approx 1\%$ within each field--year cell.
+
+\subsection{Quadrant classification}
+
+Each HCW can be characterised by two prestige dimensions: the spectral score
+$v_s$ of its publishing source, and the mean spectral score of its citers.
+The citer prestige is measured as the mean source prestige $v_{\mathrm{citer}}$
+of works that cite $p$ within the retained corpus, averaged over all distinct
+citers.  These two scores define four quadrants:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{c|cc}
+ & \textbf{citer } $v < 1$ & \textbf{citer } $v \geq 1$ \\
+\hline
+\textbf{source } $v \geq 1$ & \textsc{hcw}$^{+-}$ & \textsc{hcw}$^{++}$ \\
+\textbf{source } $v < 1$    & \textsc{hcw}$^{--}$ & \textsc{hcw}$^{-+}$ \\
+\end{tabular}
+\end{center}
+
+The $v = 1$ threshold is the corpus average: units above it receive more
+citation return per unit of output than the average unit in their field.
+\textsc{hcw}$^{++}$ papers are the conventional highly cited works: published
+in high-prestige venues and cited predominantly by high-prestige sources.
+\textsc{hcw}$^{-+}$ papers are the primary enclave type: published below the
+average venue but cited by above-average sources — works that the high-prestige
+part of the field reads and cites, despite originating from a low-prestige
+venue.  \textsc{hcw}$^{--}$ papers are below-average on both dimensions: they
+are highly cited within the corpus, but by sources that are themselves
+below-average.  These may represent internally self-referential subfields or
+low-prestige citation communities.
+
+The fraction of HCW with source prestige $v_s < 1$ varies markedly across
+fields: from approximately 7--10\% in Arts and Humanities, Social Sciences,
+and Agricultural Sciences, to 30--38\% in Pharmacology, Nursing, and
+Veterinary.  The higher fractions in clinical and professional fields reflect
+the greater heterogeneity of journal quality in those domains and the
+importance of specialist publication channels that are poorly integrated into
+the broader citation network.
+
+\subsection{Work-level prestige}
+
+To capture the full prestige context of each HCW, we compute a
+\emph{work-level prestige score} $v_p^{\mathrm{work}}$ that combines the
+publishing source's prestige with the institutional prestige of the authors.
+This is defined in Section~\ref{sec:spectral_ranking} as:
+\[
+  v_p^{\mathrm{work}} \;=\; \frac{v_s + \bar{v}_u}{2},
+\]
+where $v_s$ is the source prestige and $\bar{v}_u$ is the unweighted mean
+prestige of affiliated institutions (falling back to $v_s$ when no affiliated
+institution is retained).  The work-level prestige is computed across all 26
+fields for all retained works, yielding 59.8~million (work, field) records.
+
+The work-level prestige provides a more nuanced view than source prestige alone.
+A paper published in a below-average journal ($v_s < 1$) may be affiliated with
+a highly prestigious institution ($\bar{v}_u \gg 1$), indicating that the
+mismatch is at the venue level rather than the institutional level: the research
+group is clearly high-calibre but chose (or was forced by journal availability,
+language, or disciplinary custom) to publish in a less prestigious outlet.
+Conversely, a paper from a high-prestige journal affiliated with below-average
+institutions may indicate a one-off contribution from a peripheral group that
+happened to meet the quality bar of a top journal.  The joint $(v_s, \bar{v}_u)$
+pair therefore carries more diagnostic information than either score alone.
+
+\subsection{NMF topic clustering}
+
+Within each field, the HCW with $v_s < 1$ (the enclave candidates) are
+heterogeneous: they may arise from several distinct research communities,
+each with its own thematic coherence.  To group enclave candidates into
+interpretable clusters, we apply Non-negative Matrix Factorisation (NMF) to
+the TF-IDF representation of their titles.
+
+For each field, we form a document--term matrix from the titles of all HCW with
+$v_s < 1$, after standard text preprocessing (lowercasing, stop-word removal,
+unigram and bigram tokenisation).  TF-IDF weighting down-weights terms that
+appear in many titles and up-weights terms that are distinctive to a subset of
+works.  NMF then decomposes the matrix into $k$ topics, each represented by a
+non-negative linear combination of terms, and assigns each work a loading
+vector across the $k$ topics; the dominant topic assignment defines the work's
+cluster.
+
+The number of topics $k$ is chosen adaptively: $k = \min(10, \lfloor n /
+20\rfloor)$, where $n$ is the number of HCW with $v_s < 1$ in the field,
+subject to a minimum of 30 works required to run the decomposition.  This
+heuristic yields small $k$ for fields with few enclave candidates (where
+over-factorisation would produce spurious clusters) and up to 10 topics for
+large fields.  Each resulting cluster is interpreted as a thematic enclave: a
+coherent group of highly cited works that share a research theme while
+appearing in below-average venues.
+
+\subsection{Citation network analysis}
+
+The final stage of the enclave analysis expands each NMF-defined enclave to
+its \emph{1-hop citation network}: the set of seed HCW plus all works that
+cite any seed within the retained corpus.  This network provides two kinds of
+evidence about the nature of the enclave.
+
+First, the network topology reveals whether the enclave constitutes a
+self-contained citation community or is embedded in the broader field.  The
+\emph{loop rate} — the fraction of citations in the network that run between
+two seed works — measures internal self-citation.  A high loop rate would
+suggest an isolated citation ring, potentially inflating $n_{\mathrm{intra}}$
+for seeds through mutual citation rather than genuine influence.  A low loop
+rate confirms that the seeds' high citation counts reflect attention from the
+broader community.
+
+Second, the distribution of citer prestige scores ($v_{\mathrm{citer}}$)
+characterises who reads and cites the enclave.  If the citers are predominantly
+above-average sources, the enclave is genuinely influential despite its
+low-prestige publication venue.  If citers are themselves below-average, the
+enclave may reflect an isolated low-prestige community that is highly cited
+internally but has limited influence on the rest of the field.
+
+For the two fields examined in detail as connectivity checks, Engineering (field
+22) and Mathematics (field 26), the network structure is consistent with genuine
+influence rather than citation rings: Engineering enclaves have 2,922 seed
+works, 259,000 distinct citers, and a loop rate of 0.5\%; Mathematics enclaves
+have 1,016 seeds, 40,000 distinct citers, and a loop rate of 1.4\%.  Internal
+citation rates (citations between seeds as a fraction of all intra-network
+citations) are 11\% and 25\% respectively.  These figures rule out the
+orchestrated-ring interpretation and confirm that enclave seeds are genuinely
+embedded in the broader citation flow of their fields.
+
+\subsection{Pipeline summary}
+
+The enclave analysis is implemented as a five-stage pipeline:
+\begin{enumerate}
+  \item[\textbf{E1.}] \emph{HCW detection.}  Identify the top 1\% of retained
+  works by intra-field citation count per (field, year); attach source and
+  institution prestige scores.
+  \item[\textbf{E2.}] \emph{TF-IDF.}  Compute term lift (TF-IDF) for the
+  vocabulary of HCW with $v_s < 1$ relative to the full HCW population, to
+  identify terms that are over-represented among enclave candidates.
+  \item[\textbf{E3.}] \emph{NMF clustering.}  Cluster enclave-candidate titles
+  into $k$ thematic groups via NMF; retain cluster assignments and top terms.
+  \item[\textbf{E4.}] \emph{Network analysis.}  Build the 1-hop citation
+  network per (field, cluster); compute loop rate, component structure, and
+  mean network prestige.
+  \item[\textbf{E5.}] \emph{Researcher identification.}  Identify the top-3
+  most frequent authors within each enclave's 1-hop network from the OpenAlex
+  authorship records, together with their $h$-index and total work count.
+\end{enumerate}
+Each stage feeds into the next; the final outputs are per-field markdown
+reports combining the network statistics and researcher profiles for each
+named enclave cluster.

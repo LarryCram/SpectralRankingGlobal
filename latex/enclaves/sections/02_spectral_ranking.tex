@@ -3,3 +3,218 @@
 \label{sec:spectral_ranking}
 % ---------------------------------------------------------------
 
+\subsection{Units and corpus}
+
+The ranking procedure operates over two disjoint sets of units: a set
+$\mathcal{S}$ of \emph{sources} (academic journals and other publication
+venues) and a set $\mathcal{U}$ of \emph{institutions}.  Both sets are ranked
+simultaneously from the same citation data; the field of study determines
+which works enter the corpus but does not alter the ranking mechanism.
+
+For a given field $f$ and census window $[t_0, t_1]$, a work is included in
+the corpus if it (i) has at least one topic tag associated with field $f$ in
+the OpenAlex taxonomy, (ii) was published during $[t_0, t_1]$, and (iii) is
+affiliated with at least one retained institution (defined below).  Throughout
+this study the window is 2020--2024 and the field taxonomy follows the 26
+top-level OpenAlex fields.
+
+\subsection{Candidacy and retention thresholds}
+
+Not every source or institution that appears in the corpus is ranked.  Units
+must clear a minimum activity threshold $\tau$ expressed in
+\emph{weighted works per year}: a source $s$ is retained if
+
+\[
+  \tilde{w}_s \;=\; \frac{1}{T}\sum_{t=t_0}^{t_1} \sum_{\substack{p \in \mathcal{P}_f \\ \mathrm{source}(p)=s}} f_{p,f}
+  \;\geq\; \tau_s,
+\]
+
+where $T = t_1 - t_0 + 1$ is the window length in years, $\mathcal{P}_f$ is
+the set of corpus works for field $f$, and $f_{p,f} \in (0,1]$ is the
+fractional topic score of work $p$ in field $f$ (a work may straddle
+multiple fields, with scores summing to at most one per work).  An analogous
+threshold $\tau_u$ applies to institutions, with each work's fractional field
+weight allocated to each affiliated institution in proportion to that
+institution's author share.  The baseline threshold is $\tau_s = \tau_u =
+10$~weighted works per year, yielding a minimum of 50 weighted works over the
+five-year window.  Units that fall below their threshold are excluded from the
+ranking but still participate as citers and cited works in the edge list; they
+do not receive a prestige score.
+
+\subsection{Citation edge list}
+
+The edge list is derived from the full set of within-window citation pairs
+$(p, q)$ where both $p$ (the citing work) and $q$ (the cited work) belong to
+the retained corpus for field $f$.  Each such pair generates one or more
+directed edges in the bipartite graph according to the Cartesian product of
+the institutions affiliated with $p$ and those affiliated with $q$.
+
+Each edge $(p, q, u_p, u_q)$ — citer work $p$, cited work $q$, citer
+institution $u_p$, cited institution $u_q$ — carries a weight composed of
+three multiplicative factors.  The \emph{field weight} $f_{p,f}$ scales each
+citer's contribution by its fractional relevance to the field.  The
+\emph{institution weight} $w_{u_p}$ distributes the citer's credit across its
+affiliated institutions according to the author--institution share (the
+fraction of authors of $p$ affiliated with $u_p$); analogously the
+\emph{cited institution weight} $w_{u_q}$ distributes cited credit across
+institutions of $q$.  An optional \emph{reference-count normalisation} factor
+$\rho_p = \bar{R}/R_p$ (where $R_p$ is the number of references in work $p$
+and $\bar{R}$ is the mean across all citing works) ensures that high-volume
+citers do not dominate the flow matrix.  In the baseline configuration ($\rho
+= 0$) this normalisation is applied; setting $\rho = 1$ uses raw reference
+counts without normalisation.
+
+\subsection{Bipartite citation-flow matrices}
+
+Two raw citation-flow matrices are assembled from the edge list.  Let $N_s =
+|\mathcal{S}|$ and $N_u = |\mathcal{U}|$ denote the numbers of retained
+sources and institutions respectively.  The \emph{source-to-institution} matrix
+$C_{SI} \in \mathbb{R}^{N_s \times N_u}$ accumulates the weighted citation
+mass flowing from each source to each institution:
+\begin{align}
+  C_{SI}[s, u'] &= \sum_{\substack{(p,q,u_p,u_q) \in \mathcal{E} \\
+                   \mathrm{src}(p)=s,\;u_q=u'}} \!\!
+                   f_{p,f} \cdot \rho_p \cdot w_{u'},
+  \label{eq:csi}
+\end{align}
+where the sum runs over all edge records in $\mathcal{E}$ whose citer work $p$
+is published in source $s$ and whose cited work $q$ is affiliated with
+institution $u'$.  The complementary \emph{institution-to-source} matrix
+$C_{IS} \in \mathbb{R}^{N_u \times N_s}$ accumulates the reverse flow:
+\begin{align}
+  C_{IS}[u, s'] &= \sum_{\substack{(p,q,u_p,u_q) \in \mathcal{E} \\
+                   u_p=u,\;\mathrm{src}(q)=s'}} \!\!
+                   f_{p,f} \cdot \rho_p \cdot w_u.
+  \label{eq:cis}
+\end{align}
+
+Together $C_{SI}$ and $C_{IS}$ encode all citation information needed for the
+bipartite ranking: prestige propagates from sources to institutions via $C_{SI}$
+and back from institutions to sources via $C_{IS}$, so that sources are ranked
+by the quality of the institutions that cite them and institutions are ranked by
+the quality of the sources they cite.
+
+\subsection{Row normalisation and transition matrices}
+
+Each matrix is row-normalised to obtain a stochastic transition matrix.  For
+$C_{SI}$, row $s$ has outgoing weight $r_s = \sum_{u'} C_{SI}[s, u']$; where
+$r_s > 0$ we set $H_{SI}[s,\cdot] = C_{SI}[s,\cdot] / r_s$, and analogously
+for $H_{IS}$.  Rows with $r_x = 0$ (units that cite nothing within the retained
+corpus) are left as zero rows and treated as \emph{dangling} nodes: at each
+iteration of the power method their probability mass is redistributed through
+the prior, exactly as in the standard dangling-node treatment for PageRank.
+
+\subsection{Bipartite spectral ranking}
+
+The two stochastic matrices $H_{SI} \in \mathbb{R}^{N_s \times N_u}$ and
+$H_{IS} \in \mathbb{R}^{N_u \times N_s}$ are coupled: a
+two-step random walk that alternates source$\to$institution$\to$source defines
+the \emph{one-mode projection} onto sources:
+\[
+  M_S \;=\; H_{SI}\, H_{IS} \;\in\; \mathbb{R}^{N_s \times N_s}.
+\]
+
+The source prestige vector $\boldsymbol{\pi}_S$ is the Perron (left)
+eigenvector of $M_S$:
+\[
+  M_S^\top \boldsymbol{\pi}_S \;=\; \lambda_1 \boldsymbol{\pi}_S,
+  \qquad \lambda_1 = 1, \quad \boldsymbol{\pi}_S \geq 0, \quad
+  \|\boldsymbol{\pi}_S\|_1 = 1.
+\]
+
+Because $M_S$ is a product of row-stochastic matrices it is itself
+substochastic (or stochastic when all rows of $H_{SI}$ and $H_{IS}$ are
+non-zero); under mild primitivity conditions guaranteed by the retained
+citation graph, the Perron--Frobenius theorem asserts the existence and
+uniqueness of $\boldsymbol{\pi}_S$.  In practice the eigenvector is computed
+via ARPACK's implicitly restarted Lanczos method applied to $M_S^\top$,
+requesting the two dominant eigenpairs so that both $\lambda_1$ and $\lambda_2$
+are recovered simultaneously.
+
+Institution prestige scores are recovered by one reverse hop:
+\[
+  \boldsymbol{\pi}_U \;=\; H_{SI}^\top \boldsymbol{\pi}_S,
+\]
+and then independently $\ell_1$-normalised.  This ensures that
+$\|\boldsymbol{\pi}_S\|_1 = \|\boldsymbol{\pi}_U\|_1 = 1$ and that the two
+scales are comparable.
+
+\subsection{Prestige scores}
+
+The raw eigenvector components $\pi_s$ and $\pi_u$ are proportional to the
+stationary probability of the random walk arriving at each unit and are
+therefore sensitive to corpus size: a unit in a large field accumulates more
+probability mass than an equally prestigious unit in a small field, simply
+because the walk has more mass to distribute.  To obtain a scale-invariant
+prestige score we normalise by each unit's share of the corpus activity $a_p$
+(its weighted works over the window):
+\[
+  v_p \;=\; \frac{A \cdot \pi_p}{A_{\mathrm{real}} \cdot a_p},
+\]
+where $A = \sum_{p \in \mathcal{S} \cup \mathcal{U}} a_p$ is the total
+corpus activity and $A_{\mathrm{real}}$ is the sum of $\pi_p$ over
+non-sentinel units (relevant only when cross-field sentinel edges are used).
+Under this normalisation $v_p$ has the interpretation of prestige per unit of
+activity: a unit with $v_p = 1$ receives exactly the corpus-average citation
+return for its level of output, units with $v_p > 1$ are above average, and
+units with $v_p < 1$ are below average.  The prestige score is the primary
+output used throughout this paper.
+
+\subsection{Work-level prestige}
+
+To support the enclave analysis, we require a prestige score at the level of
+individual works rather than venues.  For a work $p$ published in source $s$
+and affiliated with institutions $\{u_1, \ldots, u_k\} \cap \mathcal{U}$ (the
+subset that are retained), we define
+\[
+  v_p^{\mathrm{work}} \;=\;
+  \frac{v_s + \overline{v}_u}{2},
+\]
+where $v_s$ is the prestige score of the source and $\overline{v}_u =
+\frac{1}{k}\sum_{i=1}^{k} v_{u_i}$ is the unweighted mean over retained
+affiliated institutions.  When no affiliated institution is retained
+($k = 0$), the source score alone is used: $v_p^{\mathrm{work}} = v_s$.  The
+equal 50--50 split between source and institutional prestige reflects a design
+choice that neither venue reputation nor institutional reputation dominates; it
+is consistent across all 26 fields and the full five-year window.
+
+\subsection{Spectral gap and field structure}
+
+A by-product of requesting two ARPACK eigenpairs is the spectral gap
+$\Delta = 1 - |\lambda_2|$, where $\lambda_2$ is the subdominant eigenvalue
+of $M_S$.  A large gap (close to 1) indicates that the Perron eigenvector
+captures a strongly unified hierarchy: prestige flows coherently across the
+field and the random walk mixes rapidly to its stationary distribution.  A
+small gap indicates near-reducibility: the field decomposes into weakly
+connected sub-communities that exchange little citation mass, so that the
+second eigenvector carries substantial structural information about the
+partition of the field.
+
+Across the 26 OpenAlex fields the gap ranges from 0.091 (Business, Management
+and Accounting) to 0.860 (Neuroscience).  Social science and humanities fields
+tend toward small gaps, reflecting the plurality of paradigms and citation
+communities within those broad umbrellas.  Physical and biomedical science
+fields tend toward large gaps, consistent with more unified citation hierarchies.
+The gap is a diagnostic, not a quality indicator; the enclave analysis applies
+identically regardless of gap size.
+
+\subsection{Parameter summary}
+
+Table~\ref{tab:params} summarises the parameters of the ranking procedure and
+their baseline values used throughout this paper.
+
+\begin{table}[ht]
+\centering
+\caption{Ranking parameters and baseline values.}
+\label{tab:params}
+\begin{tabular}{lllp{6.2cm}}
+\toprule
+Symbol & Baseline & Range & Description \\
+\midrule
+$\tau_s$, $\tau_u$ & 10/yr & $>0$ & Retention threshold (weighted works per year) \\
+$\rho$ & 0 & $\{0,1\}$ & Reference-count normalisation; 0 = fixed-count ($\bar{R}/R_i$), 1 = full-count \\
+$\omega$ & 0 & $\{0,1\}$ & Institution weighting; 0 = author-fractional, 1 = uniform $1/N_{\mathrm{inst}}$ \\
+$\alpha$ & 1 & $(0,1]$ & Katz damping; $1$ = pure Perron eigenvector \\
+\bottomrule
+\end{tabular}
+\end{table}

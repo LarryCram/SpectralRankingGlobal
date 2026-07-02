@@ -3,3 +3,212 @@
 \label{sec:data}
 % ---------------------------------------------------------------
 
+\subsection{Source: OpenAlex}
+
+All bibliometric data are drawn from OpenAlex, a fully open index of
+scholarly literature maintained by OurResearch~\citep{priem2022openalex}.
+OpenAlex aggregates metadata for over 260 million scholarly works, including
+authors, source journals, institutional affiliations, topic classifications,
+and citation links.  Its coverage spans all scientific fields and extends from
+the early twentieth century to the present.  We use a parquet snapshot taken
+in early 2025, comprising works, authorships, sources, institutions, topic
+assignments, and citation reference lists.  The snapshot is stored as a
+collection of columnar parquet files accessed via the DuckDB analytical query
+engine.
+
+OpenAlex assigns each work a set of topic tags from a three-level hierarchy:
+\emph{topics} are the finest level, grouped into \emph{subfields}, which are
+grouped into 26 \emph{fields}.  Each topic tag carries a numeric score
+reflecting the strength of the thematic signal in the work; scores are
+non-negative and sum across all topics assigned to a given work.  The 26 fields
+form the primary grouping level for this study; the field taxonomy and
+index values used throughout are listed in Table~\ref{tab:fields}.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{OpenAlex field taxonomy used in this study ($f_{idx}$ = field index).}
+\label{tab:fields}
+\begin{tabular}{rll}
+\toprule
+$f_{idx}$ & Field & OA Domain \\
+\midrule
+11 & Agricultural and Biological Sciences   & Life Sciences \\
+12 & Arts and Humanities                    & Social Sciences \\
+13 & Biochemistry, Genetics and Molecular Biology & Life Sciences \\
+14 & Business, Management and Accounting    & Social Sciences \\
+15 & Chemical Engineering                   & Physical Sciences \\
+16 & Chemistry                              & Physical Sciences \\
+17 & Computer Science                       & Physical Sciences \\
+18 & Decision Sciences                      & Social Sciences \\
+19 & Earth and Planetary Sciences           & Physical Sciences \\
+20 & Economics, Econometrics and Finance    & Social Sciences \\
+21 & Energy                                 & Physical Sciences \\
+22 & Engineering                            & Physical Sciences \\
+23 & Environmental Science                  & Physical Sciences \\
+24 & Immunology and Microbiology            & Life Sciences \\
+25 & Materials Science                      & Physical Sciences \\
+26 & Mathematics                            & Physical Sciences \\
+27 & Medicine                               & Health Sciences \\
+28 & Neuroscience                           & Life Sciences \\
+29 & Nursing                                & Health Sciences \\
+30 & Pharmacology, Toxicology and Pharmaceutics & Life Sciences \\
+31 & Physics and Astronomy                  & Physical Sciences \\
+32 & Psychology                             & Social Sciences \\
+33 & Social Sciences                        & Social Sciences \\
+34 & Veterinary                             & Health Sciences \\
+35 & Dentistry                              & Health Sciences \\
+36 & Health Professions                     & Health Sciences \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Work and source filters}
+
+Not all documents in OpenAlex are admitted to the corpus.  We retain only
+\emph{articles} and \emph{reviews} (the OpenAlex \texttt{type} field), thereby
+excluding preprints, book chapters, data sets, dissertations, and other
+document types whose citation behaviour differs systematically from peer-reviewed
+journal literature.  Works flagged as paratext (editorials, front matter, indices)
+or as retracted are excluded, as are works with zero recorded references, since
+a citer with no outgoing edges contributes no signal to the ranking.
+
+The source of publication must be a \emph{journal}, \emph{conference}, or
+\emph{book series} in the OpenAlex typology.  This admits the principal channels
+of peer-reviewed scientific output while excluding repositories, encyclopaedias,
+and trade publications.
+
+\subsection{Institutional authorship and weighting}
+
+OpenAlex resolves each authorship record to an author entity and, where
+possible, to one or more institutional affiliations.  Only authorships with a
+resolved institution are admitted.  Institutions are further filtered by type:
+we retain \emph{education}, \emph{nonprofit}, \emph{government},
+\emph{healthcare}, and \emph{other} organisations, and exclude
+\emph{company}, \emph{funder}, and \emph{archive} types.  The inclusion of
+healthcare institutions captures major clinical research centres --- such as
+major cancer centres, hospital systems, and research institutes --- which
+OpenAlex classifies separately from universities and which carry substantial
+scientific output in biomedical fields.  Company-affiliated works are excluded
+because commercial research operates under disclosure constraints that make the
+citation environment non-comparable with the academic sector.
+
+A work must have at least one retained institutional authorship to be included;
+works whose entire authorship is unresolved, or whose resolved institutions are
+all of excluded types, are dropped.
+
+Two institution-weight conventions are computed for each (work, institution)
+pair and both are stored in the flat works table.  The \emph{author-fractional}
+weight distributes credit for each work across institutions in proportion to
+the author share: if work $p$ has $n_a$ authors and author $i$ is affiliated
+with $k_i$ retained institutions, then institution $u$'s weight is
+\[
+  w_{u}^{\mathrm{af}} \;=\; \sum_{i\,:\,u \in U_i} \frac{1}{n_a\, k_i},
+\]
+so that $\sum_u w_u^{\mathrm{af}} = 1$ per work.  The \emph{direct} weight
+distributes credit uniformly across the $K$ distinct retained institutions
+affiliated with the work: $w_u^{\mathrm{dir}} = 1/K$.  The author-fractional
+weight ($\omega = 0$) is the baseline; the direct weight ($\omega = 1$) is
+available as a sensitivity variant.
+
+\subsection{Field weights}
+
+A work's topic scores are aggregated to the field level by summing scores
+across all topics belonging to each field, then normalising by the total score
+across all topics of the work.  The resulting field weight $f_{p,f} \in [0,1]$
+satisfies $\sum_f f_{p,f} = 1$ per work: a work appearing primarily in one
+field carries $f_{p,f} \approx 1$ for that field, while an interdisciplinary
+work distributes its weight across multiple fields.  This fractional treatment
+avoids double-counting citation mass across fields: a work that straddles
+Medicine and Neuroscience, for example, contributes less than one full unit of
+activity to each field's corpus rather than one full unit to both.
+
+\subsection{Flat works table}
+
+The above filters and weight computations are applied in a single multi-pass
+DuckDB query over the raw parquet snapshot, producing a \emph{flat works}
+table at the granularity of one row per (work $\times$ institution $\times$
+subfield).  This granularity captures the full joint distribution of
+institutional authorship and topical classification without requiring repeated
+scans of the raw data at later pipeline stages.  For a work with $K$
+institutions and $F$ distinct subfield tags, the flat works table contains
+$K \times F$ rows for that work.
+
+The flat works table covers works published between 2000 and 2025, yielding
+153.5~million rows.  Each row carries: work identifier, publication year,
+source identifier, institution identifier, country code (ISO 3166-1), both
+institution weights, subfield identifier and name, field identifier and weight,
+the CWTS Leiden main field grouping (one of five groups), and the number of
+references in the work.
+
+\subsection{Corpus references}
+
+Citation links are extracted from the OpenAlex references parquet
+(${\approx}500$~million rows), which records for each work the set of works it
+cites.  We materialise a \emph{corpus references} table containing only those
+citation pairs $(p, q)$ where both the citer $p$ and the cited work $q$ appear
+in flat works.  This within-corpus filter retains approximately 358~million
+citation pairs and is computed once and reused across all 26 fields, avoiding
+repeated full scans of the raw reference data.
+
+\subsection{Census window and candidacy}
+
+The ranking is computed over a five-year census window, 2020--2024.  Only
+works published within this window enter the corpus as citers; cited works,
+however, may have been published at any time provided they appear in flat works
+(i.e.\ they satisfy the type, source, and institution filters).  In practice
+the cited works window is 2016--2024, covering papers published up to nine
+years before the end of the census window and still generating citations within
+it.
+
+For each field $f$ and census window $[t_0, t_1]$, the candidacy of a source
+$s$ is its \emph{weighted works}: the sum of field weights $f_{p,f}$ across
+all works $p$ with $\mathrm{source}(p) = s$ and $t_0 \leq
+\mathrm{year}(p) \leq t_1$.  The source candidacy computation deduplicates
+at the (work, source) level before summing, because flat works has multiple
+rows per work (one per institution), and naïve summation would otherwise count
+each work's field weight once per affiliated institution.
+
+The institution candidacy is the sum of $f_{p,f} \cdot w_u^{\mathrm{af}}$
+across all (work, institution, subfield) rows for institution $u$ in the
+window: each work's field-weight contribution is fractionally allocated to each
+affiliated institution, so no deduplication is required.
+
+Candidacy tables are precomputed once per window for all 26 fields and reused
+across all ranking runs, including sensitivity variants and country-bloc runs.
+
+\subsection{Scale}
+
+Table~\ref{tab:scale} reports the number of retained sources and institutions
+after the $\tau_s = \tau_u = 10$ per year threshold for each of the five CWTS
+Leiden main fields under the 2020--2024 window.  These figures convey the
+scale of the ranking problem: the bipartite matrix $M_S = H_{SI}H_{IS}$ is
+$N_s \times N_s$ dense in its sparsity pattern, so field sizes in the range of
+$10^3$--$10^4$ are computationally tractable while still providing
+statistically reliable rankings.
+
+\begin{table}[ht]
+\centering
+\caption{Retained sources ($N_s$) and institutions ($N_u$) per CWTS Leiden main field,
+         window 2020--2024, $\tau = 10$ per year.}
+\label{tab:scale}
+\begin{tabular}{rlrr}
+\toprule
+Group & Field & $N_s$ & $N_u$ \\
+\midrule
+1 & Mathematics and Computer Science  &  3,624 &  3,754 \\
+2 & Physical Sciences and Engineering &  6,724 &  5,694 \\
+3 & Life and Earth Sciences           &  8,475 &  7,008 \\
+4 & Biomedical and Health Sciences    & 11,585 & 10,069 \\
+5 & Social Sciences and Humanities    & 16,082 &  7,251 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The individual 26 OA fields are smaller subsets of these Leiden groups and
+vary considerably in size: major clinical and life science fields (Medicine,
+field 27; Biochemistry \& Genetics, field 13) retain several thousand sources
+and institutions each, while smaller fields (Dentistry, field 35; Veterinary,
+field 34) retain a few hundred.  Across all 26 fields the ranking procedure
+was run independently, with each field receiving its own bipartite citation
+graph, candidacy threshold, and Perron eigenvector computation.
