@@ -6,7 +6,7 @@ corpus:
   year_min: 2000
   year_max: 2025
   source_types:      [journal, conference, "book series"]
-  work_types:        [article, review]
+  work_types:        [article, review, book, "book-chapter", dissertation, letter, preprint, report]
   institution_types: [education, nonprofit, government, healthcare, other]
 
 duckdb:

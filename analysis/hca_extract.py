@@ -9,21 +9,38 @@ Pipeline (each file built once, skipped if present):
   5. WORKING/hcw_authorships.parquet       — (work_idx, author_idx) for HCW works
 
 Works filter (stage 1):
-  Source: OPENALEX/parquet/works/*.parquet, publication_year 2000–2025.
-  Inclusion criteria (all must hold):
+  Base work list is WORKING/flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet (the project's
+  master table, see pipeline/build_flat_works.py) — NOT a raw OA works scan. flat_works
+  already applies: publication_year 2000–2025, type in the retained work-type list
+  (settings.yaml, now article/review/book/book-chapter/dissertation/letter/preprint/report),
+  is_paratext=false, is_retracted=false, title IS NOT NULL + title dedup (earliest by
+  publication_year then work_idx), authors_count <= MAX_AUTHORS (29, in build_flat_works.py).
+  This stage adds exactly one further filter of its own:
     - cited_by_count > (2027 − publication_year)   [≥1 citation per year of life]
-    - is_paratext = false  AND  is_retracted = false
-    - type ∈ {article, book, book-chapter, dissertation, letter, preprint, report, review}
-    - title IS NOT NULL
-  Title deduplication: where multiple works share an identical title, only the
-    earliest (lowest publication_year, then lowest work_idx) is retained.
   Field assignment: topics are unnested and joined to topics.parquet; each work
     gets one row per OA field.  field_share = sum(topic scores in field) /
     sum(all topic scores for the work) — normalised propensity weight.
+  NOTE: this also means the HCA candidate pool now inherits flat_works' other
+  membership rules it never had before — referenced_works_count > 0, source type in
+  the retained set, and >=1 qualifying-institution-type authorship. See
+  build_filtered_works_topics()'s docstring for detail.
 
 HCW definition (stage 3):
-  Top 1% of cited_by_count per (field_idx, publication_year) within hcw_flat_works.
-  Works with > 30 authors are excluded (hyper-authored papers distort name matching).
+  Top 1% of cited_by_count per (field_idx, publication_year), computed over the
+  FULL 2000–2025 range within hcw_flat_works — a work published in any year can
+  be a HCW; the percentile threshold is local to its own (field, year) group.
+  Hyper-authored (>29-author) works are already excluded upstream by flat_works.
+
+HCA qualification window (stage 4):
+  n_hcw (an author's count of HCW, used as their HCA-qualification signal) counts
+  ONLY HCW with publication_year BETWEEN HCA_YEAR_MIN and HCA_YEAR_MAX (2014–2024).
+  This mirrors Clarivate's Highly Cited Researchers methodology, which counts an
+  author's highly-cited papers within a rolling ~11-year window, NOT their whole
+  career — HCA is designed to emulate HCR, so the counting window must match.
+  This is distinct from: flat_works' 2000–2025 ingestion range, and the enclave
+  pipeline's fixed 2014–2023 window (a different, unrelated 10-year analysis).
+  The underlying HCW set (stage 3) itself is NOT restricted to this window — only
+  the per-author count used for HCA qualification is.
 
 Per-field threshold (applied in hca_match.py, not here):
   thresh(field) = min n such that cumul%(n_hcw ≤ n) ≥ 90%.
@@ -50,9 +67,17 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config
+from util import load_config, load_settings
 
-MAX_AUTHORS = 30   # works with more authors than this are excluded (HEP/consortia)
+# NOTE: MAX_AUTHORS (hyper-authored/consortium exclusion) now lives upstream in
+# pipeline/build_flat_works.py (value 29) — flat_works is the base work list for
+# stage 1 below, so this file no longer needs its own copy of that filter.
+
+# HCA qualification window: n_hcw (stage 4) counts only HCW published in this
+# range, matching Clarivate's rolling ~11-year HCR citation window. Does NOT
+# restrict which works can be a HCW in the first place (stage 1-3 stay 2000-2025).
+HCA_YEAR_MIN = 2014
+HCA_YEAR_MAX = 2024
 
 # Winsorise citation counts at the 99.9th percentile per (field, year) before
 # computing the 99th-percentile HCW threshold.  Prevents a handful of
@@ -83,11 +108,28 @@ def _con(working: Path) -> duckdb.DuckDBPyConnection:
 
 # ── Stage 1: filtered_works_topics ───────────────────────────────────────────
 
-def build_filtered_works_topics(oax: Path, out: Path) -> None:
+def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path) -> None:
     """
     One row per (work × topic) after applying the works filter.
     Columns: work_idx, publication_year, cited_by_count, authors_count,
              institutions_distinct_count, field_score, field_idx, field_name.
+
+    Base work list now comes from flat_works (title dedup, type list,
+    is_paratext/is_retracted, authors_count<=MAX_AUTHORS already applied
+    there) instead of an independent raw-works scan. The one filter unique
+    to HCA candidacy — cited_by_count > (2027 - publication_year) — is still
+    applied here. Topic/field assignment (unnest work_topics, join
+    topics.parquet) is unchanged from before this consolidation.
+
+    NOTE: reading from flat_works also inherits its other membership
+    requirements that this stage never had before: referenced_works_count>0,
+    source type in the retained set (journal/conference/book series), and at
+    least one qualifying-institution-type authorship. A highly-cited work
+    failing any of those (e.g. zero references, hosted on a non-retained
+    source type, or authored only by company/funder/archive-affiliated
+    people) will no longer enter the HCA candidate pool, whereas it would
+    have before. Expected to be rare among genuinely highly-cited works.
+
     Skipped if the file already exists.
     """
     if out.exists():
@@ -102,20 +144,10 @@ def build_filtered_works_topics(oax: Path, out: Path) -> None:
     COPY (
       WITH
       dedup_works AS (
-        SELECT work_idx, title, publication_year, cited_by_count,
+        SELECT DISTINCT work_idx, title, publication_year, cited_by_count,
                authors_count, institutions_distinct_count
-        FROM '{oax}/works/*.parquet'
+        FROM '{flat_works_path}'
         WHERE cited_by_count > (2027 - publication_year)
-          AND title IS NOT NULL
-          AND is_paratext  = false
-          AND is_retracted = false
-          AND list_contains(
-                ['book','letter','dissertation','preprint',
-                 'review','report','article','book-chapter'], type)
-          AND publication_year BETWEEN 2000 AND 2025
-        QUALIFY DENSE_RANK() OVER (
-          PARTITION BY title ORDER BY publication_year ASC, work_idx ASC
-        ) = 1
       ),
       filtered_works AS (
         SELECT dw.work_idx, dw.title, dw.publication_year, dw.cited_by_count,
@@ -147,6 +179,8 @@ def build_hcw_flat_works(topics_path: Path, out: Path) -> None:
     One row per (work × field) with normalised field_share.
     Columns: work_idx, publication_year, cited_by_count, authors_count,
              institutions_distinct_count, field_idx, field_name, field_share.
+    No authors_count filter here — flat_works already enforces
+    authors_count <= MAX_AUTHORS (29) upstream, in build_flat_works.py.
     Skipped if the file already exists.
     """
     if out.exists():
@@ -171,7 +205,6 @@ def build_hcw_flat_works(topics_path: Path, out: Path) -> None:
              field_idx, field_name,
              ROUND(SUM(field_share), 3) AS field_share
       FROM shares
-      WHERE authors_count <= {MAX_AUTHORS}
       GROUP BY work_idx, publication_year, cited_by_count,
                authors_count, institutions_distinct_count,
                field_idx, field_name
@@ -246,7 +279,11 @@ def build_hcw_works(flat_path: Path, out: Path) -> None:
 def build_hcw_authors(hcw_path: Path, oax: Path, out: Path) -> None:
     """
     Join HCW works to authorships; aggregate to (author × field) with metadata.
-    Works with > MAX_AUTHORS authors are excluded before counting.
+    Hyper-authored works are already excluded upstream (flat_works, MAX_AUTHORS=29).
+    n_hcw (and the modal institution derived alongside it) counts only HCW with
+    publication_year in [HCA_YEAR_MIN, HCA_YEAR_MAX] — the Clarivate-emulating
+    HCA qualification window. The underlying HCW set itself is not restricted;
+    only this per-author aggregation is.
     Skipped if the file already exists.
     """
     if out.exists():
@@ -261,6 +298,7 @@ def build_hcw_authors(hcw_path: Path, oax: Path, out: Path) -> None:
     con.execute(f"""
     CREATE TEMP TABLE _hcw AS
     SELECT work_idx, field_idx FROM '{hcw_path}'
+    WHERE publication_year BETWEEN {HCA_YEAR_MIN} AND {HCA_YEAR_MAX}
     """)
 
     con.execute(f"""
@@ -368,18 +406,24 @@ def build_hcw_authorships(hcw_path: Path, oax: Path, out: Path) -> None:
 # ── entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
-    paths = load_config()
+    paths    = load_config()
+    settings = load_settings()
     oa    = paths.openalex / 'parquet'
     w     = paths.working
 
+    flat_works_path  = w / f'flat_works_{settings.year_min}_{settings.year_max}.parquet'
     topics_path      = w / 'filtered_works_topics.parquet'
     flat_path        = w / 'hcw_flat_works.parquet'
     hcw_path         = w / 'hcw_works.parquet'
     authors_path     = w / 'hcw_authors.parquet'
     authorships_path = w / 'hcw_authorships.parquet'
 
+    if not flat_works_path.exists():
+        print(f'ERROR: {flat_works_path} not found — run pipeline/build_flat_works.py first')
+        sys.exit(1)
+
     print('Stage 1: filtered_works_topics')
-    build_filtered_works_topics(oa, topics_path)
+    build_filtered_works_topics(flat_works_path, oa, topics_path)
 
     print('Stage 2: hcw_flat_works')
     build_hcw_flat_works(topics_path, flat_path)

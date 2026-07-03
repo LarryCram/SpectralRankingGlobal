@@ -1,6 +1,10 @@
 """
 build_flat_works.py — Build the flat works table: one row per (work × institution × subfield).
 
+flat_works is the master table for the whole project — every downstream stage
+(candidacy, edge lists, rankings, enclave detection, HCA/HCR matching) should
+read from it rather than re-scanning raw OA works.
+
 Filters applied:
   - publication_year 2000–2025
   - type in ('article', 'review')
@@ -8,8 +12,15 @@ Filters applied:
   - source type in ('journal', 'conference', 'book series')
   - institution type in ('education', 'nonprofit', 'government', 'healthcare', 'other')
     (excludes company, funder, archive, etc.)
+  - title IS NOT NULL, and deduplicated: where multiple works share an identical
+    title, only the earliest (lowest publication_year, then lowest work_idx) is kept
+  - authors_count <= MAX_AUTHORS (drops hyper-authored consortium papers)
   - work has at least one qualifying institutional authorship
   - work has at least one topic assignment
+
+cited_by_count, authors_count, and institutions_distinct_count are carried
+through VERBATIM from the raw OA works row — NOT recomputed from the
+institution-pruned/topic-joined data in later passes of this script.
 
 Outputs:
   WORKING/flat_works_{YEAR_MIN}_{YEAR_MAX}.parquet
@@ -18,20 +29,24 @@ Outputs:
     (~500M rows) on every Stage 3 run.
 
 Schema:
-  work_idx               BIGINT
-  publication_year       BIGINT
-  source_idx             BIGINT
-  institution_idx        BIGINT
-  country_code           VARCHAR  -- institution's country (ISO 3166-1 alpha-2)
-  inst_weight            DOUBLE   -- author-fractional: SUM(1/n_authors/n_inst_per_author)
-  direct_inst_weight     DOUBLE   -- institution-fractional: 1/n_qualifying_institutions
-  subfield_idx           BIGINT   -- OA subfield index (1100–3616); row granularity
-  subfield_name          VARCHAR  -- OA subfield name
-  field_idx              BIGINT   -- OA field index (11–36); one per subfield
-  field_weight           DOUBLE   -- subfield weight; sums to 1 per work across all subfields
-  leiden_idx             BIGINT   -- CWTS Leiden main field (1–5); derived from field_idx
-  leiden_name            VARCHAR  -- CWTS Leiden main field name
-  referenced_works_count BIGINT
+  work_idx                     BIGINT
+  publication_year             BIGINT
+  source_idx                   BIGINT
+  institution_idx              BIGINT
+  country_code                 VARCHAR  -- institution's country (ISO 3166-1 alpha-2)
+  inst_weight                  DOUBLE   -- author-fractional: SUM(1/n_authors/n_inst_per_author)
+  direct_inst_weight           DOUBLE   -- institution-fractional: 1/n_qualifying_institutions
+  subfield_idx                 BIGINT   -- OA subfield index (1100–3616); row granularity
+  subfield_name                VARCHAR  -- OA subfield name
+  field_idx                    BIGINT   -- OA field index (11–36); one per subfield
+  field_weight                 DOUBLE   -- subfield weight; sums to 1 per work across all subfields
+  leiden_idx                   BIGINT   -- CWTS Leiden main field (1–5); derived from field_idx
+  leiden_name                  VARCHAR  -- CWTS Leiden main field name
+  referenced_works_count       BIGINT
+  title                        VARCHAR  -- raw OA title (post-dedup)
+  cited_by_count                BIGINT   -- raw OA value, unrecomputed
+  authors_count                 BIGINT   -- raw OA value, unrecomputed (pre-institution-pruning)
+  institutions_distinct_count  BIGINT   -- raw OA value, unrecomputed
 
 Row granularity: one row per (work × institution × subfield).
 field-level weight  = SUM(field_weight WHERE field_idx  = X) per (work, institution).
@@ -44,6 +59,13 @@ import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, load_settings
+
+# Works with more authors than this are excluded (hyper-authored consortium
+# papers). NOTE: hca_extract.py's separate HCR-matching pipeline uses
+# MAX_AUTHORS=30 (authors_count <= 30); this is intentionally 29
+# (authors_count <= 29) per explicit instruction — the two are not currently
+# reconciled to the same threshold.
+MAX_AUTHORS = 29
 
 
 def build_flat_works(db: duckdb.DuckDBPyConnection,
@@ -83,17 +105,26 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
         SELECT work_idx,
                source_id         AS source_idx,
                publication_year,
-               referenced_works_count
+               referenced_works_count,
+               title,
+               cited_by_count,
+               authors_count,
+               institutions_distinct_count
         FROM '{works_path}'
         WHERE publication_year BETWEEN {year_min} AND {year_max}
           AND type IN ({work_types})
           AND is_paratext           = false
           AND is_retracted          = false
           AND referenced_works_count > 0
+          AND title IS NOT NULL
+          AND authors_count <= {MAX_AUTHORS}
           AND source_id IN (
               SELECT CAST(REGEXP_REPLACE(id, 'https://openalex.org/S', '') AS BIGINT)
               FROM '{sources_path}' WHERE type IN ({src_types})
           )
+        QUALIFY DENSE_RANK() OVER (
+            PARTITION BY title ORDER BY publication_year ASC, work_idx ASC
+        ) = 1
     """)
 
     # ── pass 2: one authorships scan → small _iw (work × institution) ─────────
@@ -206,7 +237,11 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
             ff.field_weight,
             ff.leiden_idx,
             ff.leiden_name,
-            fw.referenced_works_count
+            fw.referenced_works_count,
+            fw.title,
+            fw.cited_by_count,
+            fw.authors_count,
+            fw.institutions_distinct_count
         FROM _fw fw
         JOIN _iw      iw ON fw.work_idx = iw.work_idx
         JOIN fw_fields ff ON fw.work_idx = ff.work_idx

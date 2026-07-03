@@ -292,14 +292,13 @@ def build_enclave_hcw(window: str, label: str, paths, settings) -> pd.DataFrame:
     hcw = hcw.merge(miv, on=['field_idx', 'work_idx'], how='left')
     hcw['gap'] = hcw['source_v'] - hcw['mean_inst_v']
 
-    # ── 8. Attach titles from works parquet ──────────────────────────────────
-    works_path = str(paths.openalex / 'parquet' / 'works' / '*.parquet')
+    # ── 8. Attach titles from flat_works (master table carries title directly) ─
     t0 = time.time()
     tcon = duckdb.connect()
     tcon.register('_hcw', hcw[['work_idx']].drop_duplicates())
     titles = tcon.execute(f"""
         SELECT DISTINCT w.work_idx, w.title
-        FROM parquet_scan('{works_path}') w
+        FROM parquet_scan('{fw_path}') w
         JOIN _hcw h ON h.work_idx = w.work_idx
     """).df()
     tcon.close()

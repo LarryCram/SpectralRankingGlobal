@@ -1,5 +1,6 @@
 """
-plot_enclave.py — Scatter: HCW source/institution v vs mean citer v.
+plot_hca_hcr.py — Scatter: HCW source/institution v vs mean citer v,
+with matched-HCR-author overlay.
 
 Left panel:  x = log10(source_v of HCW),    y = log10(mean_citer_v)
 Right panel: x = log10(mean_inst_v of HCW), y = log10(mean_citer_v)
@@ -10,12 +11,16 @@ Reference lines at log(v) = 0 (v = 1).  Count of (field, work) pairs shown per q
 Produces one PDF per CWTS Leiden group (5 files), each coloured by OA field within
 the group.  Also produces one combined PDF coloured by Leiden group.
 
+Overlay: matched-HCR-authored HCW (hollow black circles) plus <v> (pool mean,
+filled circle) and <<v>> (per-person mean, diamond) markers, from
+hcr_hca_map.parquet / hca_clusters.parquet / hcw_authorships.parquet.
+
 Input:  WORKING/enclave_hcw_{window}_{label}.parquet
 Output: enclaves/plots/enclave_citer_v_{window}_{label}_{tag}.pdf
 
 Usage:
-  .venv/bin/python enclaves/plot_enclave.py
-  .venv/bin/python enclaves/plot_enclave.py --window 2020_2024 --label baseline
+  .venv/bin/python enclaves/plot_hca_hcr.py
+  .venv/bin/python enclaves/plot_hca_hcr.py --window 2020_2024 --label baseline
 """
 
 import sys
@@ -90,6 +95,69 @@ _FIELD_SHORT = {
 }
 
 
+def load_hcr_works(working: Path, window: str, label: str) -> pd.DataFrame | None:
+    """One row per (author_idx, work_idx, field_idx) for matched-HCR-authored HCW.
+
+    Columns: author_idx, work_idx, field_idx, leiden_group,
+             source_v, mean_inst_v, mean_citer_v.
+    Returns None if any upstream file is missing.
+    """
+    paths = {
+        'map':          working / 'hcr_hca_map.parquet',
+        'clusters':     working / 'hca_clusters.parquet',
+        'authorships':  working / 'hcw_authorships.parquet',
+        'hcw':          working / f'enclave_hcw_{window}_{label}.parquet',
+    }
+    missing = [name for name, p in paths.items() if not p.exists()]
+    if missing:
+        print(f'  HCR overlay skipped — missing: {", ".join(missing)}')
+        return None
+
+    m = pd.read_parquet(paths['map'], columns=['hca_cluster_hash', 'match_status'])
+    m = m[m['match_status'].isin(['unique', 'inst_resolved'])]
+    hashes = set(m['hca_cluster_hash'])
+
+    clusters = pd.read_parquet(paths['clusters'], columns=['author_idx', 'cluster_hash'])
+    author_idxs = set(clusters.loc[clusters['cluster_hash'].isin(hashes), 'author_idx'])
+
+    auth = pd.read_parquet(paths['authorships'], columns=['work_idx', 'author_idx'])
+    auth = auth[auth['author_idx'].isin(author_idxs)]
+
+    hcw = pd.read_parquet(paths['hcw'], columns=[
+        'work_idx', 'field_idx', 'source_v', 'mean_inst_v', 'mean_citer_v',
+    ])
+    hcw = hcw[hcw['work_idx'].isin(set(auth['work_idx']))]
+
+    out = hcw.merge(auth, on='work_idx', how='inner')
+    out['leiden_group'] = out['field_idx'].map(_LEIDEN_GROUP)
+    return out
+
+
+def _draw_hcr_overlay(ax: plt.Axes, hcr_sub: pd.DataFrame, x_col: str) -> None:
+    """Overlay matched-HCR-authored HCW as hollow black circles, plus
+    <v> (pool mean, filled circle) and <<v>> (person-weighted mean, diamond)."""
+    sub = hcr_sub.dropna(subset=[x_col, 'mean_citer_v'])
+    sub = sub[(sub[x_col] > 0) & (sub['mean_citer_v'] > 0)]
+    if sub.empty:
+        return
+
+    lx = np.log10(sub[x_col].values)
+    ly = np.log10(sub['mean_citer_v'].values)
+    ax.scatter(lx, ly, s=12, facecolors='none', edgecolors='k',
+               linewidths=0.6, zorder=6)
+
+    pool_x, pool_y = np.log10(sub[x_col]).mean(), np.log10(sub['mean_citer_v']).mean()
+    ax.scatter([pool_x], [pool_y], s=80, marker='o', color='k', zorder=7)
+    ax.annotate(r'$\langle v \rangle$', (pool_x, pool_y), xytext=(4, 4),
+               textcoords='offset points', fontsize=8, fontweight='bold', zorder=7)
+
+    per_person = sub.assign(lx=lx, ly=ly).groupby('author_idx')[['lx', 'ly']].mean()
+    person_x, person_y = per_person['lx'].mean(), per_person['ly'].mean()
+    ax.scatter([person_x], [person_y], s=80, marker='D', color='k', zorder=7)
+    ax.annotate(r'$\langle\langle v \rangle\rangle$', (person_x, person_y), xytext=(4, -10),
+               textcoords='offset points', fontsize=8, fontweight='bold', zorder=7)
+
+
 def _axis_style(ax: plt.Axes) -> None:
     ax.axhline(0, color='k', lw=0.8, alpha=0.4)
     ax.axvline(0, color='k', lw=0.8, alpha=0.4)
@@ -158,7 +226,8 @@ def _save_fig(fig: plt.Figure, axes, out_path: Path, n: int,
     print(f'  Saved {out_path.name}  (n={n:,})')
 
 
-def plot_combined(df: pd.DataFrame, out_path: Path) -> None:
+def plot_combined(df: pd.DataFrame, out_path: Path,
+                  hcr_works: pd.DataFrame | None = None) -> None:
     """Single plot, all fields, coloured by Leiden group."""
     sub = df.dropna(subset=['source_v', 'mean_inst_v', 'mean_citer_v']).copy()
     sub = sub[(sub['source_v'] > 0) & (sub['mean_inst_v'] > 0) & (sub['mean_citer_v'] > 0)]
@@ -166,12 +235,16 @@ def plot_combined(df: pd.DataFrame, out_path: Path) -> None:
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     _draw_panels(sub, axes, 'leiden_group', _LEIDEN_COLOUR, _LEIDEN_LABEL)
+    if hcr_works is not None:
+        for ax, x_col in zip(axes, ['source_v', 'mean_inst_v']):
+            _draw_hcr_overlay(ax, hcr_works, x_col)
     fig.suptitle('HCW: source/institution v vs mean citing source v — all fields',
                  fontsize=10)
     _save_fig(fig, axes, out_path, len(sub), legend_title='Leiden group')
 
 
-def plot_leiden_group(df: pd.DataFrame, g: int, out_path: Path) -> None:
+def plot_leiden_group(df: pd.DataFrame, g: int, out_path: Path,
+                      hcr_works: pd.DataFrame | None = None) -> None:
     """One plot for a single Leiden group, coloured by OA field."""
     fields_in_group = sorted(k for k, v in _LEIDEN_GROUP.items() if v == g)
     sub = df[df['field_idx'].isin(fields_in_group)].copy()
@@ -185,6 +258,10 @@ def plot_leiden_group(df: pd.DataFrame, g: int, out_path: Path) -> None:
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     _draw_panels(sub, axes, 'field_idx', colour_map, label_map)
+    if hcr_works is not None:
+        hcr_sub = hcr_works[hcr_works['leiden_group'] == g]
+        for ax, x_col in zip(axes, ['source_v', 'mean_inst_v']):
+            _draw_hcr_overlay(ax, hcr_sub, x_col)
     fig.suptitle(f'HCW: {_LEIDEN_LABEL[g]}', fontsize=10)
     _save_fig(fig, axes, out_path, len(sub), legend_title='OA field')
 
@@ -210,10 +287,16 @@ def main() -> None:
     out_dir.mkdir(exist_ok=True)
     tag = f'{args.window}_{args.label}'
 
+    hcr_works = load_hcr_works(paths.working, args.window, args.label)
+    if hcr_works is not None:
+        print(f'  {len(hcr_works):,} HCR-authored HCW rows  |  '
+              f'{hcr_works["author_idx"].nunique()} distinct matched-HCR authors')
+
     print('Plotting...')
-    plot_combined(df, out_dir / f'enclave_citer_v_{tag}_all.pdf')
+    plot_combined(df, out_dir / f'enclave_citer_v_{tag}_all.pdf', hcr_works=hcr_works)
     for g in range(1, 6):
-        plot_leiden_group(df, g, out_dir / f'enclave_citer_v_{tag}_{_LEIDEN_SLUG[g]}.pdf')
+        plot_leiden_group(df, g, out_dir / f'enclave_citer_v_{tag}_{_LEIDEN_SLUG[g]}.pdf',
+                          hcr_works=hcr_works)
 
 
 if __name__ == '__main__':

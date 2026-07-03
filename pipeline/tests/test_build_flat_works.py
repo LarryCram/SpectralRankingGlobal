@@ -30,6 +30,9 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str, str]:
       107 — journal S1, 2020, article, is_retracted=true → excluded
       108 — journal S1, 2020, book     → excluded: wrong work type
       109 — journal S1, 2020, article, valid but no topics → excluded
+      110 — journal S1, 2019, article, valid; shares title with 111 (earlier year → kept)
+      111 — journal S1, 2021, article, valid; shares title with 110 (later year → excluded)
+      112 — journal S1, 2020, article, authors_count=35 (> MAX_AUTHORS) → excluded
 
     Authorships (qualifying institutions only — all type='education' except inst 299):
       101: author 1001 → insts {201, 202};  author 1002 → inst {203}
@@ -40,6 +43,9 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str, str]:
       103: author 1004 → inst {205};  author 1005 → inst {206}
            inst_weight: 205=0.5, 206=0.5;  direct_inst_weight: 0.5 each
       109: author 1006 → inst {207}   (valid, but no topics → excluded from output)
+      110: author 2001 → inst {201}
+      111: author 2002 → inst {201}
+      112: author 2003 → inst {201}
 
     Topics:
       101: topic 1 score 0.9 → field 11;  topic 2 score 0.6 → field 13
@@ -48,6 +54,7 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str, str]:
            field_weight: 11=1.0
       103: topic 4 score 0.7 → field 17
            field_weight: 17=1.0
+      110, 111, 112: topic 1 score 0.9 → field 11 (same shape as 101's first topic)
       (109 has no topics)
 
     Institutions:
@@ -86,17 +93,21 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str, str]:
     # works
     db.execute("""
         CREATE TABLE works AS FROM (VALUES
-            (101, 1, 2020, 10, 'article', false, false),
-            (102, 1, 2020, 20, 'review',  false, false),
-            (103, 2, 2021, 15, 'article', false, false),
-            (104, 3, 2020,  5, 'article', false, false),
-            (105, 1, 2015,  8, 'article', false, false),
-            (106, 1, 2020, 12, 'article', true,  false),
-            (107, 1, 2020,  7, 'article', false, true),
-            (108, 1, 2020,  9, 'book',    false, false),
-            (109, 1, 2020,  6, 'article', false, false)
+            (101, 1, 2020, 10, 'article', false, false, 'Ecology Genetics Paper', 50, 2, 3),
+            (102, 1, 2020, 20, 'review',  false, false, 'Review Paper',           30, 1, 1),
+            (103, 2, 2021, 15, 'article', false, false, 'ML Paper',               40, 2, 2),
+            (104, 3, 2020,  5, 'article', false, false, 'Repo Paper',              1, 1, 1),
+            (105, 1, 2015,  8, 'article', false, false, 'Old Paper',               1, 1, 1),
+            (106, 1, 2020, 12, 'article', true,  false, 'Paratext Paper',          1, 1, 1),
+            (107, 1, 2020,  7, 'article', false, true,  'Retracted Paper',         1, 1, 1),
+            (108, 1, 2020,  9, 'book',    false, false, 'Book Paper',              1, 1, 1),
+            (109, 1, 2020,  6, 'article', false, false, 'No Topics Paper',         1, 1, 1),
+            (110, 1, 2019, 11, 'article', false, false, 'Duplicate Title',        20, 1, 1),
+            (111, 1, 2021, 13, 'article', false, false, 'Duplicate Title',        25, 1, 1),
+            (112, 1, 2020, 14, 'article', false, false, 'Consortium Paper',      100, 35, 5)
         ) t(work_idx, source_id, publication_year,
-            referenced_works_count, type, is_paratext, is_retracted)
+            referenced_works_count, type, is_paratext, is_retracted,
+            title, cited_by_count, authors_count, institutions_distinct_count)
     """)
     wks = str(tmp_path / 'works.parquet')
     db.execute(f"COPY works TO '{wks}'")
@@ -110,7 +121,10 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str, str]:
             (102, 1003, 204),
             (103, 1004, 205),
             (103, 1005, 206),
-            (109, 1006, 207)
+            (109, 1006, 207),
+            (110, 2001, 201),
+            (111, 2002, 201),
+            (112, 2003, 201)
         ) t(work_idx, author_idx, institution_idx)
     """)
     auth = str(tmp_path / 'authorships.parquet')
@@ -125,7 +139,10 @@ def make_test_parquets(tmp_path: Path) -> tuple[str, str, str, str, str, str]:
             (101, 1, 0.9),
             (101, 2, 0.6),
             (102, 3, 0.8),
-            (103, 4, 0.7)
+            (103, 4, 0.7),
+            (110, 1, 0.9),
+            (111, 1, 0.9),
+            (112, 1, 0.9)
         ) t(work_idx, topic_idx, score)
         GROUP BY work_idx
     """)
@@ -185,6 +202,7 @@ def test_output_schema(tmp_path):
         'field_idx', 'field_weight',
         'leiden_idx', 'leiden_name',
         'referenced_works_count',
+        'title', 'cited_by_count', 'authors_count', 'institutions_distinct_count',
     }
     assert cols == expected
 
@@ -195,7 +213,7 @@ def test_only_valid_works_retained(tmp_path):
     out = run(tmp_path)
     with duckdb.connect() as db:
         works = set(db.execute(f"SELECT DISTINCT work_idx FROM '{out}'").df()['work_idx'])
-    assert works == {101, 102, 103}
+    assert works == {101, 102, 103, 110}
 
 
 def test_year_range(tmp_path):
@@ -213,6 +231,36 @@ def test_work_without_topics_excluded(tmp_path):
     with duckdb.connect() as db:
         works = set(db.execute(f"SELECT DISTINCT work_idx FROM '{out}'").df()['work_idx'])
     assert 109 not in works
+
+
+def test_duplicate_title_keeps_earliest(tmp_path):
+    """110 and 111 share a title; 110 (2019) is kept, 111 (2021) is dropped."""
+    out = run(tmp_path)
+    with duckdb.connect() as db:
+        works = set(db.execute(f"SELECT DISTINCT work_idx FROM '{out}'").df()['work_idx'])
+    assert 110 in works
+    assert 111 not in works
+
+
+def test_hyperauthored_work_excluded(tmp_path):
+    """112 has authors_count=35, above MAX_AUTHORS (29) → excluded as a consortium paper."""
+    out = run(tmp_path)
+    with duckdb.connect() as db:
+        works = set(db.execute(f"SELECT DISTINCT work_idx FROM '{out}'").df()['work_idx'])
+    assert 112 not in works
+
+
+def test_raw_columns_passthrough_unrecomputed(tmp_path):
+    """title/cited_by_count/authors_count/institutions_distinct_count carry the
+    exact raw OA values from the works fixture — not recomputed from the
+    institution-pruned/topic-joined data in later passes."""
+    out = run(tmp_path)
+    with duckdb.connect() as db:
+        row = db.execute(f"""
+            SELECT DISTINCT title, cited_by_count, authors_count, institutions_distinct_count
+            FROM '{out}' WHERE work_idx = 101
+        """).fetchone()
+    assert row == ('Ecology Genetics Paper', 50, 2, 3)
 
 
 # ─── inst_weight (author-fractional) ─────────────────────────────────────────

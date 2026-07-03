@@ -43,6 +43,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, FIELD_NAMES
+from hca_extract import HCA_YEAR_MIN, HCA_YEAR_MAX
 
 HCA_TARGET_DEFAULT = 250
 
@@ -87,6 +88,9 @@ def citation_scores(
     """
     Sum cited_by_count per (author_idx, field_idx) via DuckDB.
     hcw_works already carries cited_by_count and field_idx — no OAX join.
+    Restricted to HCW with publication_year in [HCA_YEAR_MIN, HCA_YEAR_MAX] —
+    same Clarivate-emulating window as n_hcw (hca_extract.py stage 4), so
+    cf_paper_score and cf_cite_score qualify against the same time window.
     Returns (cf_cite_score Series, thresh_cite dict).
     """
     con = duckdb.connect()
@@ -100,6 +104,7 @@ def citation_scores(
         FROM read_parquet('{authorships_path}') a
         JOIN read_parquet('{hcw_works_path}')   w ON w.work_idx = a.work_idx
         WHERE a.author_idx IS NOT NULL
+          AND w.publication_year BETWEEN {HCA_YEAR_MIN} AND {HCA_YEAR_MAX}
         GROUP BY a.author_idx, w.field_idx
     """).df()
     con.close()

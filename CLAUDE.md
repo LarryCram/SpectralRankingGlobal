@@ -100,16 +100,22 @@ OPENALEX/parquet/
   references/*.parquet       OA snapshot — (citer_idx, cited_idx)
 
 WORKING/
-  flat_works_2016_2025.parquet              ✅ stage 1a; 153.5M rows
-                                              (work×institution×subfield, with weights)
+  flat_works_2000_2025.parquet              🔄 stage 1a; master table — row count pending
+                                              rebuild (was 153.5M rows pre-recode; now also
+                                              filters title dedup + authors_count<=29, so
+                                              will drop). (work×institution×subfield, with weights)
                                               cols: work_idx, publication_year,
                                                 source_idx, institution_idx, country_code,
                                                 inst_weight, direct_inst_weight,
                                                 subfield_idx, subfield_name,
                                                 field_idx, field_weight,
                                                 leiden_idx, leiden_name,
-                                                referenced_works_count
-  corpus_references_2016_2025.parquet       ✅ stage 1b; ~358M rows
+                                                referenced_works_count,
+                                                title, cited_by_count, authors_count,
+                                                institutions_distinct_count
+                                                (last 4 cols: raw OA values, unrecomputed)
+  corpus_references_2000_2025.parquet       🔄 stage 1b; ~358M rows pre-recode, pending
+                                              rebuild alongside flat_works
                                               (citer_idx, cited_idx) both in flat_works
   field_source_cands_{window}.parquet       ✅ stage 2; source weighted works per OA field
   field_inst_cands_{window}.parquet         ✅ stage 2; inst weighted works per OA field
@@ -143,23 +149,107 @@ enclaves/reports/
 `field_idx` = OA field 11–36, Leiden group 1–5, or subfield ≥ 1000.
 
 ## Pipeline status — window 2020_2024
-- ✅ Stage 1a: `build_flat_works.py` — flat_works_2016_2025.parquet (153.5M rows, subfield granularity)
-- ✅ Stage 1b: `build_flat_works.py` — corpus_references_2016_2025.parquet (~358M rows)
-- ✅ Stage 2: `build_field_candidacy.py` — all 6 candidacy parquets (field/leiden/subfield × source/inst)
-- ✅ Stage 3+4 baseline: `run_field_bloc.py` — all 26 OA fields (label=`baseline`)
-- ✅ Stage 3+4 baseline: `run_leiden_bloc.py` — all 5 Leiden groups (label=`baseline`)
-- ✅ Sensitivity suite: `run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups
-- ✅ Stage 4c: `build_work_v.py` — work_v_2020_2024_baseline.parquet (59.8M rows, 13.7s)
-- 🔄 Bloc suite: `run_leiden_bloc.py` — OECDG20CIA, CIAA (in progress / pending)
-- ✅ Stage E1–E3: HCW detection, TF-IDF, NMF — all 26 fields
-- ✅ Stage E4: `network_enclave.py` — 181 enclave network MD reports (26 fields)
+- 🔄 Stage 1a: `build_flat_works.py` — flat_works_2000_2025.parquet — recoded to be the
+  project's master table (title, cited_by_count, authors_count, institutions_distinct_count
+  carried verbatim from raw OA works; title dedup + authors_count<=29 filter added).
+  Needs deletion + rerun to pick up the new schema/filters — see "flat_works master
+  table recode" below.
+- 🔄 Stage 1b: `build_flat_works.py` — corpus_references_2000_2025.parquet — depends on
+  flat_works' work_idx set, needs rebuild alongside it.
+- 🔄 Stage 2: `build_field_candidacy.py` — all 6 candidacy parquets (field/leiden/subfield × source/inst)
+  — stale once flat_works is rebuilt, needs rerun
+- 🔄 Stage 3+4 baseline: `run_field_bloc.py` — all 26 OA fields (label=`baseline`) — stale,
+  needs rerun once flat_works/candidacy are rebuilt
+- 🔄 Stage 3+4 baseline: `run_leiden_bloc.py` — all 5 Leiden groups (label=`baseline`) — stale
+- 🔄 Sensitivity suite: `run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups — stale
+- 🔄 Stage 4c: `build_work_v.py` — work_v_2020_2024_baseline.parquet — stale, depends on rankings
+- 🔄 Bloc suite: `run_leiden_bloc.py` — OECDG20CIA, CIAA (in progress / pending) — stale
+- 🔄 Stage E1–E3: HCW detection, TF-IDF, NMF — all 26 fields — stale, depends on flat_works +
+  rankings; NMF topic names (Stage 3 AI-naming, 194 enclaves across 26 fields) will need
+  reapplying after rebuild since enclave_nmf gets regenerated from scratch
+- 🔄 Stage E4: `network_enclave.py` — enclave network MD reports (26 fields) — stale
   - Summary cols: n_hcw--, ⟨v⟩--, ⟨v⟩net, n_hcw-+/%-+, n_hcw+-/%+-, n_hcw++/%++,
                   citers, loop%, n_comp, lg_hcw, lg%
   - ⟨v⟩net covers ALL 1-hop network works (seeds + citers) with retained source
-- ✅ Stage E5: `researcher_enclaves.py` — 26 researcher MD reports
+- ⚠️ Stage E5: `researcher_enclaves.py` — 26 researcher MD reports — stale AND has a
+  pre-existing unrelated bug (`a.id` vs `ids` schema mismatch against current OA authors
+  parquet) that must be fixed before it can rerun at all
   - Top-3 authors per enclave by distinct works in the 1-hop network
   - Fields: display_name, h_index, works_count, cited_by_count, in_network count
-  - One DuckDB pass over all 1980 authorship partitions (25M rows, 4.6s)
+
+## flat_works master table recode
+`flat_works` now carries `title`, `cited_by_count`, `authors_count`,
+`institutions_distinct_count` verbatim from raw OA works (not recomputed after
+institution/topic pruning), plus two new filters: `title IS NOT NULL` + dedup to the
+earliest (lowest publication_year, then work_idx) work per duplicate title, and
+`authors_count <= MAX_AUTHORS` (29, in `pipeline/build_flat_works.py`) to drop
+hyper-authored consortium papers. Goal: `flat_works` is the single master table other
+stages should read from instead of re-scanning raw OA works.
+
+**Reconciled**: `settings.yaml`'s `work_types` broadened from `[article, review]` to the
+full 8-type list (`article, review, book, book-chapter, dissertation, letter, preprint,
+report`), matching `hca_extract.py`'s own list — affects the core ranking corpus
+project-wide, not just HCA matching (expected impact: small, per explicit sign-off).
+`analysis/hca_extract.py` stage 1 (`build_filtered_works_topics`) now reads its base
+work list from `flat_works` instead of independently re-scanning raw OA works — title
+dedup, type filter, is_paratext/is_retracted, and `authors_count<=29` are all inherited
+from flat_works; stage 1 now only adds its own `cited_by_count > (2027-year)` filter.
+The now-redundant `authors_count <= MAX_AUTHORS` check in stage 2
+(`build_hcw_flat_works`) was removed; the `MAX_AUTHORS` constant was removed from
+`hca_extract.py` entirely (now only in `build_flat_works.py`, value 29).
+
+**Side effect of this consolidation** (not explicitly requested, flagged for awareness):
+the HCA candidate pool now also inherits flat_works' other membership rules it never had
+before — `referenced_works_count > 0`, source type in the retained set (journal/
+conference/book series), and ≥1 qualifying-institution-type authorship. A highly-cited
+work failing any of those (e.g. zero references, hosted on a non-retained source type,
+or authored only by company/funder/archive-affiliated people) no longer enters the HCA
+candidate pool, whereas it would have before. Expected to be rare among genuinely
+highly-cited works, but worth checking `filtered_works_topics.parquet` row counts
+against the pre-recode `hcw_works.parquet`/`hcw_authors.parquet` after rebuild.
+
+**Done**: `enclaves/build_enclave_hcw.py`'s title-attach step now reads `title` from
+`flat_works` instead of a separate OA works scan (simplification only, no behavior change
+beyond inheriting flat_works' new title-dedup).
+
+**Also fixed** (prerequisite, in `analysis/hca_extract.py` and `analysis/hca_crossfield.py`):
+HCA qualification (`n_hcw`, `cf_paper_score`, `cf_cite_score`) now counts only HCW with
+`publication_year` in `[HCA_YEAR_MIN, HCA_YEAR_MAX] = [2014, 2024]`, matching Clarivate's
+rolling ~11-year HCR citation window — HCW *selection* itself (stage 1–3, which works can
+be a HCW at all) is unaffected and still spans the full 2000–2025 range.
+
+**Test coverage**: `pipeline/tests/test_build_flat_works.py`'s synthetic fixture was extended
+with a duplicate-title pair and a 35-author work to cover the two new filters, plus a
+raw-passthrough test for `title`/`cited_by_count`/`authors_count`/`institutions_distinct_count`.
+Full project test suite (373 tests, `util`/`pipeline`/`analysis`/`enclaves`) passes clean —
+run with `.venv/bin/python -m pytest util/tests pipeline/tests analysis/tests
+analysis/test_hcr_inst_oax.py enclaves/tests --import-mode=importlib`.
+
+### Rerun order (nothing has been rerun yet — code changes only)
+1. Delete `WORKING/flat_works_2000_2025.parquet` and `WORKING/corpus_references_2000_2025.parquet`
+   (both are skip-if-exists; the new filters/columns won't take effect without deleting them first)
+2. `.venv/bin/python pipeline/build_flat_works.py` — rebuilds both, ~hours given 153M+ row scale
+3. `.venv/bin/python pipeline/build_field_candidacy.py` — depends on flat_works
+4. `.venv/bin/python pipeline/run_field_bloc.py` — all 26 OA fields, label=baseline
+5. `.venv/bin/python pipeline/run_leiden_bloc.py` — all 5 Leiden groups, label=baseline
+6. `.venv/bin/python pipeline/run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups
+7. `.venv/bin/python pipeline/run_leiden_bloc.py --bloc OECDG20-CIA` / `--bloc CIAA` — bloc suite
+8. `.venv/bin/python pipeline/build_work_v.py` — stage 4c
+9. Delete `WORKING/filtered_works_topics.parquet`, `WORKING/hcw_flat_works.parquet`,
+   `WORKING/hcw_works.parquet`, `WORKING/hcw_authors.parquet`, `WORKING/hcw_authorships.parquet`,
+   and `WORKING/hca_crossfield_2020_2024_baseline.parquet` (all five hca_extract.py outputs are
+   skip-if-exists, and stage 1 now reads flat_works directly — so this step DOES need to wait
+   for step 2 to finish, unlike before this consolidation), then
+   `.venv/bin/python analysis/hca_extract.py` and `.venv/bin/python analysis/hca_crossfield.py`
+   — picks up the 2014–2024 HCA-window fix, the broadened work_types, and the flat_works-sourced
+   stage 1
+10. `.venv/bin/python enclaves/build_enclave_hcw.py` — stage E1, now reads title from flat_works
+11. `.venv/bin/python enclaves/tfidf_enclave.py` then `.venv/bin/python enclaves/nmf_enclave.py`
+    — stages E2–E3; NMF topic names will need re-applying (the 26-field merge+name pass done
+    earlier this session) since `enclave_nmf_*.parquet` regenerates from scratch
+12. `.venv/bin/python enclaves/network_enclave.py` — stage E4
+13. Fix the `a.id`/`ids` schema bug in `enclaves/researcher_enclaves.py` before it can rerun (stage E5)
+14. Rebuild the enclave inventory table / `enclaves/plot_hca_hcr.py` outputs from the refreshed data
 
 ## Sensitivity variants (Leiden, window 2020_2024)
 Five one-at-a-time parameter variants against the baseline (τ=10, ρ=0, ε=0, ω=0, β=0):
@@ -205,6 +295,17 @@ Candidacy parquets are global (shared with baseline); new edge lists built per b
 - **Corrupt edge list from crashed run**: if a build crashes mid-write, the parquet file exists
   but has no magic bytes. Detection: `duckdb.execute("SELECT COUNT(*) FROM 'file'")` raises
   `InvalidInputException`. Fix: delete and re-run.
+- **`util/tests/test_runs.py` / `test_load_runs.py` silently stale**: `Run` had been refactored
+  (`window` became a derived `@property` from `tc0`/`tc1` instead of a constructor kwarg, `m`
+  changed from a `'0110'` string to a `(0,1,1,0)` tuple, the `run_code` field was dropped,
+  `el_path()`'s filename format changed from tau-embedded to label-based) but the tests were
+  never updated — 18 failures, unrelated to any single session's changes, just drift over time.
+  Fixed by rewriting both test files against current `Run`/`load_runs()` behavior; also moved
+  `test_load_runs.py` off the live, evolving `params.csv` onto local CSV fixtures (only
+  `test_skip_filters` did this before) so the suite won't silently drift again as the experiment
+  list changes. Run `.venv/bin/python -m pytest <dir> --import-mode=importlib` — plain `pytest`
+  errors on collection because `pipeline/tests/` has no `__init__.py` while the other three
+  `tests/` packages do, causing a module-name collision across separately-run test directories.
 
 ## Field index mapping (OA → CWTS Leiden)
 26 OA fields, `field_idx` 11–36.

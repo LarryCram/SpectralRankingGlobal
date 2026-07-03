@@ -9,9 +9,10 @@ from util.runs import Run
 
 
 BASELINE = dict(
-    window='2020_2024', field_idx=14,
+    tc0=2020, tc1=2024, field_idx=14,
     tau_s=20.0, tau_u=20.0,
     m=(0, 1, 1, 0), alpha=1.0, rho=0,
+    label='baseline',
 )
 
 
@@ -20,8 +21,13 @@ def test_window_years():
     assert r.window_years == 5
 
 
+def test_window_property():
+    r = Run(**BASELINE)
+    assert r.window == '2020_2024'
+
+
 def test_window_years_ten():
-    r = Run(**{**BASELINE, 'window': '2016_2025'})
+    r = Run(**{**BASELINE, 'tc0': 2016, 'tc1': 2025})
     assert r.window_years == 10
 
 
@@ -36,7 +42,7 @@ def test_tau_u_abs():
 
 
 def test_tau_abs_scales_with_window():
-    r = Run(**{**BASELINE, 'window': '2016_2025', 'tau_s': 20.0})
+    r = Run(**{**BASELINE, 'tc0': 2016, 'tc1': 2025, 'tau_s': 20.0})
     assert r.tau_s_abs() == pytest.approx(200.0)
 
 
@@ -64,7 +70,7 @@ def test_alpha_lt1_with_mu_valid():
 def test_el_path():
     r = Run(**BASELINE)
     p = r.el_path('/work')
-    assert p == '/work/el_14_2020_2024_tauS20.0_tauU20.0.parquet'
+    assert p == '/work/el_14_2020_2024_baseline.parquet'
 
 
 def test_sc_path():
