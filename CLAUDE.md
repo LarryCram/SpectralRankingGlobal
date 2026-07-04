@@ -60,6 +60,7 @@ SpectralRankingGlobal/
     run_leiden_sensitivity.py  #   ✅ parameter sensitivity suite for Leiden
     run_leiden_bloc.py         #   ✅ country-bloc Leiden rankings
     run_field_bloc.py          #   ✅ country-bloc OA field rankings
+    pipeline_status.py         #   ✅ "where am I up to" freshness report — see Pipeline guard system
     show_rankings.py           #   display rankings with OA names
     katz_ranker.py             #   spectral algorithms (Perron/Katz, bipartite) — pure math
     summary_flat_works.py      #   diagnostic summary of flat_works
@@ -80,6 +81,7 @@ SpectralRankingGlobal/
   util/
     load_config.py             #   load_config() → Paths, load_runs() → list
     runs.py                    #   Run dataclass + GlobalSettings + LEIDEN_GROUPS
+    guard.py                   #   freshness tracking for pipeline outputs — see Pipeline guard system
   data/
     bloc.xlsx                  #   bloc_name → ISO-3166-1-alpha-2 country codes
     HEP_concordances.xlsx      #   AU HEP name → institution_idx mapping
@@ -100,10 +102,10 @@ OPENALEX/parquet/
   references/*.parquet       OA snapshot — (citer_idx, cited_idx)
 
 WORKING/
-  flat_works_2000_2025.parquet              🔄 stage 1a; master table — row count pending
-                                              rebuild (was 153.5M rows pre-recode; now also
-                                              filters title dedup + authors_count<=29, so
-                                              will drop). (work×institution×subfield, with weights)
+  flat_works_2000_2025.parquet              ✅ stage 1a; master table — 261.4M rows, 52.8M
+                                              distinct works (rebuilt 2026-07-04 with the
+                                              title-dedup/authors_count<=29/work_types recode).
+                                              (work×institution×subfield, with weights)
                                               cols: work_idx, publication_year,
                                                 source_idx, institution_idx, country_code,
                                                 inst_weight, direct_inst_weight,
@@ -114,8 +116,8 @@ WORKING/
                                                 title, cited_by_count, authors_count,
                                                 institutions_distinct_count
                                                 (last 4 cols: raw OA values, unrecomputed)
-  corpus_references_2000_2025.parquet       🔄 stage 1b; ~358M rows pre-recode, pending
-                                              rebuild alongside flat_works
+  corpus_references_2000_2025.parquet       ✅ stage 1b; 1.12B rows (rebuilt alongside
+                                              flat_works, 2026-07-04)
                                               (citer_idx, cited_idx) both in flat_works
   field_source_cands_{window}.parquet       ✅ stage 2; source weighted works per OA field
   field_inst_cands_{window}.parquet         ✅ stage 2; inst weighted works per OA field
@@ -137,7 +139,13 @@ WORKING/
                                              cols: work_idx, field_idx, source_v,
                                                mean_inst_v (null if no retained insts),
                                                work_v = (source_v + COALESCE(mean_inst_v,source_v))/2
-                                             59,783,745 rows across 26 OA fields
+                                             66,086,311 rows across 26 OA fields
+  filtered_works_topics.parquet            ✅ hca_extract.py stage 1; 71.4M rows, 24.4M works
+  hcw_flat_works.parquet                   ✅ hca_extract.py stage 2; 44.8M rows, 24.4M works
+  hcw_works.parquet                        ✅ hca_extract.py stage 3; 455,129 rows (HCW, top 1%)
+  hcw_authors.parquet                      ✅ hca_extract.py stage 4; 1,372,362 rows, 697,008 authors
+  hcw_authorships.parquet                  ✅ hca_extract.py stage 5; 1,786,820 rows
+  hca_crossfield_{window}_{label}.parquet  ✅ 697,013 authors, cross-field paper+cite scores
 ```
 Stage E4 + E5 outputs are MD files in `enclaves/reports/`:
 ```
@@ -149,35 +157,35 @@ enclaves/reports/
 `field_idx` = OA field 11–36, Leiden group 1–5, or subfield ≥ 1000.
 
 ## Pipeline status — window 2020_2024
-- 🔄 Stage 1a: `build_flat_works.py` — flat_works_2000_2025.parquet — recoded to be the
-  project's master table (title, cited_by_count, authors_count, institutions_distinct_count
-  carried verbatim from raw OA works; title dedup + authors_count<=29 filter added).
-  Needs deletion + rerun to pick up the new schema/filters — see "flat_works master
-  table recode" below.
-- 🔄 Stage 1b: `build_flat_works.py` — corpus_references_2000_2025.parquet — depends on
-  flat_works' work_idx set, needs rebuild alongside it.
-- 🔄 Stage 2: `build_field_candidacy.py` — all 6 candidacy parquets (field/leiden/subfield × source/inst)
-  — stale once flat_works is rebuilt, needs rerun
-- 🔄 Stage 3+4 baseline: `run_field_bloc.py` — all 26 OA fields (label=`baseline`) — stale,
-  needs rerun once flat_works/candidacy are rebuilt
-- 🔄 Stage 3+4 baseline: `run_leiden_bloc.py` — all 5 Leiden groups (label=`baseline`) — stale
-- 🔄 Sensitivity suite: `run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups — stale
-- 🔄 Stage 4c: `build_work_v.py` — work_v_2020_2024_baseline.parquet — stale, depends on rankings
-- 🔄 Bloc suite: `run_leiden_bloc.py` — OECDG20CIA, CIAA (in progress / pending) — stale
-- 🔄 Stage E1–E3: HCW detection, TF-IDF, NMF — all 26 fields — stale, depends on flat_works +
-  rankings; NMF topic names (Stage 3 AI-naming, 194 enclaves across 26 fields) will need
-  reapplying after rebuild since enclave_nmf gets regenerated from scratch
-- 🔄 Stage E4: `network_enclave.py` — enclave network MD reports (26 fields) — stale
+All stages ✅ complete and verified fresh as of 2026-07-04 (full rebuild against the
+flat_works recode — see "flat_works master table recode" below). Run
+`.venv/bin/python pipeline/pipeline_status.py` for a live freshness report — every
+guarded output was 421/421 fresh at last check. See "Pipeline guard system" below for
+how staleness is now caught automatically instead of silently.
+
+- ✅ Stage 1a/1b: `build_flat_works.py` — flat_works/corpus_references, recoded schema
+  (title, cited_by_count, authors_count, institutions_distinct_count carried verbatim;
+  title dedup + authors_count<=29 filter; work_types broadened to 8 types)
+- ✅ Stage 2: `build_field_candidacy.py` — all 6 candidacy parquets
+- ✅ Stage 3+4: `run_field_bloc.py` / `run_leiden_bloc.py` — baseline + all 4 blocs
+  (OECDG20, OECDG20CIA, CIAA, BASELINECIA), 26 OA fields + 5 Leiden groups each
+- ✅ Sensitivity suite: `run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups
+- ✅ Stage 4c: `build_work_v.py` — work_v_2020_2024_baseline.parquet
+- ✅ Stage E1–E3: HCW detection, TF-IDF, NMF — all 26 fields. NMF topic names (the
+  26-field AI merge+name pass) will need reapplying after any future from-scratch
+  rebuild, since `enclave_nmf_*.parquet` regenerates without them.
+- ✅ Stage E4: `network_enclave.py` — enclave network MD reports (26 fields)
   - Summary cols: n_hcw--, ⟨v⟩--, ⟨v⟩net, n_hcw-+/%-+, n_hcw+-/%+-, n_hcw++/%++,
                   citers, loop%, n_comp, lg_hcw, lg%
   - ⟨v⟩net covers ALL 1-hop network works (seeds + citers) with retained source
-- ⚠️ Stage E5: `researcher_enclaves.py` — 26 researcher MD reports — stale AND has a
-  pre-existing unrelated bug (`a.id` vs `ids` schema mismatch against current OA authors
-  parquet) that must be fixed before it can rerun at all
+- ✅ Stage E5: `researcher_enclaves.py` — 26 researcher MD reports. The `a.id`/
+  `summary_stats.h_index` schema bug (current OA authors parquet has flat `author_idx`/
+  `h_index` columns, not a URL-style `id` or nested `summary_stats`) is fixed.
   - Top-3 authors per enclave by distinct works in the 1-hop network
   - Fields: display_name, h_index, works_count, cited_by_count, in_network count
+- ✅ `enclaves/plot_hca_hcr.py` — 6 PDFs (combined + 5 Leiden group), HCR-overlay included
 
-## flat_works master table recode
+## flat_works master table recode — ✅ DONE, rebuilt 2026-07-04
 `flat_works` now carries `title`, `cited_by_count`, `authors_count`,
 `institutions_distinct_count` verbatim from raw OA works (not recomputed after
 institution/topic pruning), plus two new filters: `title IS NOT NULL` + dedup to the
@@ -205,8 +213,25 @@ conference/book series), and ≥1 qualifying-institution-type authorship. A high
 work failing any of those (e.g. zero references, hosted on a non-retained source type,
 or authored only by company/funder/archive-affiliated people) no longer enters the HCA
 candidate pool, whereas it would have before. Expected to be rare among genuinely
-highly-cited works, but worth checking `filtered_works_topics.parquet` row counts
-against the pre-recode `hcw_works.parquet`/`hcw_authors.parquet` after rebuild.
+highly-cited works.
+
+**Why flat_works row count grew ~70% (153.5M → 261.4M rows) despite the new filters
+being restrictive**: NOT primarily the recode above. The dominant cause was a separate,
+same-day fix (commit `bd8041c`, landed *after* the row-count-153.5M build had already
+run) that changed the topics join from a legacy `topics/*.parquet` (already reduced to
+one row per work — its single *main* topic) to `work_topics/*.parquet` (one row per work
+with a `topics` array) unnested against `topics.parquet` (the topic→subfield/field
+definition table — the rename was cosmetic, just to avoid the name clash with this
+definition table). The material change: flat_works now gets a row per (work ×
+institution × every assigned topic's subfield) instead of just the main topic's
+subfield, since most OA works carry several topics. Measured contribution of the other
+two changes: work_types broadening (2→8 types) added only +5.5% of final distinct works;
+the title-dedup + `authors_count<=29` filter reduced the raw eligible pool by ~0.35%
+— both small, as CLAUDE.md's original "expected impact: small" note anticipated for
+work_types. **Lesson**: when judging whether a WORKING/ output reflects current code,
+compare its mtime against `git log -- <script>` for *every* commit touching that script,
+not just the most recent one you're aware of — a same-day commit can still postdate a
+same-day build.
 
 **Done**: `enclaves/build_enclave_hcw.py`'s title-attach step now reads `title` from
 `flat_works` instead of a separate OA works scan (simplification only, no behavior change
@@ -221,35 +246,35 @@ be a HCW at all) is unaffected and still spans the full 2000–2025 range.
 **Test coverage**: `pipeline/tests/test_build_flat_works.py`'s synthetic fixture was extended
 with a duplicate-title pair and a 35-author work to cover the two new filters, plus a
 raw-passthrough test for `title`/`cited_by_count`/`authors_count`/`institutions_distinct_count`.
-Full project test suite (373 tests, `util`/`pipeline`/`analysis`/`enclaves`) passes clean —
-run with `.venv/bin/python -m pytest util/tests pipeline/tests analysis/tests
-analysis/test_hcr_inst_oax.py enclaves/tests --import-mode=importlib`.
+Full project test suite (389 tests, `util`/`pipeline`/`analysis`/`enclaves`, including
+`util/tests/test_guard.py`) passes clean — run with `.venv/bin/python -m pytest util/tests
+pipeline/tests analysis/tests analysis/test_hcr_inst_oax.py enclaves/tests --import-mode=importlib`.
 
-### Rerun order (nothing has been rerun yet — code changes only)
-1. Delete `WORKING/flat_works_2000_2025.parquet` and `WORKING/corpus_references_2000_2025.parquet`
-   (both are skip-if-exists; the new filters/columns won't take effect without deleting them first)
-2. `.venv/bin/python pipeline/build_flat_works.py` — rebuilds both, ~hours given 153M+ row scale
-3. `.venv/bin/python pipeline/build_field_candidacy.py` — depends on flat_works
-4. `.venv/bin/python pipeline/run_field_bloc.py` — all 26 OA fields, label=baseline
-5. `.venv/bin/python pipeline/run_leiden_bloc.py` — all 5 Leiden groups, label=baseline
-6. `.venv/bin/python pipeline/run_leiden_sensitivity.py` — 5 variants × 5 Leiden groups
-7. `.venv/bin/python pipeline/run_leiden_bloc.py --bloc OECDG20-CIA` / `--bloc CIAA` — bloc suite
-8. `.venv/bin/python pipeline/build_work_v.py` — stage 4c
-9. Delete `WORKING/filtered_works_topics.parquet`, `WORKING/hcw_flat_works.parquet`,
-   `WORKING/hcw_works.parquet`, `WORKING/hcw_authors.parquet`, `WORKING/hcw_authorships.parquet`,
-   and `WORKING/hca_crossfield_2020_2024_baseline.parquet` (all five hca_extract.py outputs are
-   skip-if-exists, and stage 1 now reads flat_works directly — so this step DOES need to wait
-   for step 2 to finish, unlike before this consolidation), then
-   `.venv/bin/python analysis/hca_extract.py` and `.venv/bin/python analysis/hca_crossfield.py`
-   — picks up the 2014–2024 HCA-window fix, the broadened work_types, and the flat_works-sourced
-   stage 1
-10. `.venv/bin/python enclaves/build_enclave_hcw.py` — stage E1, now reads title from flat_works
-11. `.venv/bin/python enclaves/tfidf_enclave.py` then `.venv/bin/python enclaves/nmf_enclave.py`
-    — stages E2–E3; NMF topic names will need re-applying (the 26-field merge+name pass done
-    earlier this session) since `enclave_nmf_*.parquet` regenerates from scratch
-12. `.venv/bin/python enclaves/network_enclave.py` — stage E4
-13. Fix the `a.id`/`ids` schema bug in `enclaves/researcher_enclaves.py` before it can rerun (stage E5)
-14. Rebuild the enclave inventory table / `enclaves/plot_hca_hcr.py` outputs from the refreshed data
+### Rerun order — now automatic (see Pipeline guard system below)
+Every stage listed above is guard-wired: each script checks its own inputs' and its own
+(plus its real code dependencies') mtimes against a `<output>.guard.json` sidecar before
+deciding to skip a rebuild, so manual delete-then-rerun is no longer required to pick up
+a code or data change. To rebuild everything from scratch in dependency order, just run
+in sequence (each auto-skips whatever is already fresh):
+```
+.venv/bin/python pipeline/build_flat_works.py
+.venv/bin/python pipeline/build_field_candidacy.py
+.venv/bin/python pipeline/run_field_bloc.py
+.venv/bin/python pipeline/run_leiden_bloc.py
+.venv/bin/python pipeline/run_leiden_sensitivity.py
+.venv/bin/python pipeline/build_work_v.py
+.venv/bin/python analysis/hca_extract.py
+.venv/bin/python analysis/hca_crossfield.py
+.venv/bin/python enclaves/build_enclave_hcw.py
+.venv/bin/python enclaves/tfidf_enclave.py
+.venv/bin/python enclaves/nmf_enclave.py
+.venv/bin/python enclaves/network_enclave.py
+.venv/bin/python enclaves/researcher_enclaves.py
+.venv/bin/python enclaves/plot_hca_hcr.py
+```
+Append `--yes`/`-y` to any of them to skip the confirmation prompt on an expensive stale
+rebuild (safe for unattended/background runs). Run `.venv/bin/python
+pipeline/pipeline_status.py` any time to see what's fresh/stale without rebuilding anything.
 
 ## Sensitivity variants (Leiden, window 2020_2024)
 Five one-at-a-time parameter variants against the baseline (τ=10, ρ=0, ε=0, ω=0, β=0):
@@ -266,14 +291,17 @@ Five one-at-a-time parameter variants against the baseline (τ=10, ρ=0, ε=0, �
 5–9 GB edge lists for Leiden 3/4. Fresh DuckDB connection per leiden group prevents
 memory accumulation across large edge list builds.
 
-## Bloc runs (Leiden, window 2020_2024)
+## Bloc runs (Leiden + OA field, window 2020_2024)
 All-in filter: a work is included only if EVERY affiliated institution is in the bloc.
 Candidacy parquets are global (shared with baseline); new edge lists built per bloc.
+Applies to both `run_field_bloc.py` (26 OA fields) and `run_leiden_bloc.py` (5 Leiden groups).
 
-| label      | bloc key     | countries |
-|------------|--------------|-----------|
-| OECDG20CIA | OECDG20-CIA  | 43        |
-| CIAA       | CIAA         | 4 (AU,CN,IN,US) |
+| label       | bloc key     | countries |
+|-------------|--------------|-----------|
+| OECDG20     | OECDG20      | 46 (OECD ∪ G20) |
+| OECDG20CIA  | OECDG20-CIA  | 43        |
+| CIAA        | CIAA         | 4 (AU,CN,IN,US) |
+| BASELINECIA | BASELINE-CIA | all OA countries except CN,IN,US |
 
 ## Analysis outputs
 - `analysis/leiden_facets.pdf` — 2×5 log(v) vs rank; multi-label overlay, default all 6 labels
@@ -281,6 +309,52 @@ Candidacy parquets are global (shared with baseline); new edge lists built per b
   - `leiden_OECDG20CIA.pdf`, `leiden_CIAA.pdf` — bloc vs baseline (coloured scatter)
   - `leiden_tau20.pdf`, `leiden_rho1.pdf`, `leiden_eps1.pdf`, `leiden_om1.pdf`, `leiden_beta1.pdf` — variants vs baseline (green scatter)
 - `analysis/hep_heatmap.pdf` — AU HEP institution scores across 26 OA fields
+
+## Pipeline guard system
+Every skip-if-exists cache checkpoint in the pipeline used to trust bare file existence,
+which let a stage silently skip rebuilding even when its inputs (or its own code) had
+changed since the output was last built — happened twice in one session on 2026-07-04
+(155 baseline/bloc rankings, and one `tau20` leiden-1 ranking, sat stale under freshly
+rebuilt edge lists with no visible symptom).
+
+`util/guard.py` fixes this: every guarded output gets a `<output>.guard.json` sidecar
+recording the exact (path, mtime, size) of each declared input and the mtime of each
+declared producing script at build time. `guard.ensure_fresh(out_path, *inputs,
+script=__file__, auto_yes=args.yes, label=...)` replaces the bare existence check —
+returns `True` if the caller should (re)build, `False` if fresh. If stale and the
+previously recorded build took longer than ~3 minutes (or there's no timing history),
+it prompts for confirmation on stdin unless `auto_yes=True` (wired to a `--yes`/`-y`
+flag on every guarded script). Script mtime is tracked as a real dependency, not just
+data files — this is what would have caught the same-day `build_csr_field.py` ρ=0 NaN
+fix (see katz_ranker.py history) automatically invalidating rankings built with the
+buggy code, without anyone having to remember to delete them.
+
+Wired into: `build_flat_works.py`, `build_field_candidacy.py`, `run_field_bloc.py`,
+`run_leiden_bloc.py`, `run_leiden_sensitivity.py`, `build_work_v.py`, `hca_extract.py`,
+`hca_crossfield.py`, `build_enclave_hcw.py`, `tfidf_enclave.py`, `nmf_enclave.py`,
+`network_enclave.py`, `researcher_enclaves.py`, `plot_hca_hcr.py` — i.e. every stage.
+
+`pipeline/pipeline_status.py` answers "where am I up to" in one command: it `rglob`s the
+whole project tree (guard sidecars live next to whatever they guard — e.g. E4/E5 report
+guards are in `enclaves/reports/`, plot guards in `enclaves/plots/`, not just WORKING/)
+for `*.guard.json` files and re-checks each one's freshness right now. It also flags
+WORKING/ outputs matching known pipeline naming patterns with no guard record at all
+("unmanaged" — predates the system or was built by a script not yet wired up).
+
+Pattern for adding a new guarded stage:
+```python
+if guard.ensure_fresh(out_path, *input_paths, script=__file__,
+                      auto_yes=args.yes, label='thing being built'):
+    t0 = time.time()
+    ... build ...
+    guard.record_build(out_path, *input_paths, script=__file__,
+                       build_seconds=time.time() - t0)
+```
+When a build has multiple real script dependencies (e.g. rankings depend on
+`run_rankings.py` *and* `build_csr_field.py` *and* `katz_ranker.py`), pass `script=` a
+**list** and reuse the exact same list in both the `ensure_fresh` and `record_build`
+calls — passing a shorter list to `record_build` silently drops those scripts from
+future freshness checks. Tests: `util/tests/test_guard.py` (16 tests).
 
 ## Key bugs fixed
 - **Source candidacy overcounting**: `flat_works` has one row per (work×institution×subfield),
@@ -295,6 +369,18 @@ Candidacy parquets are global (shared with baseline); new edge lists built per b
 - **Corrupt edge list from crashed run**: if a build crashes mid-write, the parquet file exists
   but has no magic bytes. Detection: `duckdb.execute("SELECT COUNT(*) FROM 'file'")` raises
   `InvalidInputException`. Fix: delete and re-run.
+- **ARPACK/NaN crash on ε=1 sensitivity edge lists**: `build_csr_field.py`'s ρ=0 weighting
+  computed `ew = edge_field_weight * (r_bar / R_i)`. One ε=1 sentinel-citer edge had
+  `R_i = edge_field_weight = 0.0`, so `0.0 * (r_bar / 0.0) = 0.0 * inf = NaN`. That single
+  NaN poisoned the whole `SUM(...) GROUP BY citer_source_idx` aggregate for the sentinel
+  row, crashing ARPACK's eigensolve (`DLASCL`/Arnoldi errors) on leiden 2's `eps1` ranking.
+  Confirmed absent from all 26 baseline (non-ε) edge lists — only the ε=1 sentinel path is
+  affected. Fixed with `CASE WHEN R_i = 0 THEN 0.0 ELSE r_bar/R_i END`.
+- **`researcher_enclaves.py` stale OA authors schema**: queried `a.id` (regex-parsed to get
+  author_idx) and `a.summary_stats.h_index`, but the current OA authors parquet snapshot
+  has `author_idx` and `h_index` as flat top-level columns already (no `id` VARCHAR, no
+  nested `summary_stats` struct — only a struct `ids` with `openalex`/`orcid` sub-fields).
+  This silently broke stage E5 entirely. Fixed to query `a.author_idx`/`a.h_index` directly.
 - **`util/tests/test_runs.py` / `test_load_runs.py` silently stale**: `Run` had been refactored
   (`window` became a derived `@property` from `tc0`/`tc1` instead of a constructor kwarg, `m`
   changed from a `'0110'` string to a `(0,1,1,0)` tuple, the `run_code` field was dropped,
