@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Drug Delivery  (n_hcw--=478, network=66,021 works)
+## Topic 0  (n_hcw--=345, network=56,360 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Özcan Erel | 59 | 935 | 22,030 | 383 |
-| 2 | Salim Neşeli̇oğlu | 25 | 362 | 3,749 | 198 |
-| 3 | Kuo‐Chen Chou | 124 | 429 | 43,455 | 116 |
+| 1 | Özcan Erel | 60 | 933 | 22,240 | 395 |
+| 2 | Salim Neşeli̇oğlu | 25 | 426 | 3,816 | 202 |
+| 3 | İlhami Gülçın | 128 | 661 | 52,636 | 199 |
 
-## Therapeutic Potential  (n_hcw--=234, network=47,545 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Ahmed S. Doghish | 51 | 213 | 5,703 | 104 |
-| 2 | Javad Sharifi‐Rad | 102 | 687 | 55,497 | 101 |
-| 3 | Kuo‐Chen Chou | 124 | 429 | 43,455 | 97 |
-
-## Cancer Treatment  (n_hcw--=200, network=40,711 works)
+## Topic 1  (n_hcw--=287, network=64,751 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Ahmed S. Doghish | 51 | 213 | 5,703 | 85 |
-| 2 | Amirhossein Sahebkar | 171 | 2,341 | 226,318 | 82 |
-| 3 | Gautam Sethi | 136 | 807 | 61,855 | 64 |
+| 1 | Amirhossein Sahebkar | 174 | 2,346 | 234,763 | 116 |
+| 2 | Javad Sharifi‐Rad | 105 | 683 | 58,555 | 110 |
+| 3 | Kuo‐Chen Chou | 124 | 428 | 43,712 | 96 |
 
-## Antimicrobial Resistance  (n_hcw--=145, network=35,344 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Ahmed S. Doghish | 51 | 213 | 5,703 | 72 |
-| 2 | Henrique Douglas Melo Coutinho | 63 | 1,049 | 18,839 | 55 |
-| 3 | Ahmed I. Abulsoud | 33 | 113 | 2,521 | 44 |
-
-## Systematic Reviews  (n_hcw--=134, network=32,077 works)
+## Topic 2  (n_hcw--=207, network=50,815 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Amirhossein Sahebkar | 171 | 2,341 | 226,318 | 171 |
-| 2 | Munawar Iqbal | 87 | 979 | 32,149 | 121 |
-| 3 | Gökhan Zengin | 74 | 1,017 | 27,915 | 87 |
+| 1 | Amirhossein Sahebkar | 174 | 2,346 | 234,763 | 163 |
+| 2 | Munawar Iqbal | 89 | 978 | 32,709 | 117 |
+| 3 | Gökhan Zengin | 75 | 1,018 | 28,794 | 92 |
 
-## Non-coding RNAs  (n_hcw--=103, network=23,390 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Soudeh Ghafouri‐Fard | 60 | 947 | 17,498 | 73 |
-| 2 | Ahmed S. Doghish | 51 | 213 | 5,703 | 70 |
-| 3 | Mohammad Taheri | 55 | 784 | 15,396 | 66 |
-
-## Oxidative Stress  (n_hcw--=101, network=21,523 works)
+## Topic 3  (n_hcw--=152, network=25,451 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Baber Ali | 42 | 210 | 5,652 | 51 |
-| 2 | Amirhossein Sahebkar | 171 | 2,341 | 226,318 | 40 |
-| 3 | Sezai Erċışlı | 68 | 905 | 20,424 | 34 |
+| 1 | Abbas Rahdar | 68 | 534 | 18,289 | 91 |
+| 2 | Mehrab Pourmadadi | 50 | 197 | 6,723 | 76 |
+| 3 | Kamal Dua | 72 | 887 | 25,074 | 71 |
 
-## Signaling Pathways  (n_hcw--=79, network=11,378 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Ahmed S. Doghish | 51 | 213 | 5,703 | 93 |
-| 2 | Ahmed I. Abulsoud | 33 | 113 | 2,521 | 62 |
-| 3 | Nourhan M. Abdelmaksoud | 26 | 62 | 1,528 | 44 |
-
-## Diabetes Mellitus  (n_hcw--=59, network=14,123 works)
+## Topic 4  (n_hcw--=130, network=26,568 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Ali I. Al‐Gareeb | 52 | 403 | 9,147 | 43 |
-| 2 | Gaber El‐Saber Batiha | 63 | 682 | 20,787 | 42 |
-| 3 | Hayder M. Al‐kuraishy | 53 | 426 | 9,572 | 41 |
+| 1 | Ahmed S. Doghish | 52 | 214 | 5,933 | 67 |
+| 2 | Ahmed I. Abulsoud | 33 | 113 | 2,573 | 54 |
+| 3 | Mehrdad Hashemi | 45 | 501 | 8,616 | 39 |
 
-## COVID-19  (n_hcw--=56, network=10,812 works)
+## Topic 5  (n_hcw--=124, network=23,160 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Gaber El‐Saber Batiha | 63 | 682 | 20,787 | 59 |
-| 2 | Hayder M. Al‐kuraishy | 53 | 426 | 9,572 | 56 |
-| 3 | Ali I. Al‐Gareeb | 52 | 403 | 9,147 | 56 |
+| 1 | Ahmed S. Doghish | 52 | 214 | 5,933 | 111 |
+| 2 | Ahmed I. Abulsoud | 33 | 113 | 2,573 | 66 |
+| 3 | Amirhossein Sahebkar | 174 | 2,346 | 234,763 | 53 |
+
+## Topic 6  (n_hcw--=97, network=20,239 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Soudeh Ghafouri‐Fard | 61 | 953 | 17,902 | 81 |
+| 2 | Mohammad Taheri | 56 | 787 | 15,818 | 74 |
+| 3 | Ahmed S. Doghish | 52 | 214 | 5,933 | 68 |
+
+## Topic 7  (n_hcw--=96, network=19,772 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Liam M Crowley | 12 | 304 | 2,131 | 162 |
+| 2 | Douglas Boyes | 9 | 233 | 619 | 127 |
+| 3 | Peter W. H. Holland | 78 | 476 | 31,000 | 50 |
+
+## Topic 8  (n_hcw--=74, network=14,105 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Gaber El‐Saber Batiha | 67 | 682 | 21,603 | 83 |
+| 2 | Ali I. Al‐Gareeb | 54 | 402 | 9,617 | 79 |
+| 3 | Hayder M. Al‐kuraishy | 55 | 426 | 10,032 | 79 |
+
+## Topic 9  (n_hcw--=52, network=14,560 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Muhammad Sajid Hamid Akash | 47 | 409 | 10,529 | 26 |
+| 2 | Giustino Varrassi | 57 | 702 | 13,361 | 24 |
+| 3 | Kanwal Rehman | 46 | 348 | 10,169 | 24 |

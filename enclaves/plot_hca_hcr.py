@@ -34,7 +34,7 @@ import matplotlib.ticker as mticker
 from matplotlib import colormaps
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, FIELD_NAMES
+from util import load_config, FIELD_NAMES, guard
 
 # OA field_idx (11–36) → CWTS Leiden group (1–5)
 _LEIDEN_GROUP = {
@@ -270,6 +270,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--window', default='2020_2024')
     parser.add_argument('--label',  default='baseline')
+    parser.add_argument('--yes', '-y', action='store_true',
+                        help='Rebuild stale plots without prompting')
     args = parser.parse_args()
 
     paths    = load_config()
@@ -278,14 +280,29 @@ def main() -> None:
         print(f'ERROR: {hcw_path} not found — run build_enclave_hcw.py first')
         sys.exit(1)
 
+    out_dir = Path(__file__).parent / 'plots'
+    out_dir.mkdir(exist_ok=True)
+    tag = f'{args.window}_{args.label}'
+
+    hcr_inputs = [
+        paths.working / 'hcr_hca_map.parquet',
+        paths.working / 'hca_clusters.parquet',
+        paths.working / 'hcw_authorships.parquet',
+    ]
+    inputs = [str(hcw_path)] + [str(p) for p in hcr_inputs if p.exists()]
+    out_paths = [out_dir / f'enclave_citer_v_{tag}_all.pdf'] + [
+        out_dir / f'enclave_citer_v_{tag}_{_LEIDEN_SLUG[g]}.pdf' for g in range(1, 6)
+    ]
+    # All 6 plots are always regenerated together from the same inputs, so a
+    # single representative freshness check covers the batch.
+    if not guard.ensure_fresh(out_paths[0], *inputs, script=__file__,
+                              auto_yes=args.yes, label='enclave plots'):
+        return
+
     df = pd.read_parquet(hcw_path)
     n_works  = df['work_idx'].nunique()
     n_fields = df['field_idx'].nunique()
     print(f'Loaded {len(df):,} HCW rows  |  {n_fields} fields  |  {n_works:,} distinct works')
-
-    out_dir = Path(__file__).parent / 'plots'
-    out_dir.mkdir(exist_ok=True)
-    tag = f'{args.window}_{args.label}'
 
     hcr_works = load_hcr_works(paths.working, args.window, args.label)
     if hcr_works is not None:
@@ -293,10 +310,12 @@ def main() -> None:
               f'{hcr_works["author_idx"].nunique()} distinct matched-HCR authors')
 
     print('Plotting...')
-    plot_combined(df, out_dir / f'enclave_citer_v_{tag}_all.pdf', hcr_works=hcr_works)
-    for g in range(1, 6):
-        plot_leiden_group(df, g, out_dir / f'enclave_citer_v_{tag}_{_LEIDEN_SLUG[g]}.pdf',
-                          hcr_works=hcr_works)
+    plot_combined(df, out_paths[0], hcr_works=hcr_works)
+    for g, out_path in zip(range(1, 6), out_paths[1:]):
+        plot_leiden_group(df, g, out_path, hcr_works=hcr_works)
+
+    for out_path in out_paths:
+        guard.record_build(out_path, *inputs, script=__file__)
 
 
 if __name__ == '__main__':

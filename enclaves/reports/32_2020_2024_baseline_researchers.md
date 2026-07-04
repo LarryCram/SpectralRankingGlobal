@@ -2,74 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Mental Health  (n_hcw--=80, network=7,280 works)
+## Topic 0  (n_hcw--=74, network=10,197 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Md. Rabiul Islam | 45 | 341 | 14,310 | 31 |
-| 2 | Giuseppe Minervini | 41 | 338 | 7,024 | 26 |
-| 3 | Marco Cicciù | 40 | 300 | 5,314 | 23 |
+| 1 | Murat Yıldırım | 43 | 359 | 7,352 | 29 |
+| 2 | Manoel Antônio dos Santos | 41 | 1,024 | 8,801 | 19 |
+| 3 | Sandeep Grover | 65 | 971 | 20,087 | 19 |
 
-## COVID-19  (n_hcw--=71, network=9,844 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Murat Yıldırım | 43 | 354 | 7,056 | 29 |
-| 2 | Sandeep Grover | 65 | 973 | 19,692 | 16 |
-| 3 | Déborah Carvalho Malta | 111 | 1,132 | 172,173 | 15 |
-
-## Student Performance  (n_hcw--=66, network=3,506 works)
+## Topic 1  (n_hcw--=62, network=2,738 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Diego Primavera | 16 | 87 | 696 | 24 |
-| 2 | Murat Yıldırım | 43 | 354 | 7,056 | 21 |
-| 3 | Mauro Giovanni Carta | 58 | 512 | 13,324 | 21 |
+| 1 | Ali Ateeq | 21 | 163 | 1,625 | 51 |
+| 2 | Marwan Milhem | 19 | 93 | 1,029 | 31 |
+| 3 | Murat Yıldırım | 43 | 359 | 7,352 | 29 |
 
-## Online Learning  (n_hcw--=50, network=8,671 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Didi Suryadi | 18 | 84 | 978 | 18 |
-| 2 | Noor Hanim Rahmat | 18 | 370 | 1,304 | 14 |
-| 3 | Francisco Javier Romero Naranjo | 17 | 200 | 1,022 | 12 |
-
-## Systematic Review  (n_hcw--=47, network=3,654 works)
+## Topic 2  (n_hcw--=56, network=4,885 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Burhanuddin Arafah | 25 | 120 | 1,458 | 33 |
-| 2 | Melor Md Yunus | 43 | 629 | 9,146 | 27 |
-| 3 | Mohammed A. Mamun | 50 | 218 | 10,122 | 25 |
+| 1 | El‐Sayed M. El‐kenawy | 54 | 318 | 8,272 | 27 |
+| 2 | Abdelhameed Ibrahim‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬ | 48 | 211 | 7,747 | 26 |
+| 3 | Abdelaziz A. Abdelhamid | 34 | 146 | 4,100 | 25 |
 
-## Bibliometric Analysis  (n_hcw--=46, network=2,228 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Doaa Sami Khafaga | 32 | 190 | 3,370 | 24 |
-| 2 | El‐Sayed M. El‐kenawy | 53 | 312 | 7,588 | 23 |
-| 3 | Abdelhameed Ibrahim‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬ | 47 | 211 | 7,313 | 23 |
-
-## Deep Learning  (n_hcw--=44, network=2,201 works)
+## Topic 3  (n_hcw--=49, network=7,362 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Mazhar Javed Awan | 30 | 67 | 2,610 | 19 |
-| 2 | Fatma M. Talaat | 28 | 89 | 3,044 | 14 |
-| 3 | Ali I. Siam | 14 | 32 | 690 | 12 |
+| 1 | Idi Warsah | 19 | 175 | 1,404 | 18 |
+| 2 | Didi Suryadi | 18 | 83 | 991 | 18 |
+| 3 | Jan Treur | 48 | 1,083 | 11,842 | 16 |
 
-## Emotion Recognition  (n_hcw--=41, network=2,810 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | El‐Sayed M. El‐kenawy | 53 | 312 | 7,588 | 27 |
-| 2 | Abdelhameed Ibrahim‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬‬ | 47 | 211 | 7,313 | 26 |
-| 3 | Abdelaziz A. Abdelhamid | 33 | 146 | 3,789 | 25 |
-
-## Virtual Reality  (n_hcw--=19, network=1,662 works)
+## Topic 4  (n_hcw--=48, network=4,411 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | nan | — | — | — | 19 |
-| 2 | Danúbia da Cunha de Sá-Caputo | 23 | 185 | 1,757 | 16 |
-| 3 | Mário Bernardo-Filho | 35 | 480 | 4,851 | 15 |
+| 1 | Melor Md Yunus | 43 | 632 | 9,271 | 28 |
+| 2 | Mohammed A. Mamun | 51 | 218 | 10,334 | 25 |
+| 3 | Γεώργιος Λαμπρόπουλος | 29 | 142 | 3,469 | 20 |
+
+## Topic 5  (n_hcw--=44, network=6,472 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Francisco Javier Romero Naranjo | 17 | 201 | 1,031 | 16 |
+| 2 | Eduardo J. Fernández | 22 | 105 | 1,793 | 16 |
+| 3 | Cleo Sgouropoulou | 26 | 253 | 3,338 | 14 |
+
+## Topic 6  (n_hcw--=44, network=3,443 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Giuseppe Minervini | 41 | 337 | 8,116 | 32 |
+| 2 | Marco Cicciù | 40 | 301 | 5,447 | 27 |
+| 3 | Xinqiao Liu | 28 | 148 | 3,632 | 24 |
+
+## Topic 7  (n_hcw--=40, network=6,048 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Md. Rabiul Islam | 46 | 343 | 15,868 | 24 |
+| 2 | Ángel Denche-Zamorano | 13 | 104 | 643 | 20 |
+| 3 | Jaffar Abbas | 66 | 165 | 15,841 | 18 |
+
+## Topic 8  (n_hcw--=38, network=1,820 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Burhanuddin Arafah | 25 | 121 | 1,475 | 34 |
+| 2 | Constantinos Halkiopoulos | 35 | 164 | 3,607 | 34 |
+| 3 | Hera Antonopoulou | 30 | 136 | 2,827 | 30 |
+
+## Topic 9  (n_hcw--=17, network=3,744 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Christian D. Chan | 18 | 75 | 970 | 19 |
+| 2 | Harvey Charles Peters | 11 | 55 | 367 | 18 |
+| 3 | Déborah Carvalho Malta | 113 | 1,132 | 177,763 | 17 |

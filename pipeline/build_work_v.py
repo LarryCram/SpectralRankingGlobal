@@ -31,7 +31,7 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings
+from util import load_config, load_settings, guard
 
 FIELD_IDS = list(range(11, 37))
 
@@ -112,6 +112,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--window', default='2020_2024')
     parser.add_argument('--label',  default='baseline')
+    parser.add_argument('--yes', '-y', action='store_true',
+                         help='Rebuild stale output without prompting')
     args = parser.parse_args()
 
     paths    = load_config()
@@ -137,8 +139,14 @@ def main() -> None:
         sys.exit(1)
 
     out_path = paths.working / f'work_v_{args.window}_{args.label}.parquet'
+    if not guard.ensure_fresh(out_path, fw_path, *rankings_paths, script=__file__,
+                              auto_yes=args.yes, label='work_v'):
+        return
     print(f'Building work_v — {len(rankings_paths)} fields → {out_path.name}')
+    t0 = time.time()
     build_work_v(fw_path, rankings_paths, out_path)
+    guard.record_build(out_path, fw_path, *rankings_paths, script=__file__,
+                       build_seconds=time.time() - t0)
 
 
 if __name__ == '__main__':

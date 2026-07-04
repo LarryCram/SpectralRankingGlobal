@@ -2,74 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Indonesia Sustainable Dev.  (n_hcw--=229, network=9,738 works)
+## Topic 0  (n_hcw--=361, network=17,608 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Manaf Al‐Okaily | 50 | 162 | 6,332 | 39 |
-| 2 | Bambang Slamet Riyadi | 16 | 73 | 659 | 36 |
-| 3 | Lütfi Sürücü | 19 | 89 | 1,428 | 32 |
+| 1 | Manaf Al‐Okaily | 51 | 162 | 6,520 | 48 |
+| 2 | Sulieman Ibraheem Shelash Al-Hawary | 47 | 258 | 5,870 | 40 |
+| 3 | Brian Meneses-Claudio | 21 | 197 | 1,165 | 38 |
 
-## Learning Approaches  (n_hcw--=224, network=12,479 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Tomi Apra Santosa | 19 | 160 | 1,018 | 55 |
-| 2 | Dwi Agus Kurniawan | 35 | 332 | 4,795 | 49 |
-| 3 | Heri Retnawati | 32 | 537 | 4,624 | 42 |
-
-## COVID-19 Pandemic  (n_hcw--=217, network=28,083 works)
+## Topic 1  (n_hcw--=182, network=10,995 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhlasin Amrullah | 4 | 152 | 74 | 40 |
-| 2 | Marcos dos Santos | 38 | 651 | 3,261 | 35 |
-| 3 | Carlos Francısco Sımões Gomes | 39 | 557 | 3,707 | 28 |
+| 1 | Muhammad Turki Alshurideh | 71 | 462 | 16,602 | 100 |
+| 2 | Barween Al Kurdi | 52 | 242 | 9,569 | 68 |
+| 3 | Tomi Apra Santosa | 19 | 160 | 1,042 | 45 |
 
-## Islamic Boarding Schools  (n_hcw--=188, network=10,566 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Dwi Agus Kurniawan | 35 | 332 | 4,795 | 51 |
-| 2 | Burhanuddin Arafah | 25 | 120 | 1,458 | 34 |
-| 3 | Muhammad Nurtanto | 30 | 204 | 3,835 | 34 |
-
-## Learning Media Dev.  (n_hcw--=159, network=13,219 works)
+## Topic 2  (n_hcw--=158, network=7,258 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Ani Nur Aeni | 17 | 312 | 1,055 | 63 |
-| 2 | Sri Watini | 22 | 226 | 1,856 | 51 |
-| 3 | Dwi Agus Kurniawan | 35 | 332 | 4,795 | 43 |
+| 1 | Muhammad Turki Alshurideh | 71 | 462 | 16,602 | 69 |
+| 2 | Conrad Lluis | 1 | 97 | 91 | 61 |
+| 3 | Sulieman Ibraheem Shelash Al-Hawary | 47 | 258 | 5,870 | 57 |
 
-## Employee Performance  (n_hcw--=149, network=8,358 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Brian Meneses-Claudio | 21 | 198 | 1,155 | 35 |
-| 2 | Manaf Al‐Okaily | 50 | 162 | 6,332 | 31 |
-| 3 | Bambang Slamet Riyadi | 16 | 73 | 659 | 25 |
-
-## Early Childhood  (n_hcw--=79, network=4,548 works)
+## Topic 3  (n_hcw--=148, network=18,657 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sri Watini | 22 | 226 | 1,856 | 111 |
-| 2 | Dadan Suryana | 19 | 115 | 1,193 | 19 |
-| 3 | Muhammad Ilham | 19 | 229 | 977 | 18 |
+| 1 | Samuel Greef | 8 | 178 | 366 | 69 |
+| 2 | Marcos dos Santos | 38 | 650 | 3,340 | 37 |
+| 3 | Hans-Jürgen Hohm | 7 | 58 | 295 | 35 |
 
-## Elementary School  (n_hcw--=71, network=5,429 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Afib Rulyansah | 14 | 137 | 557 | 46 |
-| 2 | Rizqi Putri Nourma Budiarti | 11 | 156 | 623 | 40 |
-| 3 | Rachma Rizqina Mardhotillah | 6 | 76 | 202 | 36 |
-
-## Merdeka Curriculum  (n_hcw--=58, network=4,256 works)
+## Topic 4  (n_hcw--=127, network=7,170 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Aiman Faiz | 20 | 74 | 1,505 | 15 |
-| 2 | I Wayan Lasmawan | 12 | 301 | 675 | 10 |
-| 3 | Iwan Ramadhan | 10 | 129 | 437 | 9 |
+| 1 | Tomi Apra Santosa | 19 | 160 | 1,042 | 48 |
+| 2 | Dwi Agus Kurniawan | 36 | 332 | 4,855 | 46 |
+| 3 | Heri Retnawati | 32 | 537 | 4,716 | 37 |
+
+## Topic 5  (n_hcw--=118, network=10,809 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Jonas Birke | 2 | 121 | 125 | 92 |
+| 2 | Ani Nur Aeni | 17 | 312 | 1,062 | 64 |
+| 3 | Anak Agung Gede Agung | 16 | 237 | 892 | 39 |
+
+## Topic 6  (n_hcw--=86, network=5,814 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Afib Rulyansah | 14 | 137 | 566 | 46 |
+| 2 | Rizqi Putri Nourma Budiarti | 11 | 158 | 631 | 40 |
+| 3 | Rachma Rizqina Mardhotillah | 6 | 78 | 206 | 36 |
+
+## Topic 7  (n_hcw--=79, network=4,643 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sri Watini | 22 | 226 | 1,861 | 115 |
+| 2 | Dadan Suryana | 19 | 117 | 1,217 | 17 |
+| 3 | Opan Arifudin | 34 | 69 | 4,034 | 15 |
+
+## Topic 8  (n_hcw--=62, network=10,727 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Jonas Birke | 2 | 121 | 125 | 92 |
+| 2 | Samuel Greef | 8 | 178 | 366 | 69 |
+| 3 | Muhlasin Amrullah | 4 | 152 | 76 | 36 |
+
+## Topic 9  (n_hcw--=57, network=4,205 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Aiman Faiz | 20 | 75 | 1,511 | 17 |
+| 2 | Okta Suryani | 7 | 68 | 242 | 13 |
+| 3 | Mawardi Mawardi | 20 | 430 | 1,605 | 13 |

@@ -28,7 +28,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, FIELD_NAMES
+from util import load_config, FIELD_NAMES, guard
 
 EPS = 1e-9
 
@@ -114,6 +114,8 @@ def main() -> None:
     parser.add_argument('--window', default='2020_2024')
     parser.add_argument('--label',  default='baseline')
     parser.add_argument('--top-n',  type=int, default=50)
+    parser.add_argument('--yes', '-y', action='store_true',
+                        help='Rebuild stale output without prompting')
     args = parser.parse_args()
 
     paths = load_config()
@@ -121,6 +123,11 @@ def main() -> None:
     if not hcw_path.exists():
         print(f'ERROR: {hcw_path} not found — run build_enclave_hcw.py first')
         sys.exit(1)
+
+    out_path = paths.working / f'enclave_tfidf_{args.window}_{args.label}.parquet'
+    if not guard.ensure_fresh(out_path, str(hcw_path), script=__file__, auto_yes=args.yes,
+                              label='enclave_tfidf'):
+        return
 
     print(f'Loading {hcw_path.name}...')
     df = pd.read_parquet(hcw_path)
@@ -136,8 +143,8 @@ def main() -> None:
 
     print_summary(result, n=10)
 
-    out_path = paths.working / f'enclave_tfidf_{args.window}_{args.label}.parquet'
     result.to_parquet(out_path, index=False)
+    guard.record_build(out_path, str(hcw_path), script=__file__, build_seconds=time.time() - t0)
     print(f'\nSaved: {out_path}')
 
 

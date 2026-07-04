@@ -2,66 +2,74 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Nanoparticles  (n_hcw--=45, network=8,822 works)
+## Topic 0  (n_hcw--=44, network=20,091 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Abbas Rahdar | 66 | 534 | 17,571 | 46 |
-| 2 | Mehrab Pourmadadi | 48 | 197 | 6,428 | 42 |
-| 3 | Giovanni Benelli | 99 | 719 | 34,559 | 34 |
+| 1 | Adamu Uzairu | 31 | 379 | 4,357 | 64 |
+| 2 | Ravikumar Kapavarapu | 23 | 162 | 1,586 | 63 |
+| 3 | Saleem Javed | 28 | 215 | 2,150 | 63 |
 
-## Drug Delivery Systems  (n_hcw--=38, network=8,030 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Rolf Teschke | 60 | 313 | 10,492 | 52 |
-| 2 | Prashant Kesharwani | 94 | 784 | 28,431 | 32 |
-| 3 | Anroop B. Nair | 53 | 322 | 15,448 | 29 |
-
-## Bioactive Properties  (n_hcw--=37, network=10,371 works)
+## Topic 1  (n_hcw--=35, network=11,263 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | İlhami Gülçın | 126 | 654 | 51,837 | 108 |
-| 2 | Parham Taslımı | 72 | 397 | 14,843 | 47 |
-| 3 | Ayman M. Mahmoud | 59 | 335 | 10,212 | 35 |
+| 1 | Abolghasem Jouyban | 67 | 1,103 | 23,983 | 199 |
+| 2 | Fleming Martínez | 50 | 494 | 9,919 | 106 |
+| 3 | Elaheh Rahimpour | 29 | 281 | 3,343 | 106 |
 
-## Biological Activity Reviews  (n_hcw--=24, network=6,841 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Amirhossein Sahebkar | 171 | 2,341 | 226,318 | 48 |
-| 2 | Talha Bin Emran | 77 | 723 | 24,980 | 16 |
-| 3 | Tannaz Jamialahmadi | 56 | 389 | 8,872 | 14 |
-
-## Drug Discovery  (n_hcw--=23, network=18,414 works)
+## Topic 2  (n_hcw--=22, network=4,902 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Abolghasem Jouyban | 66 | 1,104 | 23,589 | 195 |
-| 2 | Elaheh Rahimpour | 29 | 279 | 3,232 | 105 |
-| 3 | nan | — | — | — | 104 |
+| 1 | Ibrahim H. Eissa | 53 | 225 | 7,656 | 50 |
+| 2 | Mehrab Pourmadadi | 50 | 197 | 6,723 | 47 |
+| 3 | Eslam B. Elkaeed | 43 | 277 | 6,516 | 46 |
 
-## Cancer Treatment  (n_hcw--=20, network=2,480 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Mehrab Pourmadadi | 48 | 197 | 6,428 | 47 |
-| 2 | Sherif Ashraf Fahmy | 28 | 82 | 1,890 | 28 |
-| 3 | Abbas Rahdar | 66 | 534 | 17,571 | 28 |
-
-## COVID-19 Treatment  (n_hcw--=15, network=4,950 works)
+## Topic 3  (n_hcw--=19, network=3,338 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Ibrahim H. Eissa | 52 | 224 | 7,438 | 44 |
-| 2 | Eslam B. Elkaeed | 42 | 274 | 6,252 | 39 |
-| 3 | Ahmed M. Metwaly | 40 | 202 | 4,643 | 37 |
+| 1 | Giovanni Benelli | 100 | 720 | 35,099 | 35 |
+| 2 | Fakhar ud Din | 43 | 153 | 6,285 | 25 |
+| 3 | Abbas Rahdar | 68 | 534 | 18,289 | 21 |
 
-## Molecular Docking  (n_hcw--=14, network=1,415 works)
+## Topic 4  (n_hcw--=18, network=5,896 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Ibrahim H. Eissa | 52 | 224 | 7,438 | 47 |
-| 2 | Ahmed A. Al‐Karmalawy | 51 | 228 | 6,856 | 42 |
-| 3 | Eslam B. Elkaeed | 42 | 274 | 6,252 | 41 |
+| 1 | Rolf Teschke | 60 | 314 | 10,637 | 55 |
+| 2 | Jianlin Han | 58 | 443 | 11,971 | 29 |
+| 3 | Shaowen Tang | 28 | 166 | 2,684 | 21 |
+
+## Topic 5  (n_hcw--=14, network=2,941 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Ibrahim H. Eissa | 53 | 225 | 7,656 | 44 |
+| 2 | Eslam B. Elkaeed | 43 | 277 | 6,516 | 39 |
+| 3 | Ahmed M. Metwaly | 41 | 203 | 4,790 | 37 |
+
+## Topic 6  (n_hcw--=13, network=4,961 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | İlhami Gülçın | 128 | 661 | 52,636 | 107 |
+| 2 | Parham Taslımı | 72 | 398 | 15,093 | 47 |
+| 3 | Saleh Alwasel | 57 | 290 | 15,055 | 33 |
+
+## Topic 7  (n_hcw--=12, network=4,728 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Hua‐Bin Li | 97 | 330 | 34,689 | 19 |
+| 2 | Krishnendu Acharya | 57 | 494 | 13,420 | 13 |
+| 3 | Ren‐You Gan | 84 | 298 | 24,779 | 12 |
+
+## Topic 8  (n_hcw--=9, network=1,009 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Ahmed A. Al‐Karmalawy | 51 | 229 | 7,176 | 41 |
+| 2 | Azar Zochedh | 19 | 46 | 969 | 28 |
+| 3 | Ramith Ramu | 33 | 181 | 3,162 | 27 |

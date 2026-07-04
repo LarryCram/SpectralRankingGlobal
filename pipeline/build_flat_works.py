@@ -54,11 +54,12 @@ leiden-level weight = SUM(field_weight WHERE leiden_idx = L) per (work, institut
 """
 
 import sys
+import time
 from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings
+from util import load_config, load_settings, guard
 
 # Works with more authors than this are excluded (hyper-authored consortium
 # papers). NOTE: hca_extract.py's separate HCR-matching pipeline uses
@@ -283,6 +284,12 @@ def build_corpus_references(db: duckdb.DuckDBPyConnection,
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--yes', '-y', action='store_true',
+                         help='Rebuild stale outputs without prompting')
+    args = parser.parse_args()
+
     paths    = load_config()
     settings = load_settings()
 
@@ -296,29 +303,43 @@ def main():
     fw_path  = str(paths.working / f"flat_works_{settings.year_min}_{settings.year_max}.parquet")
     cr_path  = str(paths.working / f"corpus_references_{settings.year_min}_{settings.year_max}.parquet")
 
+    fw_inputs = [works_path, sources_path, authorships_path, institutions_path,
+                 topics_path, topics_meta_path]
+
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
         db.execute(f"SET memory_limit = '{settings.memory_limit}'")
         db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
 
-        if not Path(fw_path).exists():
+        if guard.ensure_fresh(fw_path, *fw_inputs, script=__file__,
+                              auto_yes=args.yes, label='flat_works'):
             print(f"Building flat works table ({settings.year_min}–{settings.year_max}) ...")
+            t0 = time.time()
             n = build_flat_works(
                 db, works_path, sources_path, authorships_path,
                 institutions_path, topics_path, topics_meta_path, fw_path,
                 settings.year_min, settings.year_max,
                 settings.source_types, settings.work_types, settings.institution_types,
             )
+            guard.record_build(fw_path, *fw_inputs, script=__file__,
+                               build_seconds=time.time() - t0)
             print(f"Wrote {n:,} rows → {fw_path}")
         else:
             n = db.execute(f"SELECT COUNT(*) FROM '{fw_path}'").fetchone()[0]
-            print(f"flat_works exists: {n:,} rows  ({fw_path})")
+            print(f"flat_works: {n:,} rows  ({fw_path})")
 
-        print(f"\nBuilding corpus references ...")
-        import time
-        t0 = time.time()
-        nr = build_corpus_references(db, fw_path, refs_glob, cr_path)
-        print(f"Wrote {nr:,} rows in {time.time()-t0:.0f}s → {cr_path}")
+        cr_inputs = [fw_path, refs_glob]
+        if guard.ensure_fresh(cr_path, *cr_inputs, script=__file__,
+                              auto_yes=args.yes, label='corpus_references'):
+            print(f"\nBuilding corpus references ...")
+            t0 = time.time()
+            nr = build_corpus_references(db, fw_path, refs_glob, cr_path)
+            guard.record_build(cr_path, *cr_inputs, script=__file__,
+                               build_seconds=time.time() - t0)
+            print(f"Wrote {nr:,} rows in {time.time()-t0:.0f}s → {cr_path}")
+        else:
+            nr = db.execute(f"SELECT COUNT(*) FROM '{cr_path}'").fetchone()[0]
+            print(f"corpus_references: {nr:,} rows  ({cr_path})")
 
 
 if __name__ == "__main__":

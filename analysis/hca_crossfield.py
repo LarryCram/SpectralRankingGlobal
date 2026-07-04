@@ -42,7 +42,7 @@ import duckdb
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, FIELD_NAMES
+from util import load_config, FIELD_NAMES, guard
 from hca_extract import HCA_YEAR_MIN, HCA_YEAR_MAX
 
 HCA_TARGET_DEFAULT = 250
@@ -130,15 +130,25 @@ def main() -> None:
     parser.add_argument('--hca-target', type=int, default=HCA_TARGET_DEFAULT,
                         help='Target researchers per field for threshold calibration '
                              f'(default {HCA_TARGET_DEFAULT})')
+    parser.add_argument('--yes', '-y', action='store_true',
+                        help='Rebuild stale output without prompting')
     args = parser.parse_args()
 
     paths = load_config()
     w     = paths.working
 
+    inputs = []
     for fname in ('hcw_authors.parquet', 'hcw_authorships.parquet', 'hcw_works.parquet'):
         if not (w / fname).exists():
             print(f'ERROR: {fname} not found — run hca_extract.py first')
             sys.exit(1)
+        inputs.append(str(w / fname))
+
+    out_path = w / f'hca_crossfield_{args.window}_{args.label}.parquet'
+    if not guard.ensure_fresh(out_path, *inputs, script=__file__, auto_yes=args.yes,
+                              label='hca_crossfield'):
+        return
+    t0 = time.time()
 
     # ── 1. load ───────────────────────────────────────────────────────────────
     print('Loading hcw_authors...')
@@ -247,8 +257,8 @@ def main() -> None:
               f"{thresh_paper[fid]:>12.1f}  {thresh_cite.get(fid, 0):>12.0f}")
 
     # ── 6. write ──────────────────────────────────────────────────────────────
-    out_path = w / f'hca_crossfield_{args.window}_{args.label}.parquet'
     result.to_parquet(out_path, index=False)
+    guard.record_build(out_path, *inputs, script=__file__, build_seconds=time.time() - t0)
     print(f'\nWrote {len(result):,} rows → {out_path.name}')
 
 

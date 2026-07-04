@@ -33,7 +33,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from util import load_config, load_settings, FIELD_NAMES
+from util import load_config, load_settings, FIELD_NAMES, guard
 from network_enclave import scan_citation_edges
 
 
@@ -91,14 +91,13 @@ def top_authors_per_enclave(
 
     au_df = con.execute(f"""
         SELECT
-            CAST(REGEXP_EXTRACT(a.id, 'A([0-9]+)$', 1) AS BIGINT) AS author_idx,
+            a.author_idx,
             a.display_name,
             a.works_count,
             a.cited_by_count,
-            a.summary_stats.h_index AS h_index
+            a.h_index
         FROM parquet_scan('{authors_glob}') a
-        JOIN _aid t
-          ON CAST(REGEXP_EXTRACT(a.id, 'A([0-9]+)$', 1) AS BIGINT) = t.author_idx
+        JOIN _aid t ON a.author_idx = t.author_idx
     """).df()
     con.close()
 
@@ -162,6 +161,8 @@ def main() -> None:
     parser.add_argument('--top-n',  type=int, default=3)
     parser.add_argument('--field',  type=int, default=0,
                         help='process only this field_idx (default: all fields)')
+    parser.add_argument('--yes', '-y', action='store_true',
+                        help='Rebuild stale reports without prompting')
     args = parser.parse_args()
 
     paths    = load_config()
@@ -196,6 +197,17 @@ def main() -> None:
         if nmf_df.empty:
             print(f'ERROR: no NMF rows for field {args.field}')
             sys.exit(1)
+
+    # The authorship scan below runs once for every targeted field together,
+    # so a single representative freshness check gates the whole batch.
+    report_inputs = [str(nmf_path), str(hcw_path), cr_path, auth_glob, au_glob]
+    report_paths = [
+        out_dir / f'{fid}_{args.window}_{args.label}_researchers.md'
+        for fid in sorted(nmf_df['field_idx'].unique())
+    ]
+    if not guard.ensure_fresh(report_paths[0], *report_inputs, script=__file__,
+                              auto_yes=args.yes, label='researcher enclave reports'):
+        return
 
     hcw_src = pd.read_parquet(hcw_path, columns=['field_idx', 'work_idx', 'source_idx'])
     if args.field:
@@ -245,6 +257,7 @@ def main() -> None:
         out_path = out_dir / f'{fid}_{args.window}_{args.label}_researchers.md'
         write_md(fid, field_enc_info[fid], top_auth, out_path,
                  args.window, args.label, args.top_n)
+        guard.record_build(out_path, *report_inputs, script=__file__)
 
     # ── stdout: top-1 per enclave ─────────────────────────────────────────────
     if not top_auth.empty:

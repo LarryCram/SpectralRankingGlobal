@@ -1,0 +1,2808 @@
+{
+  "output": "/home/lc/Projects/SpectralRankingGlobal/enclaves/reports/16_2020_2024_baseline_researchers.md",
+  "built_at": 1783164681.5256746,
+  "build_seconds": null,
+  "scripts": [
+    {
+      "path": "/home/lc/Projects/SpectralRankingGlobal/enclaves/researcher_enclaves.py",
+      "mtime": 1783164530.1994815
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_mar26/enclave_nmf_2020_2024_baseline.parquet",
+      "mtime": 1783163938.4733841,
+      "size": 442860
+    },
+    {
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_mar26/enclave_hcw_2020_2024_baseline.parquet",
+      "mtime": 1783159781.8561318,
+      "size": 40186271
+    },
+    {
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_mar26/corpus_references_2000_2025.parquet",
+      "mtime": 1783140398.9258811,
+      "size": 7553779761
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_00.parquet",
+      "mtime": 1782537061.0,
+      "size": 773027398
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_01.parquet",
+      "mtime": 1782537113.0,
+      "size": 772361463
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_02.parquet",
+      "mtime": 1782537162.0,
+      "size": 773455039
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_03.parquet",
+      "mtime": 1782537206.0,
+      "size": 772185278
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_04.parquet",
+      "mtime": 1782537248.0,
+      "size": 772753367
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_05.parquet",
+      "mtime": 1782537286.0,
+      "size": 772805569
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_06.parquet",
+      "mtime": 1782537323.0,
+      "size": 773209480
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_07.parquet",
+      "mtime": 1782537359.0,
+      "size": 772720564
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_08.parquet",
+      "mtime": 1782537396.0,
+      "size": 773556435
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authorships/part_09.parquet",
+      "mtime": 1782537432.0,
+      "size": 773163925
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-01_part_0000.parquet",
+      "mtime": 1782298910.5155275,
+      "size": 28590985
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-01_part_0001.parquet",
+      "mtime": 1782298906.3602123,
+      "size": 6561256
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-01_part_0002.parquet",
+      "mtime": 1782298909.149424,
+      "size": 30231894
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-01_part_0003.parquet",
+      "mtime": 1782298906.7062387,
+      "size": 5005052
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-01_part_0004.parquet",
+      "mtime": 1782298911.3385897,
+      "size": 30119654
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-01_part_0005.parquet",
+      "mtime": 1782298906.2822063,
+      "size": 4903717
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-02_part_0000.parquet",
+      "mtime": 1782298904.8770995,
+      "size": 754748
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-03_part_0000.parquet",
+      "mtime": 1782298906.4292176,
+      "size": 2393735
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-04_part_0000.parquet",
+      "mtime": 1782298904.4690683,
+      "size": 624007
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-05_part_0000.parquet",
+      "mtime": 1782298904.479069,
+      "size": 477067
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-06_part_0000.parquet",
+      "mtime": 1782298905.512148,
+      "size": 961448
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-07_part_0000.parquet",
+      "mtime": 1782298905.041112,
+      "size": 1054699
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-08_part_0000.parquet",
+      "mtime": 1782298905.2191255,
+      "size": 1352881
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-09_part_0000.parquet",
+      "mtime": 1782298906.7822444,
+      "size": 4161817
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-11_part_0000.parquet",
+      "mtime": 1782298907.9803355,
+      "size": 17212869
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-12_part_0000.parquet",
+      "mtime": 1782298906.2582047,
+      "size": 3915191
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-14_part_0000.parquet",
+      "mtime": 1782298905.8351724,
+      "size": 1498498
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-15_part_0000.parquet",
+      "mtime": 1782298905.3121326,
+      "size": 2355522
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-16_part_0000.parquet",
+      "mtime": 1782298904.4310653,
+      "size": 483386
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-17_part_0000.parquet",
+      "mtime": 1782298905.897177,
+      "size": 3250616
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-18_part_0000.parquet",
+      "mtime": 1782298905.6871612,
+      "size": 1707511
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-19_part_0000.parquet",
+      "mtime": 1782298904.7510898,
+      "size": 809737
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-20_part_0000.parquet",
+      "mtime": 1782298906.5212245,
+      "size": 2236541
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-21_part_0000.parquet",
+      "mtime": 1782298905.463144,
+      "size": 737287
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-22_part_0000.parquet",
+      "mtime": 1782298904.965106,
+      "size": 482947
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-23_part_0000.parquet",
+      "mtime": 1782298905.6011546,
+      "size": 407134
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-24_part_0000.parquet",
+      "mtime": 1782298905.9231791,
+      "size": 798721
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-25_part_0000.parquet",
+      "mtime": 1782298906.9172547,
+      "size": 2506652
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-26_part_0000.parquet",
+      "mtime": 1782298906.9592578,
+      "size": 1881094
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-02-28_part_0000.parquet",
+      "mtime": 1782298906.7542422,
+      "size": 2033397
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-01_part_0000.parquet",
+      "mtime": 1782298906.4552195,
+      "size": 1006636
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0000.parquet",
+      "mtime": 1782298948.5463178,
+      "size": 72327886
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0001.parquet",
+      "mtime": 1782298906.9062538,
+      "size": 1015156
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0002.parquet",
+      "mtime": 1782298946.8351958,
+      "size": 72561256
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0003.parquet",
+      "mtime": 1782298907.238279,
+      "size": 1213096
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0004.parquet",
+      "mtime": 1782298951.337516,
+      "size": 72077134
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0005.parquet",
+      "mtime": 1782298946.5781775,
+      "size": 72783312
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0006.parquet",
+      "mtime": 1782298909.172426,
+      "size": 1955388
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0007.parquet",
+      "mtime": 1782298945.466098,
+      "size": 72539434
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0008.parquet",
+      "mtime": 1782298907.7623188,
+      "size": 1252609
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0009.parquet",
+      "mtime": 1782298948.15629,
+      "size": 72394113
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0010.parquet",
+      "mtime": 1782298908.2893589,
+      "size": 1203346
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0011.parquet",
+      "mtime": 1782298947.847268,
+      "size": 72422109
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0012.parquet",
+      "mtime": 1782298907.9293315,
+      "size": 1178104
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0013.parquet",
+      "mtime": 1782298949.9324164,
+      "size": 72601319
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0014.parquet",
+      "mtime": 1782298908.1103454,
+      "size": 1041924
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0015.parquet",
+      "mtime": 1782298950.3154435,
+      "size": 72009495
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0016.parquet",
+      "mtime": 1782298950.008422,
+      "size": 72525895
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0017.parquet",
+      "mtime": 1782298911.0675693,
+      "size": 2335932
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0018.parquet",
+      "mtime": 1782298943.8459818,
+      "size": 72511613
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0019.parquet",
+      "mtime": 1782298908.9344077,
+      "size": 1222273
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0020.parquet",
+      "mtime": 1782298946.6501825,
+      "size": 72767716
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0021.parquet",
+      "mtime": 1782298909.1964276,
+      "size": 758781
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0022.parquet",
+      "mtime": 1782298950.4264514,
+      "size": 72511363
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0023.parquet",
+      "mtime": 1782298909.4204445,
+      "size": 1034966
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0024.parquet",
+      "mtime": 1782298949.745403,
+      "size": 72543712
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0025.parquet",
+      "mtime": 1782298912.6016848,
+      "size": 1368012
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0026.parquet",
+      "mtime": 1782298950.6344664,
+      "size": 72454641
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0027.parquet",
+      "mtime": 1782298911.8816307,
+      "size": 1128228
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0028.parquet",
+      "mtime": 1782298947.007208,
+      "size": 72398537
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0029.parquet",
+      "mtime": 1782298913.4497488,
+      "size": 1016622
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0030.parquet",
+      "mtime": 1782298950.4934564,
+      "size": 72402049
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0031.parquet",
+      "mtime": 1782298915.2798862,
+      "size": 869420
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0032.parquet",
+      "mtime": 1782298950.1184297,
+      "size": 72514021
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0033.parquet",
+      "mtime": 1782298918.2341075,
+      "size": 1395428
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0034.parquet",
+      "mtime": 1782298953.2446513,
+      "size": 72547393
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0035.parquet",
+      "mtime": 1782298915.8919322,
+      "size": 1122046
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0036.parquet",
+      "mtime": 1782298953.4856682,
+      "size": 72725450
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0037.parquet",
+      "mtime": 1782298918.2181063,
+      "size": 1083244
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0038.parquet",
+      "mtime": 1782298953.553673,
+      "size": 72589441
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0039.parquet",
+      "mtime": 1782298923.7675188,
+      "size": 1179884
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0040.parquet",
+      "mtime": 1782298956.717896,
+      "size": 72539961
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0041.parquet",
+      "mtime": 1782298947.6102512,
+      "size": 1052962
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0042.parquet",
+      "mtime": 1782298982.025641,
+      "size": 72366498
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0043.parquet",
+      "mtime": 1782298949.264369,
+      "size": 1129043
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0044.parquet",
+      "mtime": 1782298985.1438513,
+      "size": 72482134
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0045.parquet",
+      "mtime": 1782298949.8914135,
+      "size": 1149395
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0046.parquet",
+      "mtime": 1782298982.6296818,
+      "size": 72399520
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0047.parquet",
+      "mtime": 1782298950.2554393,
+      "size": 1114333
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0048.parquet",
+      "mtime": 1782298987.2329917,
+      "size": 72481204
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0049.parquet",
+      "mtime": 1782298951.0864985,
+      "size": 1053136
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0050.parquet",
+      "mtime": 1782298983.5747457,
+      "size": 72639466
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0051.parquet",
+      "mtime": 1782298951.211507,
+      "size": 1174139
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0052.parquet",
+      "mtime": 1782298987.9940426,
+      "size": 72540395
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0053.parquet",
+      "mtime": 1782298951.701542,
+      "size": 960314
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0054.parquet",
+      "mtime": 1782298988.4350722,
+      "size": 72455827
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0055.parquet",
+      "mtime": 1782298952.5125995,
+      "size": 946695
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0056.parquet",
+      "mtime": 1782298988.152053,
+      "size": 72375185
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0057.parquet",
+      "mtime": 1782298953.0766394,
+      "size": 966036
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0058.parquet",
+      "mtime": 1782298988.2860622,
+      "size": 72492283
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0059.parquet",
+      "mtime": 1782298953.5166705,
+      "size": 1311524
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0060.parquet",
+      "mtime": 1782298984.5848136,
+      "size": 72481668
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0061.parquet",
+      "mtime": 1782298953.8596945,
+      "size": 1152217
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0062.parquet",
+      "mtime": 1782298988.4650743,
+      "size": 72854600
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0063.parquet",
+      "mtime": 1782298953.2506516,
+      "size": 1057161
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0064.parquet",
+      "mtime": 1782298988.939106,
+      "size": 72526609
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0065.parquet",
+      "mtime": 1782298953.7256851,
+      "size": 1208499
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0066.parquet",
+      "mtime": 1782298991.5832825,
+      "size": 72600462
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0067.parquet",
+      "mtime": 1782298956.2008598,
+      "size": 1043557
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0068.parquet",
+      "mtime": 1782298991.5332792,
+      "size": 72693759
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0069.parquet",
+      "mtime": 1782298956.5218823,
+      "size": 1281540
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0070.parquet",
+      "mtime": 1782298992.4963431,
+      "size": 72389605
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0071.parquet",
+      "mtime": 1782298957.470949,
+      "size": 1143011
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0072.parquet",
+      "mtime": 1782298991.652287,
+      "size": 72541387
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0073.parquet",
+      "mtime": 1782298957.956983,
+      "size": 1097229
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0074.parquet",
+      "mtime": 1782298990.8772354,
+      "size": 72551961
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0075.parquet",
+      "mtime": 1782298960.3881533,
+      "size": 992067
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0076.parquet",
+      "mtime": 1782298994.5024765,
+      "size": 72526220
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0077.parquet",
+      "mtime": 1782298962.4332962,
+      "size": 1250739
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0078.parquet",
+      "mtime": 1782298993.1013834,
+      "size": 72503260
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0079.parquet",
+      "mtime": 1782298962.9533322,
+      "size": 1220941
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0080.parquet",
+      "mtime": 1782298995.6445522,
+      "size": 72530975
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0081.parquet",
+      "mtime": 1782298967.9436786,
+      "size": 1128374
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0082.parquet",
+      "mtime": 1782298994.8645005,
+      "size": 72459434
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0083.parquet",
+      "mtime": 1782298973.3940535,
+      "size": 1187611
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0084.parquet",
+      "mtime": 1782299007.4473267,
+      "size": 72262378
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0085.parquet",
+      "mtime": 1782298987.7860286,
+      "size": 1184601
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0086.parquet",
+      "mtime": 1782299025.5594885,
+      "size": 72533394
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0087.parquet",
+      "mtime": 1782298987.3750012,
+      "size": 1063191
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0088.parquet",
+      "mtime": 1782299024.6164289,
+      "size": 72475885
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0089.parquet",
+      "mtime": 1782298989.1781218,
+      "size": 1122526
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0090.parquet",
+      "mtime": 1782299023.4423544,
+      "size": 72336075
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0091.parquet",
+      "mtime": 1782298991.3242652,
+      "size": 1422227
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0092.parquet",
+      "mtime": 1782299025.4294803,
+      "size": 72502903
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0093.parquet",
+      "mtime": 1782298991.5682814,
+      "size": 1143684
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0094.parquet",
+      "mtime": 1782299026.5045483,
+      "size": 72566730
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0095.parquet",
+      "mtime": 1782298991.3472667,
+      "size": 949943
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0096.parquet",
+      "mtime": 1782299025.389478,
+      "size": 72495539
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0097.parquet",
+      "mtime": 1782298991.0282454,
+      "size": 1115900
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0098.parquet",
+      "mtime": 1782299025.1564631,
+      "size": 72476639
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0099.parquet",
+      "mtime": 1782298991.7652946,
+      "size": 943200
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0100.parquet",
+      "mtime": 1782299027.8646343,
+      "size": 72536848
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0101.parquet",
+      "mtime": 1782298993.8444328,
+      "size": 1314429
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0102.parquet",
+      "mtime": 1782299028.6036808,
+      "size": 72639993
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0103.parquet",
+      "mtime": 1782298994.317464,
+      "size": 1228065
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0104.parquet",
+      "mtime": 1782299028.5086749,
+      "size": 72507961
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0105.parquet",
+      "mtime": 1782298994.6824884,
+      "size": 1227165
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0106.parquet",
+      "mtime": 1782299029.3327267,
+      "size": 72608840
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0107.parquet",
+      "mtime": 1782298994.842499,
+      "size": 1104184
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0108.parquet",
+      "mtime": 1782299027.336601,
+      "size": 72535490
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0109.parquet",
+      "mtime": 1782298995.4685404,
+      "size": 1231732
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0110.parquet",
+      "mtime": 1782299027.9636405,
+      "size": 72599815
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0111.parquet",
+      "mtime": 1782298997.2096558,
+      "size": 1069685
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0112.parquet",
+      "mtime": 1782299031.9368901,
+      "size": 72157412
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0113.parquet",
+      "mtime": 1782299030.193781,
+      "size": 72578951
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0114.parquet",
+      "mtime": 1782298998.653751,
+      "size": 1742032
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0115.parquet",
+      "mtime": 1782299031.8608854,
+      "size": 72494286
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0116.parquet",
+      "mtime": 1782298998.3557315,
+      "size": 1138237
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0117.parquet",
+      "mtime": 1782299030.5008001,
+      "size": 72617543
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0118.parquet",
+      "mtime": 1782299000.689885,
+      "size": 1311484
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0119.parquet",
+      "mtime": 1782299040.5024235,
+      "size": 72667510
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0120.parquet",
+      "mtime": 1782299003.6120765,
+      "size": 1100197
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0121.parquet",
+      "mtime": 1782299031.9208891,
+      "size": 72513009
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0122.parquet",
+      "mtime": 1782299006.174244,
+      "size": 1181489
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0123.parquet",
+      "mtime": 1782299038.4082937,
+      "size": 72454053
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0124.parquet",
+      "mtime": 1782299012.8966796,
+      "size": 1187937
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0125.parquet",
+      "mtime": 1782299043.929635,
+      "size": 72458613
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0126.parquet",
+      "mtime": 1782299017.239959,
+      "size": 1253190
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0127.parquet",
+      "mtime": 1782299052.9001837,
+      "size": 72560715
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0128.parquet",
+      "mtime": 1782299027.719625,
+      "size": 1169708
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0129.parquet",
+      "mtime": 1782299060.6376507,
+      "size": 72556248
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0130.parquet",
+      "mtime": 1782299029.3627286,
+      "size": 1186177
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0131.parquet",
+      "mtime": 1782299067.9840896,
+      "size": 72847980
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0132.parquet",
+      "mtime": 1782299061.5767071,
+      "size": 71887584
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0133.parquet",
+      "mtime": 1782299030.066773,
+      "size": 1750863
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0134.parquet",
+      "mtime": 1782299063.4998224,
+      "size": 72875338
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0135.parquet",
+      "mtime": 1782299030.1457777,
+      "size": 1257415
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0136.parquet",
+      "mtime": 1782299060.0626163,
+      "size": 72549952
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0137.parquet",
+      "mtime": 1782299030.6778111,
+      "size": 1132566
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0138.parquet",
+      "mtime": 1782299061.471701,
+      "size": 72575630
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0139.parquet",
+      "mtime": 1782299030.5998063,
+      "size": 1118768
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0140.parquet",
+      "mtime": 1782299063.3158114,
+      "size": 72530682
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0141.parquet",
+      "mtime": 1782299031.501863,
+      "size": 985879
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0142.parquet",
+      "mtime": 1782299065.7639575,
+      "size": 72464626
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0143.parquet",
+      "mtime": 1782299033.20797,
+      "size": 1061697
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0144.parquet",
+      "mtime": 1782299064.5598855,
+      "size": 72404163
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0145.parquet",
+      "mtime": 1782299033.0899625,
+      "size": 1224265
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0146.parquet",
+      "mtime": 1782299062.644771,
+      "size": 72570902
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0147.parquet",
+      "mtime": 1782299033.6139953,
+      "size": 1150721
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0148.parquet",
+      "mtime": 1782299069.0121505,
+      "size": 72507595
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0149.parquet",
+      "mtime": 1782299033.4299836,
+      "size": 755945
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0150.parquet",
+      "mtime": 1782299071.149277,
+      "size": 72483148
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0151.parquet",
+      "mtime": 1782299035.6511223,
+      "size": 1095630
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0152.parquet",
+      "mtime": 1782299069.7911966,
+      "size": 72614410
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0153.parquet",
+      "mtime": 1782299036.7761924,
+      "size": 933529
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0154.parquet",
+      "mtime": 1782299072.607363,
+      "size": 72454628
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0155.parquet",
+      "mtime": 1782299038.0492716,
+      "size": 1037229
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0156.parquet",
+      "mtime": 1782299071.1982799,
+      "size": 72419847
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0157.parquet",
+      "mtime": 1782299040.3924167,
+      "size": 1305084
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0158.parquet",
+      "mtime": 1782299074.4444714,
+      "size": 72599263
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0159.parquet",
+      "mtime": 1782299042.207529,
+      "size": 1204105
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0160.parquet",
+      "mtime": 1782299072.5433593,
+      "size": 72532426
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0161.parquet",
+      "mtime": 1782299044.5586739,
+      "size": 1092342
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0162.parquet",
+      "mtime": 1782299077.368643,
+      "size": 72397873
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0163.parquet",
+      "mtime": 1782299047.6978664,
+      "size": 1078510
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0164.parquet",
+      "mtime": 1782299079.450765,
+      "size": 72511947
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0165.parquet",
+      "mtime": 1782299052.083134,
+      "size": 1133585
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0166.parquet",
+      "mtime": 1782299083.6590097,
+      "size": 72467628
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0167.parquet",
+      "mtime": 1782299057.4634597,
+      "size": 944498
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0168.parquet",
+      "mtime": 1782299090.103382,
+      "size": 72580533
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0169.parquet",
+      "mtime": 1782299062.727776,
+      "size": 1292409
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0170.parquet",
+      "mtime": 1782299092.6915305,
+      "size": 72553128
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0171.parquet",
+      "mtime": 1782299065.0749164,
+      "size": 1262519
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0172.parquet",
+      "mtime": 1782299097.9988334,
+      "size": 72461829
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0173.parquet",
+      "mtime": 1782299064.3708744,
+      "size": 1069347
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0174.parquet",
+      "mtime": 1782299098.1758432,
+      "size": 72511807
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0175.parquet",
+      "mtime": 1782299066.1339796,
+      "size": 770928
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0176.parquet",
+      "mtime": 1782299100.340966,
+      "size": 72537175
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0177.parquet",
+      "mtime": 1782299067.1600406,
+      "size": 1153922
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0178.parquet",
+      "mtime": 1782299100.5789795,
+      "size": 72497355
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0179.parquet",
+      "mtime": 1782299067.6020668,
+      "size": 933213
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0180.parquet",
+      "mtime": 1782299101.786048,
+      "size": 72596794
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0181.parquet",
+      "mtime": 1782299069.7271929,
+      "size": 1089386
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0182.parquet",
+      "mtime": 1782299103.4941442,
+      "size": 72444098
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0183.parquet",
+      "mtime": 1782299069.611186,
+      "size": 1113138
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0184.parquet",
+      "mtime": 1782299106.3023024,
+      "size": 72513001
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0185.parquet",
+      "mtime": 1782299073.301404,
+      "size": 1174773
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0186.parquet",
+      "mtime": 1782299098.6418698,
+      "size": 72601789
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0187.parquet",
+      "mtime": 1782299073.5004158,
+      "size": 998827
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0188.parquet",
+      "mtime": 1782299103.119123,
+      "size": 72553388
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0189.parquet",
+      "mtime": 1782299074.7904916,
+      "size": 1156423
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0190.parquet",
+      "mtime": 1782299109.2384667,
+      "size": 72511577
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0191.parquet",
+      "mtime": 1782299075.3245232,
+      "size": 1263458
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0192.parquet",
+      "mtime": 1782299109.29847,
+      "size": 72556898
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0193.parquet",
+      "mtime": 1782299077.8556714,
+      "size": 1028161
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0194.parquet",
+      "mtime": 1782299108.8894472,
+      "size": 72600692
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0195.parquet",
+      "mtime": 1782299078.3447,
+      "size": 1116946
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0196.parquet",
+      "mtime": 1782299111.732606,
+      "size": 72663004
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0197.parquet",
+      "mtime": 1782299079.0667422,
+      "size": 987307
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0198.parquet",
+      "mtime": 1782299110.72855,
+      "size": 72639601
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0199.parquet",
+      "mtime": 1782299082.9489684,
+      "size": 1153608
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0200.parquet",
+      "mtime": 1782299116.0978484,
+      "size": 72506467
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0201.parquet",
+      "mtime": 1782299080.3218155,
+      "size": 893360
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0202.parquet",
+      "mtime": 1782299121.4371428,
+      "size": 72596195
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0203.parquet",
+      "mtime": 1782299085.4111114,
+      "size": 1244537
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0204.parquet",
+      "mtime": 1782299118.0849583,
+      "size": 72569152
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0205.parquet",
+      "mtime": 1782299088.5452924,
+      "size": 1128545
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0206.parquet",
+      "mtime": 1782299116.9678965,
+      "size": 72516801
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0207.parquet",
+      "mtime": 1782299090.2983932,
+      "size": 1089934
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0208.parquet",
+      "mtime": 1782299124.946335,
+      "size": 72482802
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0209.parquet",
+      "mtime": 1782299093.4745753,
+      "size": 992087
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0210.parquet",
+      "mtime": 1782299129.1205626,
+      "size": 72491281
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0211.parquet",
+      "mtime": 1782299098.416857,
+      "size": 1251594
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0212.parquet",
+      "mtime": 1782299128.6225355,
+      "size": 72547719
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0213.parquet",
+      "mtime": 1782299102.5160892,
+      "size": 1145772
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0214.parquet",
+      "mtime": 1782299132.3707387,
+      "size": 72525160
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0215.parquet",
+      "mtime": 1782299103.4831438,
+      "size": 1115503
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0216.parquet",
+      "mtime": 1782299134.8498726,
+      "size": 72514277
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0217.parquet",
+      "mtime": 1782299104.7272136,
+      "size": 961347
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0218.parquet",
+      "mtime": 1782299136.6289682,
+      "size": 72612382
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0219.parquet",
+      "mtime": 1782299106.740327,
+      "size": 1053752
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0220.parquet",
+      "mtime": 1782299140.0941541,
+      "size": 72480593
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0221.parquet",
+      "mtime": 1782299106.7843294,
+      "size": 942013
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0222.parquet",
+      "mtime": 1782299141.028204,
+      "size": 72466622
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0223.parquet",
+      "mtime": 1782299108.2684126,
+      "size": 955939
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0224.parquet",
+      "mtime": 1782299144.8814092,
+      "size": 72499478
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0225.parquet",
+      "mtime": 1782299110.5205383,
+      "size": 1078980
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0226.parquet",
+      "mtime": 1782299148.6006062,
+      "size": 72535163
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0227.parquet",
+      "mtime": 1782299108.5904305,
+      "size": 722929
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0228.parquet",
+      "mtime": 1782299144.6553972,
+      "size": 72624679
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0229.parquet",
+      "mtime": 1782299112.1906314,
+      "size": 1059726
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0230.parquet",
+      "mtime": 1782299142.8593016,
+      "size": 72690389
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0231.parquet",
+      "mtime": 1782299114.051735,
+      "size": 1257838
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0232.parquet",
+      "mtime": 1782299144.5043893,
+      "size": 72676295
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0233.parquet",
+      "mtime": 1782299115.6098213,
+      "size": 1344780
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0234.parquet",
+      "mtime": 1782299147.2495348,
+      "size": 72526483
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0235.parquet",
+      "mtime": 1782299115.2147994,
+      "size": 1193992
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0236.parquet",
+      "mtime": 1782299152.2477984,
+      "size": 72471504
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0237.parquet",
+      "mtime": 1782299118.6369886,
+      "size": 1035974
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0238.parquet",
+      "mtime": 1782299152.7628255,
+      "size": 72572102
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0239.parquet",
+      "mtime": 1782299118.7679958,
+      "size": 1101123
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0240.parquet",
+      "mtime": 1782299151.573763,
+      "size": 72557991
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0241.parquet",
+      "mtime": 1782299123.1472366,
+      "size": 1213612
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0242.parquet",
+      "mtime": 1782299155.287958,
+      "size": 72458335
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0243.parquet",
+      "mtime": 1782299123.0592318,
+      "size": 1067157
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0244.parquet",
+      "mtime": 1782299150.7827213,
+      "size": 72481160
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0245.parquet",
+      "mtime": 1782299127.0854518,
+      "size": 1056869
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0246.parquet",
+      "mtime": 1782299161.5322833,
+      "size": 72494767
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0247.parquet",
+      "mtime": 1782299126.1273997,
+      "size": 1059539
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0248.parquet",
+      "mtime": 1782299158.697136,
+      "size": 72477322
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0249.parquet",
+      "mtime": 1782299130.4526348,
+      "size": 1018199
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0250.parquet",
+      "mtime": 1782299163.5643885,
+      "size": 72555651
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0251.parquet",
+      "mtime": 1782299135.5299091,
+      "size": 1122518
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0252.parquet",
+      "mtime": 1782299168.44064,
+      "size": 72525032
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0253.parquet",
+      "mtime": 1782299135.2418935,
+      "size": 1248530
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0254.parquet",
+      "mtime": 1782299166.7465527,
+      "size": 72504196
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0255.parquet",
+      "mtime": 1782299139.1331027,
+      "size": 1158277
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0256.parquet",
+      "mtime": 1782299170.9057665,
+      "size": 72446195
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0257.parquet",
+      "mtime": 1782299139.9711475,
+      "size": 1169582
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0258.parquet",
+      "mtime": 1782299169.707705,
+      "size": 72608182
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0259.parquet",
+      "mtime": 1782299142.8002985,
+      "size": 1105002
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0260.parquet",
+      "mtime": 1782299173.9639225,
+      "size": 72623058
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0261.parquet",
+      "mtime": 1782299143.546338,
+      "size": 1005837
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0262.parquet",
+      "mtime": 1782299177.5051026,
+      "size": 72521404
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0263.parquet",
+      "mtime": 1782299146.9785204,
+      "size": 1077535
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0264.parquet",
+      "mtime": 1782299177.3110929,
+      "size": 72474287
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0265.parquet",
+      "mtime": 1782299147.1495295,
+      "size": 865498
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0266.parquet",
+      "mtime": 1782299179.4712024,
+      "size": 72593000
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0267.parquet",
+      "mtime": 1782299149.444651,
+      "size": 1079915
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0268.parquet",
+      "mtime": 1782299184.465454,
+      "size": 72644179
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0269.parquet",
+      "mtime": 1782299151.0737367,
+      "size": 1200654
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0270.parquet",
+      "mtime": 1782299182.9883797,
+      "size": 72539299
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0271.parquet",
+      "mtime": 1782299151.7427719,
+      "size": 889297
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0272.parquet",
+      "mtime": 1782299191.3938005,
+      "size": 72629391
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0273.parquet",
+      "mtime": 1782299151.6377664,
+      "size": 1075019
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0274.parquet",
+      "mtime": 1782299183.885425,
+      "size": 72583381
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0275.parquet",
+      "mtime": 1782299153.783879,
+      "size": 1280089
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0276.parquet",
+      "mtime": 1782299185.3544986,
+      "size": 72438608
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0277.parquet",
+      "mtime": 1782299155.1719518,
+      "size": 1042314
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0278.parquet",
+      "mtime": 1782299182.1023352,
+      "size": 72413963
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0279.parquet",
+      "mtime": 1782299157.5350752,
+      "size": 1202730
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0280.parquet",
+      "mtime": 1782299192.647863,
+      "size": 72551379
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0281.parquet",
+      "mtime": 1782299156.6830308,
+      "size": 1169366
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0282.parquet",
+      "mtime": 1782299189.515707,
+      "size": 72550603
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0283.parquet",
+      "mtime": 1782299160.4822288,
+      "size": 1328171
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0284.parquet",
+      "mtime": 1782299193.0968852,
+      "size": 72403984
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0285.parquet",
+      "mtime": 1782299162.486333,
+      "size": 1178845
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0286.parquet",
+      "mtime": 1782299195.856022,
+      "size": 72526024
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0287.parquet",
+      "mtime": 1782299165.604494,
+      "size": 1000174
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0288.parquet",
+      "mtime": 1782299199.06218,
+      "size": 72406692
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0289.parquet",
+      "mtime": 1782299167.7276032,
+      "size": 1199376
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0290.parquet",
+      "mtime": 1782299201.072279,
+      "size": 72463380
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0291.parquet",
+      "mtime": 1782299169.9517176,
+      "size": 988740
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0292.parquet",
+      "mtime": 1782299207.1395755,
+      "size": 72537267
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0293.parquet",
+      "mtime": 1782299172.4268441,
+      "size": 947196
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0294.parquet",
+      "mtime": 1782299205.18048,
+      "size": 72575602
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0295.parquet",
+      "mtime": 1782299173.070877,
+      "size": 1099621
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0296.parquet",
+      "mtime": 1782299209.4496877,
+      "size": 72415406
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0297.parquet",
+      "mtime": 1782299175.8680196,
+      "size": 1160440
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0298.parquet",
+      "mtime": 1782299209.3486829,
+      "size": 72520002
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0299.parquet",
+      "mtime": 1782299175.8840203,
+      "size": 763888
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0300.parquet",
+      "mtime": 1782299208.0016174,
+      "size": 72476275
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0301.parquet",
+      "mtime": 1782299180.632261,
+      "size": 1069031
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0302.parquet",
+      "mtime": 1782299213.5538864,
+      "size": 72487720
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0303.parquet",
+      "mtime": 1782299180.175238,
+      "size": 1122291
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0304.parquet",
+      "mtime": 1782299209.454688,
+      "size": 72449329
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0305.parquet",
+      "mtime": 1782299182.9983802,
+      "size": 891259
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0306.parquet",
+      "mtime": 1782299209.5926948,
+      "size": 72429943
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0307.parquet",
+      "mtime": 1782299184.8154716,
+      "size": 1212007
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0308.parquet",
+      "mtime": 1782299219.6701803,
+      "size": 72577779
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0309.parquet",
+      "mtime": 1782299185.7835202,
+      "size": 1045384
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0310.parquet",
+      "mtime": 1782299222.8543324,
+      "size": 72432418
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0311.parquet",
+      "mtime": 1782299188.1416383,
+      "size": 997272
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0312.parquet",
+      "mtime": 1782299222.5013156,
+      "size": 72457537
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0313.parquet",
+      "mtime": 1782299189.634713,
+      "size": 1169815
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0314.parquet",
+      "mtime": 1782299217.5220773,
+      "size": 72569135
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-02_part_0315.parquet",
+      "mtime": 1782299190.3497486,
+      "size": 1092108
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0000.parquet",
+      "mtime": 1782299221.5172687,
+      "size": 49447266
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0001.parquet",
+      "mtime": 1782299224.0803907,
+      "size": 49496602
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0002.parquet",
+      "mtime": 1782299205.2294824,
+      "size": 3658046
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0003.parquet",
+      "mtime": 1782299224.0313885,
+      "size": 49628961
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0004.parquet",
+      "mtime": 1782299199.7532141,
+      "size": 1499449
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0005.parquet",
+      "mtime": 1782299228.2725897,
+      "size": 49657175
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0006.parquet",
+      "mtime": 1782299202.482348,
+      "size": 1579803
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0007.parquet",
+      "mtime": 1782299227.944574,
+      "size": 49578223
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0008.parquet",
+      "mtime": 1782299207.8976123,
+      "size": 1605869
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0009.parquet",
+      "mtime": 1782299232.6757972,
+      "size": 49524142
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0010.parquet",
+      "mtime": 1782299208.0976222,
+      "size": 1628206
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0011.parquet",
+      "mtime": 1782299237.9020422,
+      "size": 49606295
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0012.parquet",
+      "mtime": 1782299213.274873,
+      "size": 1570013
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0013.parquet",
+      "mtime": 1782299235.5919342,
+      "size": 49588786
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0014.parquet",
+      "mtime": 1782299214.45893,
+      "size": 1484190
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0015.parquet",
+      "mtime": 1782299241.221197,
+      "size": 49651506
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0016.parquet",
+      "mtime": 1782299213.3908787,
+      "size": 1611128
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0017.parquet",
+      "mtime": 1782299240.2841532,
+      "size": 49657315
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0018.parquet",
+      "mtime": 1782299217.7320876,
+      "size": 1564190
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0019.parquet",
+      "mtime": 1782299247.0894685,
+      "size": 49672656
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0020.parquet",
+      "mtime": 1782299216.5860324,
+      "size": 1430933
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0021.parquet",
+      "mtime": 1782299244.1033306,
+      "size": 49734073
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0022.parquet",
+      "mtime": 1782299220.3152113,
+      "size": 1547398
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0023.parquet",
+      "mtime": 1782299249.5445817,
+      "size": 49538077
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0024.parquet",
+      "mtime": 1782299222.7243261,
+      "size": 1581432
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0025.parquet",
+      "mtime": 1782299251.2376592,
+      "size": 49774971
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0026.parquet",
+      "mtime": 1782299223.579367,
+      "size": 1517677
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0027.parquet",
+      "mtime": 1782299248.445531,
+      "size": 49813688
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0028.parquet",
+      "mtime": 1782299224.4664092,
+      "size": 1392400
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0029.parquet",
+      "mtime": 1782299253.8907807,
+      "size": 49947303
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0030.parquet",
+      "mtime": 1782299224.9854338,
+      "size": 1647056
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0031.parquet",
+      "mtime": 1782299251.557674,
+      "size": 49765932
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0032.parquet",
+      "mtime": 1782299230.4626932,
+      "size": 1412539
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0033.parquet",
+      "mtime": 1782299253.9967856,
+      "size": 49584413
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0034.parquet",
+      "mtime": 1782299229.5996523,
+      "size": 1578902
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0035.parquet",
+      "mtime": 1782299259.9570568,
+      "size": 49630670
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0036.parquet",
+      "mtime": 1782299230.5416968,
+      "size": 1539123
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0037.parquet",
+      "mtime": 1782299259.0420153,
+      "size": 49704821
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0038.parquet",
+      "mtime": 1782299229.9206676,
+      "size": 1636232
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0039.parquet",
+      "mtime": 1782299256.308891,
+      "size": 49681309
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0040.parquet",
+      "mtime": 1782299236.017954,
+      "size": 1416950
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0041.parquet",
+      "mtime": 1782299262.9721932,
+      "size": 49658295
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0042.parquet",
+      "mtime": 1782299235.1349127,
+      "size": 1474325
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0043.parquet",
+      "mtime": 1782299267.4803963,
+      "size": 49372584
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0044.parquet",
+      "mtime": 1782299236.9299967,
+      "size": 1637750
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0045.parquet",
+      "mtime": 1782299261.768139,
+      "size": 49590662
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0046.parquet",
+      "mtime": 1782299240.8201783,
+      "size": 1634828
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0047.parquet",
+      "mtime": 1782299265.6283128,
+      "size": 49819518
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0048.parquet",
+      "mtime": 1782299242.948277,
+      "size": 1303714
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0049.parquet",
+      "mtime": 1782299269.7334971,
+      "size": 49530323
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0050.parquet",
+      "mtime": 1782299243.7143126,
+      "size": 1494969
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0051.parquet",
+      "mtime": 1782299273.0176437,
+      "size": 49563524
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0052.parquet",
+      "mtime": 1782299248.8285487,
+      "size": 1676779
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0053.parquet",
+      "mtime": 1782299272.4466183,
+      "size": 49716450
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0054.parquet",
+      "mtime": 1782299249.8965976,
+      "size": 1411111
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0055.parquet",
+      "mtime": 1782299277.229831,
+      "size": 49621574
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0056.parquet",
+      "mtime": 1782299251.2566602,
+      "size": 1678650
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0057.parquet",
+      "mtime": 1782299277.164828,
+      "size": 49588550
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0058.parquet",
+      "mtime": 1782299254.7828214,
+      "size": 1454734
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0059.parquet",
+      "mtime": 1782299281.4710183,
+      "size": 49675327
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0060.parquet",
+      "mtime": 1782299256.1188824,
+      "size": 1597264
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0061.parquet",
+      "mtime": 1782299284.6861596,
+      "size": 50381456
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0062.parquet",
+      "mtime": 1782299257.202932,
+      "size": 1422465
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0063.parquet",
+      "mtime": 1782299284.8371663,
+      "size": 49571387
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0064.parquet",
+      "mtime": 1782299258.5099912,
+      "size": 1609749
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0065.parquet",
+      "mtime": 1782299284.2511406,
+      "size": 49595438
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0066.parquet",
+      "mtime": 1782299261.1991131,
+      "size": 1390443
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0067.parquet",
+      "mtime": 1782299293.2725341,
+      "size": 49494717
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0068.parquet",
+      "mtime": 1782299260.6620889,
+      "size": 1522750
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0069.parquet",
+      "mtime": 1782299294.139572,
+      "size": 49629351
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0070.parquet",
+      "mtime": 1782299263.717227,
+      "size": 1644443
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0071.parquet",
+      "mtime": 1782299295.572634,
+      "size": 49721272
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0072.parquet",
+      "mtime": 1782299266.1573367,
+      "size": 1652819
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0073.parquet",
+      "mtime": 1782299291.7854695,
+      "size": 49500965
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0074.parquet",
+      "mtime": 1782299267.455395,
+      "size": 1564302
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0075.parquet",
+      "mtime": 1782299293.9055617,
+      "size": 49630082
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0076.parquet",
+      "mtime": 1782299268.7864547,
+      "size": 1501664
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0077.parquet",
+      "mtime": 1782299294.029567,
+      "size": 49746787
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0078.parquet",
+      "mtime": 1782299269.9385064,
+      "size": 1483667
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0079.parquet",
+      "mtime": 1782299298.2237482,
+      "size": 49729808
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0080.parquet",
+      "mtime": 1782299273.8266797,
+      "size": 1492230
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0081.parquet",
+      "mtime": 1782299293.7365544,
+      "size": 49706074
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0082.parquet",
+      "mtime": 1782299271.1325598,
+      "size": 1609245
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0083.parquet",
+      "mtime": 1782299296.6526804,
+      "size": 49684066
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0084.parquet",
+      "mtime": 1782299276.329791,
+      "size": 1464062
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0085.parquet",
+      "mtime": 1782299306.9301214,
+      "size": 49573848
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0086.parquet",
+      "mtime": 1782299277.5158436,
+      "size": 1465608
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0087.parquet",
+      "mtime": 1782299304.762029,
+      "size": 49506458
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0088.parquet",
+      "mtime": 1782299281.465018,
+      "size": 1429679
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0089.parquet",
+      "mtime": 1782299301.3358822,
+      "size": 49437348
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0090.parquet",
+      "mtime": 1782299277.3288352,
+      "size": 1603960
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0091.parquet",
+      "mtime": 1782299305.95908,
+      "size": 49587082
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0092.parquet",
+      "mtime": 1782299285.9452147,
+      "size": 1596929
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0093.parquet",
+      "mtime": 1782299313.9074175,
+      "size": 49699653
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0094.parquet",
+      "mtime": 1782299284.484151,
+      "size": 1402675
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0095.parquet",
+      "mtime": 1782299305.9710805,
+      "size": 49606951
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0096.parquet",
+      "mtime": 1782299286.7632506,
+      "size": 1500402
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0097.parquet",
+      "mtime": 1782299315.578488,
+      "size": 49762970
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-03_part_0098.parquet",
+      "mtime": 1782299291.0684385,
+      "size": 1560040
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-04_part_0000.parquet",
+      "mtime": 1782299329.6870773,
+      "size": 87177785
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-05_part_0000.parquet",
+      "mtime": 1782299326.37394,
+      "size": 70551029
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-06_part_0000.parquet",
+      "mtime": 1782299287.0142615,
+      "size": 149555
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-07_part_0000.parquet",
+      "mtime": 1782299329.316062,
+      "size": 98168406
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0000.parquet",
+      "mtime": 1782299328.4560263,
+      "size": 73197293
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0001.parquet",
+      "mtime": 1782299326.7989576,
+      "size": 73288026
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0002.parquet",
+      "mtime": 1782299329.0470507,
+      "size": 73715402
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0003.parquet",
+      "mtime": 1782299328.5330296,
+      "size": 73707475
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0004.parquet",
+      "mtime": 1782299330.5031111,
+      "size": 73294101
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0005.parquet",
+      "mtime": 1782299334.477275,
+      "size": 73758501
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0006.parquet",
+      "mtime": 1782299332.3471873,
+      "size": 73525125
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0007.parquet",
+      "mtime": 1782299327.284978,
+      "size": 73379295
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0008.parquet",
+      "mtime": 1782299333.9602537,
+      "size": 73839682
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-08_part_0009.parquet",
+      "mtime": 1782299334.2012637,
+      "size": 73535433
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0000.parquet",
+      "mtime": 1782299327.269977,
+      "size": 45614251
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0001.parquet",
+      "mtime": 1782299326.5169458,
+      "size": 45524316
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0002.parquet",
+      "mtime": 1782299332.5951974,
+      "size": 45685993
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0003.parquet",
+      "mtime": 1782299331.9901724,
+      "size": 45580969
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0004.parquet",
+      "mtime": 1782299335.521318,
+      "size": 45470801
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0005.parquet",
+      "mtime": 1782299333.407231,
+      "size": 45502602
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0006.parquet",
+      "mtime": 1782299333.5572371,
+      "size": 45673942
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0007.parquet",
+      "mtime": 1782299339.7864926,
+      "size": 45535389
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0008.parquet",
+      "mtime": 1782299339.8464952,
+      "size": 45411723
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-09_part_0009.parquet",
+      "mtime": 1782299352.8050203,
+      "size": 45588339
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-10_part_0000.parquet",
+      "mtime": 1782299328.3780231,
+      "size": 409978
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-11_part_0000.parquet",
+      "mtime": 1782299364.06847,
+      "size": 72817886
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-11_part_0001.parquet",
+      "mtime": 1782299366.1975543,
+      "size": 72831225
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-11_part_0002.parquet",
+      "mtime": 1782299363.615452,
+      "size": 72979130
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-12_part_0000.parquet",
+      "mtime": 1782299376.855973,
+      "size": 121739537
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-12_part_0001.parquet",
+      "mtime": 1782299369.5726876,
+      "size": 99377359
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-13_part_0000.parquet",
+      "mtime": 1782299330.8811266,
+      "size": 409294
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-14_part_0000.parquet",
+      "mtime": 1782299369.1846724,
+      "size": 96566331
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-14_part_0001.parquet",
+      "mtime": 1782299376.2489493,
+      "size": 96763318
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-14_part_0002.parquet",
+      "mtime": 1782299376.6579652,
+      "size": 96496171
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-15_part_0000.parquet",
+      "mtime": 1782299368.900661,
+      "size": 95156254
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-15_part_0001.parquet",
+      "mtime": 1782299355.3441224,
+      "size": 34856721
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-16_part_0000.parquet",
+      "mtime": 1782299359.8873038,
+      "size": 39980306
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-17_part_0000.parquet",
+      "mtime": 1782299377.2289877,
+      "size": 95421577
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-17_part_0001.parquet",
+      "mtime": 1782299362.482407,
+      "size": 42750143
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-18_part_0000.parquet",
+      "mtime": 1782299360.266319,
+      "size": 34462698
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-19_part_0000.parquet",
+      "mtime": 1782299386.6213517,
+      "size": 120094609
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-19_part_0001.parquet",
+      "mtime": 1782299342.6706104,
+      "size": 4495405
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-20_part_0000.parquet",
+      "mtime": 1782299337.4153957,
+      "size": 795202
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0000.parquet",
+      "mtime": 1782299377.9810169,
+      "size": 100759837
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0001.parquet",
+      "mtime": 1782299388.0444067,
+      "size": 100810488
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0002.parquet",
+      "mtime": 1782299389.922479,
+      "size": 100219355
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0003.parquet",
+      "mtime": 1782299383.1452174,
+      "size": 101327655
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0004.parquet",
+      "mtime": 1782299384.967288,
+      "size": 99925147
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0005.parquet",
+      "mtime": 1782299392.8795922,
+      "size": 100568648
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0006.parquet",
+      "mtime": 1782299396.431728,
+      "size": 100500416
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0007.parquet",
+      "mtime": 1782299401.276912,
+      "size": 100537195
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0008.parquet",
+      "mtime": 1782299403.9730139,
+      "size": 100715742
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-21_part_0009.parquet",
+      "mtime": 1782299402.736967,
+      "size": 100463312
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-22_part_0000.parquet",
+      "mtime": 1782299399.8668585,
+      "size": 80412607
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-23_part_0000.parquet",
+      "mtime": 1782299394.7816648,
+      "size": 45440524
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-24_part_0000.parquet",
+      "mtime": 1782299414.7894197,
+      "size": 135591660
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-24_part_0001.parquet",
+      "mtime": 1782299412.2103233,
+      "size": 86480799
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-25_part_0000.parquet",
+      "mtime": 1782299384.346264,
+      "size": 5346990
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0000.parquet",
+      "mtime": 1782299418.4635563,
+      "size": 141363788
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0001.parquet",
+      "mtime": 1782299419.3305883,
+      "size": 141772616
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0002.parquet",
+      "mtime": 1782299422.6907127,
+      "size": 141235442
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0003.parquet",
+      "mtime": 1782299420.2196212,
+      "size": 141717140
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0004.parquet",
+      "mtime": 1782299422.6807122,
+      "size": 141409542
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0005.parquet",
+      "mtime": 1782299421.6866755,
+      "size": 141614975
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0006.parquet",
+      "mtime": 1782299422.4617043,
+      "size": 141397360
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0007.parquet",
+      "mtime": 1782299423.4237397,
+      "size": 141021459
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0008.parquet",
+      "mtime": 1782299423.4617412,
+      "size": 141207445
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-26_part_0009.parquet",
+      "mtime": 1782299423.8257544,
+      "size": 141446733
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-27_part_0000.parquet",
+      "mtime": 1782469561.2095096,
+      "size": 356767899
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-27_part_0001.parquet",
+      "mtime": 1782469537.4298816,
+      "size": 150168258
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-27_part_0002.parquet",
+      "mtime": 1782469559.1772768,
+      "size": 338404064
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-27_part_0003.parquet",
+      "mtime": 1782469539.7254634,
+      "size": 168234550
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-27_part_0004.parquet",
+      "mtime": 1782469561.5047133,
+      "size": 360355297
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-27_part_0005.parquet",
+      "mtime": 1782469536.8055222,
+      "size": 146978235
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0000.parquet",
+      "mtime": 1782469556.6424737,
+      "size": 260074510
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0001.parquet",
+      "mtime": 1782469549.0650902,
+      "size": 259095046
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0002.parquet",
+      "mtime": 1782469548.899779,
+      "size": 259025442
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0003.parquet",
+      "mtime": 1782469556.7184858,
+      "size": 259593672
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0004.parquet",
+      "mtime": 1782469548.5787196,
+      "size": 260538322
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0005.parquet",
+      "mtime": 1782469549.2007723,
+      "size": 259425367
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0006.parquet",
+      "mtime": 1782469549.0749412,
+      "size": 259710857
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0007.parquet",
+      "mtime": 1782469548.950025,
+      "size": 260318015
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0008.parquet",
+      "mtime": 1782469574.2795076,
+      "size": 258131272
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-28_part_0009.parquet",
+      "mtime": 1782469574.9175005,
+      "size": 259025555
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-29_part_0000.parquet",
+      "mtime": 1782469608.177774,
+      "size": 473514330
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-29_part_0001.parquet",
+      "mtime": 1782469557.6345055,
+      "size": 22265869
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-29_part_0002.parquet",
+      "mtime": 1782469609.9423523,
+      "size": 451686329
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-29_part_0003.parquet",
+      "mtime": 1782469562.0267496,
+      "size": 44627799
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-29_part_0004.parquet",
+      "mtime": 1782469609.7962794,
+      "size": 450334166
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-29_part_0005.parquet",
+      "mtime": 1782469562.8345866,
+      "size": 46492500
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0000.parquet",
+      "mtime": 1782469602.0081286,
+      "size": 296167355
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0001.parquet",
+      "mtime": 1782469606.2167351,
+      "size": 296593630
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0002.parquet",
+      "mtime": 1782469606.0076978,
+      "size": 296998336
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0003.parquet",
+      "mtime": 1782469606.484128,
+      "size": 297516887
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0004.parquet",
+      "mtime": 1782469607.395156,
+      "size": 297397297
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0005.parquet",
+      "mtime": 1782469608.0964282,
+      "size": 296812681
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0006.parquet",
+      "mtime": 1782469608.2042127,
+      "size": 297278789
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0007.parquet",
+      "mtime": 1782469608.338424,
+      "size": 298559735
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0008.parquet",
+      "mtime": 1782469608.3611596,
+      "size": 296291297
+    },
+    {
+      "path": "/home/lc/s/openalex_mar26/parquet/authors/updated_date=2026-03-30_part_0009.parquet",
+      "mtime": 1782469610.9229548,
+      "size": 298134537
+    }
+  ]
+}

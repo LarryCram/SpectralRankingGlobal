@@ -2,66 +2,66 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Antioxidants & Inflammation  (n_hcw--=47, network=9,727 works)
+## Topic 0  (n_hcw--=39, network=5,945 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Javad Sharifi‐Rad | 102 | 687 | 55,497 | 35 |
-| 2 | Daniela Călina | 82 | 386 | 38,617 | 35 |
-| 3 | İlhami Gülçın | 126 | 654 | 51,837 | 31 |
+| 1 | Ramith Ramu | 33 | 181 | 3,162 | 27 |
+| 2 | Gökhan Zengin | 75 | 1,018 | 28,794 | 27 |
+| 3 | Tao Huang | 60 | 566 | 19,422 | 22 |
 
-## Vitamin & Immunity  (n_hcw--=24, network=6,767 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Zongping Liu | 47 | 282 | 7,702 | 32 |
-| 2 | Hui Zou | 42 | 264 | 7,555 | 25 |
-| 3 | Jianhong Gu | 38 | 173 | 4,364 | 18 |
-
-## Bioactive Food Compounds  (n_hcw--=23, network=3,826 works)
+## Topic 1  (n_hcw--=22, network=6,788 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Marek Kieliszek | 49 | 148 | 8,972 | 20 |
-| 2 | Nicky Rahmana Putra | 24 | 150 | 1,861 | 17 |
-| 3 | Hassan Karimi‐Maleh | 99 | 627 | 36,730 | 17 |
+| 1 | Zongping Liu | 48 | 282 | 7,960 | 25 |
+| 2 | Asghar Ghasemi | 40 | 310 | 10,901 | 20 |
+| 3 | Hui Zou | 42 | 266 | 7,745 | 18 |
 
-## Selenium Nanoparticles  (n_hcw--=22, network=2,669 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Amr H. Hashem | 54 | 173 | 7,030 | 57 |
-| 2 | Ahmed I. Abulsoud | 33 | 113 | 2,521 | 40 |
-| 3 | Ahmed S. Doghish | 51 | 213 | 5,703 | 39 |
-
-## Systematic Reviews  (n_hcw--=22, network=3,308 works)
+## Topic 2  (n_hcw--=22, network=2,306 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Vaman Khadilkar | 37 | 358 | 5,609 | 49 |
-| 2 | Anuradha Khadilkar | 38 | 369 | 6,512 | 45 |
-| 3 | Neha Kajale | 19 | 100 | 1,115 | 22 |
+| 1 | Amr H. Hashem | 55 | 177 | 7,366 | 58 |
+| 2 | Ahmed I. Abulsoud | 33 | 113 | 2,573 | 40 |
+| 3 | Ahmed S. Doghish | 52 | 214 | 5,933 | 39 |
 
-## COVID-19 Nutrition  (n_hcw--=21, network=3,538 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Riccardo Caccialanza | 49 | 291 | 7,668 | 30 |
-| 2 | Paolo Pedrazzoli | 51 | 511 | 9,655 | 24 |
-| 3 | Emanuele Cereda | 63 | 408 | 13,868 | 20 |
-
-## Chronic Kidney Disease  (n_hcw--=21, network=3,598 works)
+## Topic 3  (n_hcw--=19, network=3,592 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Aleksandra Buha Djordjević | 38 | 229 | 5,780 | 19 |
-| 2 | Zorica Bulat | 31 | 176 | 3,837 | 19 |
-| 3 | Biljana Antonijević | 28 | 202 | 3,298 | 17 |
+| 1 | Zorica Bulat | 32 | 192 | 3,918 | 19 |
+| 2 | Aleksandra Buha Djordjević | 39 | 230 | 5,948 | 19 |
+| 3 | Biljana Antonijević | 28 | 221 | 3,371 | 17 |
 
-## Human Health Impact  (n_hcw--=15, network=4,936 works)
+## Topic 4  (n_hcw--=19, network=3,081 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Orish Ebere Orisakwe | 45 | 361 | 12,868 | 12 |
-| 2 | Michael Aschner | 116 | 1,443 | 60,368 | 11 |
-| 3 | Shafi M. Tareq | 33 | 137 | 3,551 | 11 |
+| 1 | Riccardo Caccialanza | 50 | 290 | 7,823 | 29 |
+| 2 | Paolo Pedrazzoli | 51 | 511 | 9,846 | 23 |
+| 3 | Emanuele Cereda | 63 | 406 | 14,082 | 19 |
+
+## Topic 5  (n_hcw--=18, network=3,409 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Nafeesa Naeem | 26 | 67 | 1,868 | 16 |
+| 2 | Amina Sadiq | 28 | 86 | 2,137 | 15 |
+| 3 | Ehsan Ullah Mughal | 32 | 143 | 2,859 | 15 |
+
+## Topic 6  (n_hcw--=18, network=6,422 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Vaman Khadilkar | 37 | 360 | 5,747 | 51 |
+| 2 | Anuradha Khadilkar | 39 | 370 | 6,683 | 48 |
+| 3 | Daniela Călina | 84 | 388 | 42,041 | 34 |
+
+## Topic 7  (n_hcw--=12, network=4,989 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Orish Ebere Orisakwe | 45 | 361 | 13,369 | 12 |
+| 2 | Michael Aschner | 117 | 1,444 | 61,281 | 12 |
+| 3 | Shafi M. Tareq | 33 | 138 | 3,668 | 12 |

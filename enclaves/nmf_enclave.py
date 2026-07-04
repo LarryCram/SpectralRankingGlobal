@@ -29,7 +29,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, FIELD_NAMES
+from util import load_config, FIELD_NAMES, guard
 
 NMF_SEED      = 42
 MIN_ENC       = 30   # skip field if fewer enclave works than this
@@ -318,6 +318,8 @@ def main() -> None:
                         help='call Gemini API to merge+name topics for this field_idx')
     parser.add_argument('--model',           default='gemini-2.5-flash',
                         help='Gemini model for --auto-name-field (default: gemini-2.0-flash)')
+    parser.add_argument('--yes', '-y', action='store_true',
+                        help='Rebuild stale output without prompting')
     args = parser.parse_args()
 
     paths = load_config()
@@ -343,6 +345,11 @@ def main() -> None:
         print(f'ERROR: {hcw_path} not found — run build_enclave_hcw.py first')
         sys.exit(1)
 
+    out_path = paths.working / f'enclave_nmf_{args.window}_{args.label}.parquet'
+    if not guard.ensure_fresh(out_path, str(hcw_path), script=__file__, auto_yes=args.yes,
+                              label='enclave_nmf'):
+        return
+
     print(f'Loading {hcw_path.name}...')
     df = pd.read_parquet(hcw_path)
     n_enc = ((df['source_v'] < 1) & (df['mean_citer_v'] < 1)).sum()
@@ -355,8 +362,8 @@ def main() -> None:
 
     print_summary(result)
 
-    out_path = paths.working / f'enclave_nmf_{args.window}_{args.label}.parquet'
     result.to_parquet(out_path, index=False)
+    guard.record_build(out_path, str(hcw_path), script=__file__, build_seconds=time.time() - t0)
     print(f'\nSaved: {out_path}  ({len(result):,} rows)')
 
 

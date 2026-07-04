@@ -1,0 +1,33 @@
+{
+  "output": "/home/lc/Projects/SpectralRankingGlobal/enclaves/plots/enclave_citer_v_2020_2024_baseline_L3_LifeEarth.pdf",
+  "built_at": 1783164707.9421499,
+  "build_seconds": null,
+  "scripts": [
+    {
+      "path": "/home/lc/Projects/SpectralRankingGlobal/enclaves/plot_hca_hcr.py",
+      "mtime": 1783164426.3786166
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_mar26/enclave_hcw_2020_2024_baseline.parquet",
+      "mtime": 1783159781.8561318,
+      "size": 40186271
+    },
+    {
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_mar26/hcr_hca_map.parquet",
+      "mtime": 1782988647.4225433,
+      "size": 1707554
+    },
+    {
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_mar26/hca_clusters.parquet",
+      "mtime": 1782978602.187803,
+      "size": 15353055
+    },
+    {
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_mar26/hcw_authorships.parquet",
+      "mtime": 1783159424.027445,
+      "size": 20670404
+    }
+  ]
+}

@@ -67,7 +67,7 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings
+from util import load_config, load_settings, guard
 
 # NOTE: MAX_AUTHORS (hyper-authored/consortium exclusion) now lives upstream in
 # pipeline/build_flat_works.py (value 29) — flat_works is the base work list for
@@ -108,7 +108,8 @@ def _con(working: Path) -> duckdb.DuckDBPyConnection:
 
 # ── Stage 1: filtered_works_topics ───────────────────────────────────────────
 
-def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path) -> None:
+def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path,
+                                auto_yes: bool = False) -> None:
     """
     One row per (work × topic) after applying the works filter.
     Columns: work_idx, publication_year, cited_by_count, authors_count,
@@ -130,11 +131,11 @@ def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path) -> 
     people) will no longer enter the HCA candidate pool, whereas it would
     have before. Expected to be rare among genuinely highly-cited works.
 
-    Skipped if the file already exists.
+    Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
-    if out.exists():
-        n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
-        print(f'  filtered_works_topics exists  ({n:,} rows) — skipping')
+    inputs = [str(flat_works_path), f'{oax}/work_topics/*.parquet', f'{oax}/topics.parquet']
+    if not guard.ensure_fresh(out, *inputs, script=__file__, auto_yes=auto_yes,
+                              label='filtered_works_topics'):
         return
 
     print('  Building filtered_works_topics.parquet ...')
@@ -167,6 +168,7 @@ def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path) -> 
     ) TO '{out}' (FORMAT PARQUET)
     """)
     con.close()
+    guard.record_build(out, *inputs, script=__file__, build_seconds=time.time() - t0)
     n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
     w = (duckdb.execute(f"SELECT COUNT(DISTINCT work_idx) FROM '{out}'").fetchone() or (0,))[0]
     print(f'  filtered_works_topics: {n:,} rows, {w:,} works  [{time.time()-t0:.0f}s]')
@@ -174,18 +176,17 @@ def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path) -> 
 
 # ── Stage 2: hcw_flat_works ───────────────────────────────────────────────────
 
-def build_hcw_flat_works(topics_path: Path, out: Path) -> None:
+def build_hcw_flat_works(topics_path: Path, out: Path, auto_yes: bool = False) -> None:
     """
     One row per (work × field) with normalised field_share.
     Columns: work_idx, publication_year, cited_by_count, authors_count,
              institutions_distinct_count, field_idx, field_name, field_share.
     No authors_count filter here — flat_works already enforces
     authors_count <= MAX_AUTHORS (29) upstream, in build_flat_works.py.
-    Skipped if the file already exists.
+    Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
-    if out.exists():
-        n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
-        print(f'  hcw_flat_works exists  ({n:,} rows) — skipping')
+    if not guard.ensure_fresh(out, str(topics_path), script=__file__, auto_yes=auto_yes,
+                              label='hcw_flat_works'):
         return
 
     print('  Building hcw_flat_works.parquet ...')
@@ -211,6 +212,7 @@ def build_hcw_flat_works(topics_path: Path, out: Path) -> None:
     ) TO '{out}' (FORMAT PARQUET)
     """)
     con.close()
+    guard.record_build(out, str(topics_path), script=__file__, build_seconds=time.time() - t0)
     n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
     w = (duckdb.execute(f"SELECT COUNT(DISTINCT work_idx) FROM '{out}'").fetchone() or (0,))[0]
     print(f'  hcw_flat_works: {n:,} rows, {w:,} works  [{time.time()-t0:.0f}s]')
@@ -218,16 +220,14 @@ def build_hcw_flat_works(topics_path: Path, out: Path) -> None:
 
 # ── Stage 3: hcw_works ────────────────────────────────────────────────────────
 
-def build_hcw_works(flat_path: Path, out: Path) -> None:
+def build_hcw_works(flat_path: Path, out: Path, auto_yes: bool = False) -> None:
     """
     Top-1% of cited_by_count per (field_idx, publication_year) from hcw_flat_works.
     Columns: work_idx, publication_year, cited_by_count, field_idx, field_name, field_share.
-    Skipped if the file already exists.
+    Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
-    if out.exists():
-        n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
-        w = (duckdb.execute(f"SELECT COUNT(DISTINCT work_idx) FROM '{out}'").fetchone() or (0,))[0]
-        print(f'  hcw_works exists  ({n:,} rows, {w:,} works) — skipping')
+    if not guard.ensure_fresh(out, str(flat_path), script=__file__, auto_yes=auto_yes,
+                              label='hcw_works'):
         return
 
     print('  Building hcw_works.parquet ...')
@@ -269,6 +269,7 @@ def build_hcw_works(flat_path: Path, out: Path) -> None:
     """
     con.execute(f"COPY ({threshold_sql}) TO '{out}' (FORMAT PARQUET)")
     con.close()
+    guard.record_build(out, str(flat_path), script=__file__, build_seconds=time.time() - t0)
     n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
     w = (duckdb.execute(f"SELECT COUNT(DISTINCT work_idx) FROM '{out}'").fetchone() or (0,))[0]
     print(f'  hcw_works: {n:,} rows, {w:,} works  [{time.time()-t0:.0f}s]')
@@ -276,7 +277,7 @@ def build_hcw_works(flat_path: Path, out: Path) -> None:
 
 # ── Stage 4: hcw_authors ──────────────────────────────────────────────────────
 
-def build_hcw_authors(hcw_path: Path, oax: Path, out: Path) -> None:
+def build_hcw_authors(hcw_path: Path, oax: Path, out: Path, auto_yes: bool = False) -> None:
     """
     Join HCW works to authorships; aggregate to (author × field) with metadata.
     Hyper-authored works are already excluded upstream (flat_works, MAX_AUTHORS=29).
@@ -284,11 +285,12 @@ def build_hcw_authors(hcw_path: Path, oax: Path, out: Path) -> None:
     publication_year in [HCA_YEAR_MIN, HCA_YEAR_MAX] — the Clarivate-emulating
     HCA qualification window. The underlying HCW set itself is not restricted;
     only this per-author aggregation is.
-    Skipped if the file already exists.
+    Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
-    if out.exists():
-        n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
-        print(f'  hcw_authors exists  ({n:,} rows) — skipping')
+    inputs = [str(hcw_path), f'{oax}/institutions.parquet',
+              f'{oax}/authorships/*.parquet', f'{oax}/authors/*.parquet']
+    if not guard.ensure_fresh(out, *inputs, script=__file__, auto_yes=auto_yes,
+                              label='hcw_authors'):
         return
 
     print('  Building hcw_authors.parquet ...')
@@ -369,6 +371,7 @@ def build_hcw_authors(hcw_path: Path, oax: Path, out: Path) -> None:
     ) TO '{out}' (FORMAT PARQUET)
     """)
     con.close()
+    guard.record_build(out, *inputs, script=__file__, build_seconds=time.time() - t0)
     n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
     a = (duckdb.execute(f"SELECT COUNT(DISTINCT author_idx) FROM '{out}'").fetchone() or (0,))[0]
     print(f'  hcw_authors: {n:,} rows, {a:,} distinct authors  [{time.time()-t0:.0f}s]')
@@ -376,15 +379,15 @@ def build_hcw_authors(hcw_path: Path, oax: Path, out: Path) -> None:
 
 # ── Stage 5: hcw_authorships ─────────────────────────────────────────────────
 
-def build_hcw_authorships(hcw_path: Path, oax: Path, out: Path) -> None:
+def build_hcw_authorships(hcw_path: Path, oax: Path, out: Path, auto_yes: bool = False) -> None:
     """
     All (work_idx, author_idx) pairs for HCW works.
     Used for co-author overlap analysis in the clustering pipeline.
-    Skipped if the file already exists.
+    Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
-    if out.exists():
-        n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
-        print(f'  hcw_authorships exists  ({n:,} rows) — skipping')
+    inputs = [str(hcw_path), f'{oax}/authorships/*.parquet']
+    if not guard.ensure_fresh(out, *inputs, script=__file__, auto_yes=auto_yes,
+                              label='hcw_authorships'):
         return
 
     print('  Building hcw_authorships.parquet ...')
@@ -399,6 +402,7 @@ def build_hcw_authorships(hcw_path: Path, oax: Path, out: Path) -> None:
     ) TO '{out}' (FORMAT PARQUET)
     """)
     con.close()
+    guard.record_build(out, *inputs, script=__file__, build_seconds=time.time() - t0)
     n = (duckdb.execute(f"SELECT COUNT(*) FROM '{out}'").fetchone() or (0,))[0]
     print(f'  hcw_authorships: {n:,} rows  [{time.time()-t0:.0f}s]')
 
@@ -406,6 +410,12 @@ def build_hcw_authorships(hcw_path: Path, oax: Path, out: Path) -> None:
 # ── entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--yes', '-y', action='store_true',
+                         help='Rebuild stale outputs without prompting')
+    args = parser.parse_args()
+
     paths    = load_config()
     settings = load_settings()
     oa    = paths.openalex / 'parquet'
@@ -423,19 +433,19 @@ def main() -> None:
         sys.exit(1)
 
     print('Stage 1: filtered_works_topics')
-    build_filtered_works_topics(flat_works_path, oa, topics_path)
+    build_filtered_works_topics(flat_works_path, oa, topics_path, auto_yes=args.yes)
 
     print('Stage 2: hcw_flat_works')
-    build_hcw_flat_works(topics_path, flat_path)
+    build_hcw_flat_works(topics_path, flat_path, auto_yes=args.yes)
 
     print('Stage 3: hcw_works  (top 1% per field × year)')
-    build_hcw_works(flat_path, hcw_path)
+    build_hcw_works(flat_path, hcw_path, auto_yes=args.yes)
 
     print('Stage 4: hcw_authors')
-    build_hcw_authors(hcw_path, oa, authors_path)
+    build_hcw_authors(hcw_path, oa, authors_path, auto_yes=args.yes)
 
     print('Stage 5: hcw_authorships')
-    build_hcw_authorships(hcw_path, oa, authorships_path)
+    build_hcw_authorships(hcw_path, oa, authorships_path, auto_yes=args.yes)
 
     print('\nDone.')
     n, a, f = duckdb.execute(f"""

@@ -127,7 +127,10 @@ def build_csr_field(db: duckdb.DuckDBPyConnection,
             SELECT AVG(R_i)
             FROM (SELECT DISTINCT citer_work_idx, R_i FROM '{el_path}')
         """).fetchone()[0]
-        rho_expr = f"({r_bar} / R_i)" if r_bar is not None else "1.0"
+        # R_i can be exactly 0 for a handful of ε=1 sentinel-citer edges (a
+        # cited work with ~zero field weight in this field); r_bar/0 = inf,
+        # and 0 * inf = NaN, which poisons the whole citer's aggregated row.
+        rho_expr = f"(CASE WHEN R_i = 0 THEN 0.0 ELSE {r_bar} / R_i END)" if r_bar is not None else "1.0"
     else:
         rho_expr = "1.0"
 

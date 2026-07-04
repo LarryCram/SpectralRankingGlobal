@@ -2,50 +2,50 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Narrative Reviews  (n_hcw--=33, network=3,116 works)
+## Topic 0  (n_hcw--=32, network=4,154 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Chun Hung Chu | 68 | 529 | 17,919 | 42 |
-| 2 | Francesco Inchingolo | 56 | 487 | 11,341 | 41 |
-| 3 | Angelo Michele Inchingolo | 38 | 263 | 4,623 | 40 |
+| 1 | Alessandro Dourado Loguércio | 78 | 772 | 22,299 | 58 |
+| 2 | Alessandra Reis | 77 | 630 | 20,294 | 48 |
+| 3 | Mohammed M. Gad | 35 | 167 | 4,441 | 40 |
 
-## Hydroxyapatite  (n_hcw--=21, network=2,741 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Marcelo Giannini | 54 | 404 | 9,682 | 23 |
-| 2 | Daniela Predoi | 39 | 168 | 4,423 | 15 |
-| 3 | Junji Tagami | 79 | 852 | 27,304 | 15 |
-
-## Clinical Trials  (n_hcw--=19, network=1,317 works)
+## Topic 1  (n_hcw--=30, network=2,633 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Mohammed M. Gad | 35 | 167 | 4,247 | 39 |
-| 2 | Giuseppe Minervini | 41 | 338 | 7,024 | 28 |
-| 3 | Andrea Scribante | 47 | 266 | 6,225 | 19 |
+| 1 | Chun Hung Chu | 70 | 528 | 18,466 | 40 |
+| 2 | Edward Chin Man Lo | 82 | 425 | 21,410 | 31 |
+| 3 | Duangporn Duangthip | 36 | 147 | 4,467 | 26 |
 
-## Systematic Reviews  (n_hcw--=19, network=1,534 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Alessandro Dourado Loguércio | 77 | 762 | 22,003 | 48 |
-| 2 | Alessandra Reis | 76 | 630 | 20,030 | 40 |
-| 3 | Carlos Estrela | 56 | 454 | 11,340 | 34 |
-
-## AI in Dentistry  (n_hcw--=17, network=1,690 works)
+## Topic 2  (n_hcw--=18, network=1,487 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | John W. Nicholson | 44 | 290 | 7,729 | 17 |
-| 2 | Sharanbir K. Sidhu | 33 | 104 | 3,630 | 15 |
-| 3 | Doaa Sami Khafaga | 32 | 190 | 3,370 | 12 |
+| 1 | Giuseppe Minervini | 41 | 337 | 8,116 | 30 |
+| 2 | Marco Cicciù | 40 | 301 | 5,447 | 20 |
+| 3 | Francesco Inchingolo | 56 | 487 | 11,739 | 19 |
 
-## COVID-19 Pandemic  (n_hcw--=16, network=2,386 works)
+## Topic 3  (n_hcw--=17, network=1,712 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Giuseppe Minervini | 41 | 338 | 7,024 | 8 |
-| 2 | Javed Ali Khan | 26 | 156 | 2,871 | 7 |
-| 3 | Muhammad Sohail Zafar | 57 | 368 | 12,452 | 7 |
+| 1 | Artak Heboyan | 27 | 287 | 2,717 | 13 |
+| 2 | Francesco D’Ambrosio | 26 | 62 | 1,714 | 13 |
+| 3 | Francesco Giordano | 18 | 142 | 1,044 | 10 |
+
+## Topic 4  (n_hcw--=14, network=1,344 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Andrej Thurzo | 24 | 69 | 1,744 | 10 |
+| 2 | K. Singh | 40 | 375 | 7,689 | 6 |
+| 3 | Mohmed Isaqali Karobari | 32 | 259 | 3,684 | 6 |
+
+## Topic 5  (n_hcw--=10, network=1,675 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Giuseppe Minervini | 41 | 337 | 8,116 | 7 |
+| 2 | Abanoub Riad | 42 | 135 | 10,389 | 6 |
+| 3 | Guglielmo Campus | 40 | 320 | 7,383 | 5 |

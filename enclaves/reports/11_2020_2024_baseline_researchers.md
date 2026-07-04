@@ -2,74 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Plant Abiotic Stress  (n_hcw--=159, network=20,220 works)
+## Topic 0  (n_hcw--=163, network=18,367 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Parvaiz Ahmad | 109 | 555 | 38,043 | 61 |
-| 2 | Kadambot H. M. Siddique | 128 | 1,370 | 62,794 | 58 |
-| 3 | Ali Raza | 53 | 410 | 14,793 | 55 |
+| 1 | Rainer W. Bussmann | 84 | 5,058 | 40,843 | 510 |
+| 2 | Narel Y. Paniagua-Zambrana | 28 | 3,594 | 12,333 | 404 |
+| 3 | Zaal Kikvidze | 36 | 1,551 | 16,656 | 294 |
 
-## Food & Climate  (n_hcw--=131, network=11,641 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Great Iruoghene Edo | 36 | 166 | 3,481 | 55 |
-| 2 | Kingsley O. Iwuozor | 45 | 202 | 6,830 | 53 |
-| 3 | Ebuka Chizitere Emenike | 34 | 147 | 3,762 | 45 |
-
-## Pharmacological Reviews  (n_hcw--=110, network=18,664 works)
+## Topic 1  (n_hcw--=84, network=16,615 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Fabrizio Bartolucci | 28 | 304 | 4,226 | 67 |
-| 2 | Adriano Stinca | 30 | 198 | 4,142 | 62 |
-| 3 | Lorenzo Peruzzi | 37 | 606 | 7,769 | 59 |
+| 1 | Amin Mousavi Khaneghah | 87 | 666 | 62,805 | 52 |
+| 2 | Sezai Erċışlı | 66 | 815 | 19,029 | 42 |
+| 3 | Yadolah Fakhri | 61 | 311 | 9,469 | 36 |
 
-## Smart Agriculture  (n_hcw--=90, network=10,859 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Marcos dos Santos | 38 | 651 | 3,261 | 39 |
-| 2 | Ajar Nath Yadav | 73 | 477 | 16,843 | 37 |
-| 3 | Mahmoud F. Seleiman | 48 | 247 | 9,343 | 35 |
-
-## Plant Growth Promotion  (n_hcw--=89, network=12,844 works)
+## Topic 2  (n_hcw--=71, network=5,819 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Shah Fahad | 100 | 924 | 38,555 | 54 |
-| 2 | Abdelilah Meddich | 36 | 220 | 4,991 | 51 |
-| 3 | Baber Ali | 42 | 210 | 5,652 | 51 |
+| 1 | Muhammad Asif Zahoor Raja | 76 | 802 | 22,832 | 86 |
+| 2 | Muhammad Shoaib | 52 | 249 | 8,203 | 53 |
+| 3 | Marcos dos Santos | 38 | 650 | 3,340 | 49 |
 
-## Essential Oils  (n_hcw--=86, network=9,845 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | İlhami Gülçın | 126 | 654 | 51,837 | 46 |
-| 2 | Gökhan Zengin | 74 | 1,017 | 27,915 | 42 |
-| 3 | Stavros I. Lalas | 39 | 204 | 5,289 | 34 |
-
-## Disease Detection AI  (n_hcw--=78, network=5,987 works)
+## Topic 3  (n_hcw--=66, network=6,470 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Kaveh Ostad‐Ali‐Askari | 33 | 384 | 3,797 | 39 |
-| 2 | Murat Köklü | 27 | 114 | 2,538 | 21 |
-| 3 | Roohallah Saberi Riseh | 37 | 94 | 3,641 | 18 |
+| 1 | Youssef Rouphael | 89 | 591 | 29,917 | 32 |
+| 2 | Ajar Nath Yadav | 74 | 483 | 17,335 | 29 |
+| 3 | Viol Dhea Kharisma | 27 | 123 | 1,839 | 27 |
 
-## Zinc Oxide Nanoparticles  (n_hcw--=72, network=5,172 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Hani Saber Saudy | 40 | 90 | 3,334 | 44 |
-| 2 | Mahmoud F. Seleiman | 48 | 247 | 9,343 | 36 |
-| 3 | Hakan Şevik | 54 | 202 | 6,568 | 32 |
-
-## Green Nanoparticles  (n_hcw--=70, network=7,356 works)
+## Topic 4  (n_hcw--=62, network=10,142 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | İlhami Gülçın | 126 | 654 | 51,837 | 83 |
-| 2 | Paulo Eduardo Teodoro | 37 | 610 | 6,326 | 68 |
-| 3 | Amr H. Hashem | 54 | 173 | 7,030 | 66 |
+| 1 | Ajar Nath Yadav | 74 | 483 | 17,335 | 56 |
+| 2 | Marcos Deon Vilela de Resende | 42 | 436 | 8,245 | 54 |
+| 3 | Youssef Rouphael | 89 | 591 | 29,917 | 38 |
+
+## Topic 5  (n_hcw--=60, network=5,807 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sampath Boopathi | 63 | 295 | 10,510 | 86 |
+| 2 | Ajar Nath Yadav | 74 | 483 | 17,335 | 45 |
+| 3 | Divjot Kour | 44 | 164 | 6,657 | 26 |
+
+## Topic 6  (n_hcw--=58, network=5,523 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Amr H. Hashem | 55 | 177 | 7,366 | 80 |
+| 2 | Salem S. Salem | 50 | 145 | 9,836 | 52 |
+| 3 | Gharieb S. El‐Sayyad | 51 | 237 | 7,537 | 34 |
+
+## Topic 7  (n_hcw--=53, network=9,540 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Rainer W. Bussmann | 84 | 5,058 | 40,843 | 394 |
+| 2 | Narel Y. Paniagua-Zambrana | 28 | 3,594 | 12,333 | 286 |
+| 3 | Carolina Romero | 12 | 390 | 1,654 | 148 |
+
+## Topic 8  (n_hcw--=51, network=5,070 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | İlhami Gülçın | 128 | 661 | 52,636 | 108 |
+| 2 | Parham Taslımı | 72 | 398 | 15,093 | 55 |
+| 3 | Sudarshan Singh | 38 | 352 | 5,269 | 41 |
+
+## Topic 9  (n_hcw--=41, network=3,200 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | R. Z. Sayyed | 58 | 403 | 14,741 | 43 |
+| 2 | Ajar Nath Yadav | 74 | 483 | 17,335 | 33 |
+| 3 | Geovani Soares de Lima | 29 | 470 | 3,323 | 32 |

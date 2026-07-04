@@ -40,7 +40,7 @@ import duckdb
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings, FIELD_NAMES
+from util import load_config, load_settings, FIELD_NAMES, guard
 
 HCW_PCT = 99
 YEAR_LO     = 2000  # flat_works corpus start
@@ -357,16 +357,32 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--window', default='2020_2024')
     parser.add_argument('--label',  default='baseline')
+    parser.add_argument('--yes', '-y', action='store_true',
+                        help='Rebuild stale output without prompting')
     args = parser.parse_args()
 
     paths    = load_config()
     settings = load_settings()
 
+    fw_path = str(paths.working / f'flat_works_{settings.year_min}_{settings.year_max}.parquet')
+    cr_path = str(paths.working / f'corpus_references_{settings.year_min}_{settings.year_max}.parquet')
+    rk_paths = [
+        str(paths.working / f'rankings_{fid}_{args.window}_{args.label}.parquet')
+        for fid in settings.all_fields
+        if (paths.working / f'rankings_{fid}_{args.window}_{args.label}.parquet').exists()
+    ]
+    inputs = [fw_path, cr_path] + rk_paths
+
     out_path = paths.working / f'enclave_hcw_{args.window}_{args.label}.parquet'
+    if not guard.ensure_fresh(out_path, *inputs, script=__file__, auto_yes=args.yes,
+                              label='enclave_hcw'):
+        return
+
     t0 = time.time()
     df = build_enclave_hcw(args.window, args.label, paths, settings)
     print_summary(df)
     df.to_parquet(out_path, index=False)
+    guard.record_build(out_path, *inputs, script=__file__, build_seconds=time.time() - t0)
     print(f'\nSaved: {out_path}  ({len(df):,} HCW rows)  [{time.time()-t0:.0f}s total]')
 
 

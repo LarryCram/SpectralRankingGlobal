@@ -28,7 +28,7 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings, load_runs
+from util import load_config, load_settings, load_runs, guard
 
 
 def build_candidacy(db: duckdb.DuckDBPyConnection,
@@ -102,7 +102,13 @@ def build_subfield_candidacy(db: duckdb.DuckDBPyConnection,
 
 
 def main():
+    import argparse
     import time
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--yes', '-y', action='store_true',
+                         help='Rebuild stale outputs without prompting')
+    args = parser.parse_args()
+
     paths    = load_config()
     settings = load_settings()
     runs     = load_runs()
@@ -124,10 +130,22 @@ def main():
         ]:
             out_s = str(paths.working / out_s_name)
             out_u = str(paths.working / out_u_name)
+
+            # build_fn always (re)writes both outputs together, so a rebuild
+            # is needed if either one is stale.
+            rebuild_s = guard.ensure_fresh(out_s, fw, script=__file__, auto_yes=args.yes,
+                                           label=f'{label} source candidacy')
+            rebuild_u = guard.ensure_fresh(out_u, fw, script=__file__, auto_yes=args.yes,
+                                           label=f'{label} inst candidacy')
+            if not (rebuild_s or rebuild_u):
+                continue
+
             print(f"Building {label} candidacy for window {window} ...")
             t0 = time.time()
             n_s, n_u = build_fn(db, fw, window, out_s, out_u)
             elapsed = time.time() - t0
+            guard.record_build(out_s, fw, script=__file__, build_seconds=elapsed)
+            guard.record_build(out_u, fw, script=__file__, build_seconds=elapsed)
             print(f"  Source rows   : {n_s:>10,}  →  {out_s}")
             print(f"  Inst rows     : {n_u:>10,}  →  {out_u}")
             print(f"  Elapsed: {elapsed:.1f}s")

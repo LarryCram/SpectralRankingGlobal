@@ -2,42 +2,50 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## English Language Learning  (n_hcw--=75, network=3,391 works)
+## Topic 0  (n_hcw--=41, network=1,820 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Harwati Hashim | 26 | 398 | 2,933 | 67 |
-| 2 | Melor Md Yunus | 43 | 629 | 9,146 | 40 |
-| 3 | Burhanuddin Arafah | 25 | 120 | 1,458 | 36 |
+| 1 | Conrad Lluis | 1 | 97 | 91 | 61 |
+| 2 | Burhanuddin Arafah | 25 | 121 | 1,475 | 36 |
+| 3 | Melor Md Yunus | 43 | 632 | 9,271 | 26 |
 
-## COVID-19 Education  (n_hcw--=20, network=771 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Burhanuddin Arafah | 25 | 120 | 1,458 | 28 |
-| 2 | Fozia Ahmed Baloch | 9 | 31 | 326 | 7 |
-| 3 | Ihor Bloshchynskyi | 20 | 119 | 1,167 | 7 |
-
-## YouTube Discourse  (n_hcw--=15, network=332 works)
+## Topic 1  (n_hcw--=27, network=554 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Авни Бериша | 55 | 311 | 8,770 | 45 |
-| 2 | Burhanuddin Arafah | 25 | 120 | 1,458 | 28 |
-| 3 | Iskandarsyah Siregar | 17 | 55 | 1,017 | 21 |
+| 1 | Burhanuddin Arafah | 25 | 121 | 1,475 | 32 |
+| 2 | Ahmad S. Haider | 19 | 101 | 1,315 | 21 |
+| 3 | Iskandarsyah Siregar | 17 | 56 | 1,021 | 21 |
 
-## Distance Education  (n_hcw--=9, network=452 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | nan | — | — | — | 7 |
-| 2 | Fatih KAYA | 4 | 15 | 47 | 4 |
-| 3 | Mehmet Önder KARACAOĞLU | 6 | 14 | 222 | 4 |
-
-## Islamic Novela  (n_hcw--=3, network=11 works)
+## Topic 2  (n_hcw--=25, network=908 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Blanca Santos de la Morena | 2 | 50 | 26 | 2 |
-| 2 | Ana Luisa Baquero Escudero | 3 | 118 | 65 | 2 |
-| 3 | Aldo Ruffinatto | 4 | 88 | 66 | 2 |
+| 1 | Авни Бериша | 55 | 316 | 9,088 | 42 |
+| 2 | Burhanuddin Arafah | 25 | 121 | 1,475 | 29 |
+| 3 | Valbonë Mehmeti | 21 | 34 | 1,420 | 10 |
+
+## Topic 3  (n_hcw--=24, network=1,318 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sayeed Naqibullah Orfan | 13 | 35 | 491 | 20 |
+| 2 | Burhanuddin Arafah | 25 | 121 | 1,475 | 18 |
+| 3 | Thywill Cephas Dzogbewu | 16 | 78 | 895 | 13 |
+
+## Topic 4  (n_hcw--=10, network=349 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Harwati Hashim | 26 | 418 | 2,998 | 50 |
+| 2 | Ahmad S. Haider | 19 | 101 | 1,315 | 12 |
+| 3 | Melor Md Yunus | 43 | 632 | 9,271 | 12 |
+
+## Topic 5  (n_hcw--=10, network=552 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Hasan BAKIRCI | 13 | 107 | 611 | 7 |
+| 2 | Fatih KAYA | 4 | 16 | 49 | 4 |
+| 3 | Kürşad Yılmaz | 21 | 175 | 1,759 | 4 |

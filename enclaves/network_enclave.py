@@ -39,7 +39,7 @@ import duckdb
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings, FIELD_NAMES
+from util import load_config, load_settings, FIELD_NAMES, guard
 
 
 # ── union-find ────────────────────────────────────────────────────────────────
@@ -339,6 +339,8 @@ def main() -> None:
                         help='top sources to show per enclave/component')
     parser.add_argument('--field',  type=int, default=0,
                         help='if set, process only this field_idx')
+    parser.add_argument('--yes', '-y', action='store_true',
+                        help='Rebuild stale reports without prompting')
     args = parser.parse_args()
 
     paths    = load_config()
@@ -372,6 +374,17 @@ def main() -> None:
         if nmf_df.empty:
             print(f'ERROR: no NMF rows for field {args.field}')
             sys.exit(1)
+
+    # The citation scan below runs once for every targeted field together, so
+    # a single representative freshness check gates the whole batch.
+    report_inputs = [str(nmf_path), str(hcw_path), str(wv_path), cr_path]
+    report_paths = [
+        out_dir / f'{fid}_{args.window}_{args.label}.md'
+        for fid in sorted(nmf_df['field_idx'].unique())
+    ]
+    if not guard.ensure_fresh(report_paths[0], *report_inputs, script=__file__,
+                              auto_yes=args.yes, label='network enclave reports'):
+        return
 
     n_enclaves = nmf_df.groupby(['field_idx', 'enc_name']).ngroups
     print(f'  {len(nmf_df):,} HCW-- rows  |  '
@@ -466,6 +479,7 @@ def main() -> None:
     for fid, enc_records in all_records.items():
         out_path = out_dir / f'{fid}_{args.window}_{args.label}.md'
         write_md(fid, enc_records, out_path, args.window, args.label)
+        guard.record_build(out_path, *report_inputs, script=__file__)
 
     print_summary_table(dict(all_records))
 

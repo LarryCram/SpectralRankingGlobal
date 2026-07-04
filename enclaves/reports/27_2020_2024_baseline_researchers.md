@@ -2,66 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## COVID-19 Research  (n_hcw--=890, network=123,531 works)
+## Topic 0  (n_hcw--=984, network=177,925 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Gaber El‐Saber Batiha | 63 | 682 | 20,787 | 118 |
-| 2 | Hayder M. Al‐kuraishy | 53 | 426 | 9,572 | 111 |
-| 3 | Ali I. Al‐Gareeb | 52 | 403 | 9,147 | 107 |
+| 1 | Rainer W. Bussmann | 84 | 5,058 | 40,843 | 257 |
+| 2 | M.I. Sayyed | 100 | 1,139 | 40,014 | 177 |
+| 3 | Giovanni Benelli | 100 | 720 | 35,099 | 151 |
 
-## Comprehensive Reviews  (n_hcw--=865, network=146,710 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Amirhossein Sahebkar | 171 | 2,341 | 226,318 | 172 |
-| 2 | Giovanni Benelli | 99 | 719 | 34,559 | 151 |
-| 3 | M.I. Sayyed | 99 | 1,139 | 38,685 | 146 |
-
-## Cancer Epidemiology  (n_hcw--=447, network=88,290 works)
+## Topic 1  (n_hcw--=611, network=83,227 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Giovanni Benelli | 99 | 719 | 34,559 | 101 |
-| 2 | Ahmed S. Doghish | 51 | 213 | 5,703 | 89 |
-| 3 | Chih‐Yang Huang | 64 | 856 | 20,661 | 65 |
+| 1 | Hayder M. Al‐kuraishy | 55 | 426 | 10,032 | 130 |
+| 2 | Ali I. Al‐Gareeb | 54 | 402 | 9,617 | 124 |
+| 3 | Gaber El‐Saber Batiha | 67 | 682 | 21,603 | 124 |
 
-## Diabetes Mellitus  (n_hcw--=429, network=60,166 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Amirhossein Sahebkar | 171 | 2,341 | 226,318 | 168 |
-| 2 | Gaber El‐Saber Batiha | 63 | 682 | 20,787 | 101 |
-| 3 | Hayder M. Al‐kuraishy | 53 | 426 | 9,572 | 99 |
-
-## Molecular Docking  (n_hcw--=426, network=41,714 works)
+## Topic 2  (n_hcw--=573, network=60,199 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Özcan Erel | 59 | 935 | 22,030 | 383 |
-| 2 | M.I. Sayyed | 99 | 1,139 | 38,685 | 341 |
-| 3 | İlhami Gülçın | 126 | 654 | 51,837 | 238 |
+| 1 | M.I. Sayyed | 100 | 1,139 | 40,014 | 442 |
+| 2 | Özcan Erel | 60 | 933 | 22,240 | 395 |
+| 3 | İlhami Gülçın | 128 | 661 | 52,636 | 266 |
 
-## Deep Learning  (n_hcw--=405, network=40,672 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | U. Rajendra Acharya | 145 | 1,141 | 86,197 | 223 |
-| 2 | Marine Cargou | 7 | 177 | 756 | 110 |
-| 3 | Jonathan Visentin | 21 | 265 | 2,325 | 105 |
-
-## Systematic Reviews  (n_hcw--=251, network=35,843 works)
+## Topic 3  (n_hcw--=441, network=88,293 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Giovanni Benelli | 99 | 719 | 34,559 | 139 |
-| 2 | Amirhossein Sahebkar | 171 | 2,341 | 226,318 | 67 |
-| 3 | Marimuthu Govindarajan | 75 | 355 | 14,490 | 55 |
+| 1 | Giovanni Benelli | 100 | 720 | 35,099 | 101 |
+| 2 | Ahmed S. Doghish | 52 | 214 | 5,933 | 89 |
+| 3 | Chih‐Yang Huang | 64 | 857 | 21,004 | 68 |
 
-## Wound Healing  (n_hcw--=230, network=31,581 works)
+## Topic 4  (n_hcw--=405, network=46,936 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Brian Godman | 70 | 781 | 18,811 | 85 |
-| 2 | Ahmed S. Doghish | 51 | 213 | 5,703 | 61 |
-| 3 | Deng‐Guang Yu | 85 | 508 | 21,201 | 55 |
+| 1 | M.I. Sayyed | 100 | 1,139 | 40,014 | 129 |
+| 2 | U. Rajendra Acharya | 146 | 1,142 | 87,846 | 111 |
+| 3 | Marine Cargou | 7 | 178 | 766 | 110 |
+
+## Topic 5  (n_hcw--=310, network=48,794 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Rainer W. Bussmann | 84 | 5,058 | 40,843 | 375 |
+| 2 | Narel Y. Paniagua-Zambrana | 28 | 3,594 | 12,333 | 275 |
+| 3 | Ripu M. Kunwar | 33 | 473 | 5,274 | 81 |
+
+## Topic 6  (n_hcw--=288, network=52,877 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Amirhossein Sahebkar | 174 | 2,346 | 234,763 | 139 |
+| 2 | Hayder M. Al‐kuraishy | 55 | 426 | 10,032 | 84 |
+| 3 | Ali I. Al‐Gareeb | 54 | 402 | 9,617 | 83 |
+
+## Topic 7  (n_hcw--=266, network=62,801 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Viroj Wiwanitkit | 41 | 6,444 | 12,885 | 177 |
+| 2 | Hiroki Nishikawa | 43 | 507 | 7,541 | 81 |
+| 3 | Rujittika Mungmunpuntipantip | 8 | 709 | 633 | 64 |
+
+## Topic 8  (n_hcw--=165, network=21,283 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Jose Ignacio Priego‐Quesada | 27 | 173 | 2,400 | 39 |
+| 2 | Ishith Seth | 27 | 226 | 2,247 | 35 |
+| 3 | Sampath Boopathi | 63 | 295 | 10,510 | 35 |
+
+## Topic 9  (n_hcw--=158, network=19,301 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Viroj Wiwanitkit | 41 | 6,444 | 12,885 | 110 |
+| 2 | Amnuay Kleebayoon | 6 | 367 | 465 | 54 |
+| 3 | Vaman Khadilkar | 37 | 360 | 5,747 | 51 |

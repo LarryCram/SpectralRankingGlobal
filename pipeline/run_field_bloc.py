@@ -26,12 +26,18 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from util import load_config, load_settings, load_runs, load_world, BLOC_RUNS, CIA
+from util import load_config, load_settings, load_runs, load_world, BLOC_RUNS, CIA, guard
 from build_edge_list_field import build_edge_list
 from run_rankings import rank_field
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--yes', '-y', action='store_true',
+                         help='Rebuild stale outputs without prompting')
+    args = parser.parse_args()
+
     paths    = load_config()
     settings = load_settings()
     runs     = load_runs()
@@ -73,20 +79,27 @@ def main():
                 print(f"\n--- field {fid} ---")
                 t_field = time.time()
 
-                if not Path(el_path).exists():
+                el_inputs = [fw_path, cr_path, sc_path, ic_path]
+                if guard.ensure_fresh(el_path, *el_inputs, script=__file__,
+                                      auto_yes=args.yes, label='edge list'):
                     t0 = time.time()
                     n_el = build_edge_list(
                         db, fw_path, cr_path, sc_path, ic_path,
                         run, el_path, bloc_codes=bloc_codes,
                     )
+                    guard.record_build(el_path, *el_inputs, script=__file__,
+                                       build_seconds=time.time() - t0)
                     print(f"  edge list: {n_el:,} rows  [{time.time()-t0:.1f}s]")
-                else:
-                    print(f"  edge list: cached")
 
-                if Path(rk_path).exists():
-                    print(f"  ranked: cached")
-                else:
+                rk_inputs  = [el_path, sc_path, ic_path]
+                rk_scripts = [__file__, 'pipeline/run_rankings.py',
+                              'pipeline/build_csr_field.py', 'pipeline/katz_ranker.py']
+                if guard.ensure_fresh(rk_path, *rk_inputs, script=rk_scripts,
+                                      auto_yes=args.yes, label='ranking'):
+                    t0 = time.time()
                     df, diag = rank_field(db, run, working, rk_path, verbose=True)
+                    guard.record_build(rk_path, *rk_inputs, script=rk_scripts,
+                                       build_seconds=time.time() - t0)
                     Path(run.diag_path(working)).write_text(json.dumps(diag, indent=2))
                     print(f"  ranked: {len(df):,} units  [{time.time()-t_field:.1f}s]")
 
