@@ -2,58 +2,58 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=37, network=5,028 works)
+## Topic 0  (n_hcw--=35, network=9,785 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Md. Qamruzzaman | 39 | 173 | 4,770 | 33 |
-| 2 | Saif Ur Rahman | 21 | 93 | 1,136 | 22 |
-| 3 | Peterson K Ozili | 40 | 473 | 9,660 | 18 |
+| 1 | Gauss M. Cordeiro | 70 | 640 | 18,021 | 41 |
+| 2 | Chun‐Ping Chang | 64 | 333 | 14,434 | 38 |
+| 3 | Afees A. Salisu | 43 | 311 | 6,898 | 31 |
 
-## Topic 1  (n_hcw--=31, network=7,185 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Gauss M. Cordeiro | 70 | 638 | 17,783 | 40 |
-| 2 | Chun‐Ping Chang | 63 | 330 | 13,925 | 37 |
-| 3 | Afees A. Salisu | 42 | 312 | 6,733 | 30 |
-
-## Topic 2  (n_hcw--=28, network=4,273 works)
+## Topic 1  (n_hcw--=24, network=3,732 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Asif Raihan | 52 | 189 | 8,157 | 45 |
-| 2 | Radosław Wolniak | 50 | 524 | 7,035 | 43 |
-| 3 | Liton Chandra Voumik | 31 | 97 | 2,808 | 30 |
+| 1 | Md. Qamruzzaman | 39 | 181 | 5,010 | 31 |
+| 2 | Peterson K Ozili | 42 | 474 | 10,212 | 18 |
+| 3 | Abdul Rahim Ridzuan | 24 | 182 | 1,834 | 14 |
 
-## Topic 3  (n_hcw--=21, network=3,834 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Dharen Kumar Pandey | 28 | 114 | 2,899 | 33 |
-| 2 | Elie Bouri | 89 | 464 | 26,853 | 33 |
-| 3 | Walid Mensi | 61 | 236 | 11,628 | 30 |
-
-## Topic 4  (n_hcw--=18, network=2,306 works)
+## Topic 2  (n_hcw--=24, network=4,621 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Jonas Birke | 2 | 121 | 125 | 92 |
-| 2 | Sampath Boopathi | 63 | 295 | 10,510 | 35 |
-| 3 | David Mhlanga | 29 | 270 | 4,587 | 31 |
+| 1 | Mohsen Bahmani‐Óskooee | 61 | 584 | 16,964 | 94 |
+| 2 | Asif Raihan | 54 | 215 | 8,749 | 39 |
+| 3 | Malik Shahzad Shabbir | 45 | 238 | 7,916 | 27 |
 
-## Topic 5  (n_hcw--=13, network=4,305 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Mohsen Bahmani‐Óskooee | 60 | 584 | 16,827 | 91 |
-| 2 | Hüseyin Karamelikli | 13 | 69 | 498 | 22 |
-| 3 | Liton Chandra Voumik | 31 | 97 | 2,808 | 15 |
-
-## Topic 6  (n_hcw--=9, network=1,140 works)
+## Topic 3  (n_hcw--=20, network=3,362 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Dwijendra Nath Dwivedi | 20 | 71 | 765 | 17 |
-| 2 | Ghanashyama Mahanty | 7 | 30 | 162 | 16 |
-| 3 | Mati ur Rahman | 30 | 145 | 2,538 | 13 |
+| 1 | Dharen Kumar Pandey | 29 | 118 | 3,154 | 33 |
+| 2 | Paresh Kumar Narayan | 86 | 689 | 31,427 | 28 |
+| 3 | Mariya Gubareva | 33 | 115 | 3,418 | 25 |
+
+## Topic 4  (n_hcw--=17, network=2,196 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Radosław Wolniak | 51 | 531 | 7,284 | 42 |
+| 2 | Liton Chandra Voumik | 32 | 97 | 3,016 | 27 |
+| 3 | Ahmed Samour | 34 | 76 | 3,366 | 22 |
+
+## Topic 5  (n_hcw--=15, network=2,343 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sampath Boopathi | 63 | 272 | 10,020 | 32 |
+| 2 | Elie Bouri | 91 | 467 | 27,759 | 19 |
+| 3 | Ahmed Jeribi | 19 | 97 | 1,374 | 13 |
+
+## Topic 6  (n_hcw--=10, network=1,606 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Jonas Birke | 3 | 122 | 126 | 92 |
+| 2 | David Mhlanga | 29 | 273 | 4,872 | 31 |
+| 3 | Abdalmuttaleb Al-Sartawi | 48 | 128 | 5,522 | 24 |

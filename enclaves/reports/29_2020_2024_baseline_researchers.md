@@ -2,66 +2,66 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=39, network=5,945 works)
+## Topic 0  (n_hcw--=30, network=5,756 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Ramith Ramu | 33 | 181 | 3,162 | 27 |
-| 2 | Gökhan Zengin | 75 | 1,018 | 28,794 | 27 |
-| 3 | Tao Huang | 60 | 566 | 19,422 | 22 |
+| 1 | Asghar Ghasemi | 40 | 309 | 11,224 | 20 |
+| 2 | Engy Elekhnawy | 34 | 127 | 2,765 | 18 |
+| 3 | Hayder M. Al‐kuraishy | 57 | 433 | 10,718 | 16 |
 
-## Topic 1  (n_hcw--=22, network=6,788 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Zongping Liu | 48 | 282 | 7,960 | 25 |
-| 2 | Asghar Ghasemi | 40 | 310 | 10,901 | 20 |
-| 3 | Hui Zou | 42 | 266 | 7,745 | 18 |
-
-## Topic 2  (n_hcw--=22, network=2,306 works)
+## Topic 1  (n_hcw--=27, network=2,672 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Amr H. Hashem | 55 | 177 | 7,366 | 58 |
-| 2 | Ahmed I. Abulsoud | 33 | 113 | 2,573 | 40 |
-| 3 | Ahmed S. Doghish | 52 | 214 | 5,933 | 39 |
+| 1 | Amr H. Hashem | 56 | 181 | 7,862 | 56 |
+| 2 | İlhami Gülçın | 129 | 670 | 53,701 | 33 |
+| 3 | V.О. Kostenko | 11 | 202 | 668 | 32 |
 
-## Topic 3  (n_hcw--=19, network=3,592 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Zorica Bulat | 32 | 192 | 3,918 | 19 |
-| 2 | Aleksandra Buha Djordjević | 39 | 230 | 5,948 | 19 |
-| 3 | Biljana Antonijević | 28 | 221 | 3,371 | 17 |
-
-## Topic 4  (n_hcw--=19, network=3,081 works)
+## Topic 2  (n_hcw--=25, network=4,269 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Riccardo Caccialanza | 50 | 290 | 7,823 | 29 |
-| 2 | Paolo Pedrazzoli | 51 | 511 | 9,846 | 23 |
-| 3 | Emanuele Cereda | 63 | 406 | 14,082 | 19 |
+| 1 | Hassan Karimi‐Maleh | 96 | 528 | 33,674 | 46 |
+| 2 | Hadi Beitollahi | 90 | 455 | 21,655 | 30 |
+| 3 | Fatemeh Karimi | 50 | 117 | 10,263 | 23 |
 
-## Topic 5  (n_hcw--=18, network=3,409 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Nafeesa Naeem | 26 | 67 | 1,868 | 16 |
-| 2 | Amina Sadiq | 28 | 86 | 2,137 | 15 |
-| 3 | Ehsan Ullah Mughal | 32 | 143 | 2,859 | 15 |
-
-## Topic 6  (n_hcw--=18, network=6,422 works)
+## Topic 3  (n_hcw--=21, network=2,689 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Vaman Khadilkar | 37 | 360 | 5,747 | 51 |
-| 2 | Anuradha Khadilkar | 39 | 370 | 6,683 | 48 |
-| 3 | Daniela Călina | 84 | 388 | 42,041 | 34 |
+| 1 | Vaman Khadilkar | 37 | 359 | 5,836 | 50 |
+| 2 | Anuradha Khadilkar | 39 | 365 | 6,847 | 44 |
+| 3 | Neha Kajale | 19 | 101 | 1,181 | 23 |
 
-## Topic 7  (n_hcw--=12, network=4,989 works)
+## Topic 4  (n_hcw--=20, network=2,978 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Orish Ebere Orisakwe | 45 | 361 | 13,369 | 12 |
-| 2 | Michael Aschner | 117 | 1,444 | 61,281 | 12 |
-| 3 | Shafi M. Tareq | 33 | 138 | 3,668 | 12 |
+| 1 | Nafeesa Naeem | 27 | 77 | 2,036 | 16 |
+| 2 | Amina Sadiq | 28 | 90 | 2,291 | 15 |
+| 3 | Nicky Rahmana Putra | 26 | 172 | 2,186 | 15 |
+
+## Topic 5  (n_hcw--=18, network=3,453 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Ramith Ramu | 33 | 184 | 3,293 | 26 |
+| 2 | Zorica Bulat | 32 | 193 | 4,046 | 19 |
+| 3 | Aleksandra Buha Djordjević | 37 | 180 | 5,280 | 18 |
+
+## Topic 6  (n_hcw--=12, network=6,240 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Zongping Liu | 50 | 283 | 8,373 | 25 |
+| 2 | Hui Zou | 43 | 269 | 8,028 | 18 |
+| 3 | Michael Aschner | 118 | 1,449 | 62,727 | 17 |
+
+## Topic 7  (n_hcw--=12, network=3,797 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Mengyao Guo | 38 | 144 | 4,254 | 21 |
+| 2 | Ahmed E. Abdel Moneim | 57 | 243 | 8,826 | 14 |
+| 3 | Abazar Ghorbani | 22 | 55 | 1,490 | 12 |

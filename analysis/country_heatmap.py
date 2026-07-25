@@ -235,7 +235,7 @@ def main() -> None:
     paths    = load_config()
     settings = load_settings()
     fw_path  = str(paths.working / f'flat_works_{settings.year_min}_{settings.year_max}.parquet')
-    inst_p   = f'{paths.openalex}/parquet/institutions.parquet'
+    inst_p   = f'{paths.openalex}/institutions.parquet'
     tc0, tc1 = (int(x) for x in args.window.split('_'))
 
     print(f"Top {args.n} institutions in {args.country}  window={args.window}  label={args.label}")

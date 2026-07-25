@@ -2,50 +2,50 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=37, network=4,023 works)
+## Topic 0  (n_hcw--=39, network=4,672 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 71 | 462 | 16,602 | 156 |
-| 2 | Barween Al Kurdi | 52 | 242 | 9,569 | 95 |
-| 3 | Haitham M. Alzoubi | 59 | 248 | 13,378 | 84 |
+| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 156 |
+| 2 | Barween Al Kurdi | 52 | 246 | 9,736 | 95 |
+| 3 | Haitham M. Alzoubi | 59 | 250 | 13,770 | 84 |
 
-## Topic 1  (n_hcw--=26, network=11,495 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Marcos dos Santos | 38 | 650 | 3,340 | 77 |
-| 2 | Carlos Francısco Sımões Gomes | 39 | 557 | 3,769 | 62 |
-| 3 | Miguel Ângelo Lellis Moreira | 23 | 151 | 1,474 | 49 |
-
-## Topic 2  (n_hcw--=18, network=2,972 works)
+## Topic 1  (n_hcw--=27, network=3,044 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Kifayat Ullah | 36 | 156 | 5,460 | 35 |
-| 2 | Serhat Yüksel | 55 | 531 | 11,105 | 32 |
-| 3 | Arslan Ahmed Amin | 22 | 60 | 1,505 | 31 |
+| 1 | Marcos dos Santos | 38 | 648 | 3,414 | 62 |
+| 2 | Carlos Francısco Sımões Gomes | 40 | 538 | 3,804 | 52 |
+| 3 | Miguel Ângelo Lellis Moreira | 23 | 151 | 1,504 | 45 |
 
-## Topic 3  (n_hcw--=16, network=2,338 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Vu Hong Son Pham | 17 | 159 | 1,010 | 27 |
-| 2 | Nghiep Trinh Nguyen Dang | 10 | 38 | 323 | 16 |
-| 3 | Ioannis E. Livieris | 28 | 113 | 3,184 | 10 |
-
-## Topic 4  (n_hcw--=13, network=1,587 works)
+## Topic 2  (n_hcw--=23, network=2,700 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sulieman Ibraheem Shelash Al-Hawary | 47 | 258 | 5,870 | 24 |
-| 2 | P. S. Aithal | 60 | 1,833 | 17,338 | 21 |
-| 3 | P. S. Aithal | 9 | 15 | 115 | 11 |
+| 1 | Marcos dos Santos | 38 | 648 | 3,414 | 67 |
+| 2 | Carlos Francısco Sımões Gomes | 40 | 538 | 3,804 | 56 |
+| 3 | Miguel Ângelo Lellis Moreira | 23 | 151 | 1,504 | 46 |
 
-## Topic 5  (n_hcw--=13, network=3,646 works)
+## Topic 3  (n_hcw--=15, network=11,935 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 71 | 462 | 16,602 | 108 |
-| 2 | Barween Al Kurdi | 52 | 242 | 9,569 | 71 |
-| 3 | Haitham M. Alzoubi | 59 | 248 | 13,378 | 71 |
+| 1 | Jumadi Jumadi | 24 | 646 | 3,078 | 45 |
+| 2 | İnsih Wilujeng | 24 | 349 | 2,781 | 39 |
+| 3 | Tomi Apra Santosa | 19 | 160 | 1,093 | 31 |
+
+## Topic 4  (n_hcw--=13, network=3,017 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 108 |
+| 2 | Haitham M. Alzoubi | 59 | 250 | 13,770 | 71 |
+| 3 | Barween Al Kurdi | 52 | 246 | 9,736 | 71 |
+
+## Topic 5  (n_hcw--=10, network=1,410 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sulieman Ibraheem Shelash Al-Hawary | 48 | 210 | 6,210 | 24 |
+| 2 | Muzaffar Asad | 30 | 90 | 2,258 | 11 |
+| 3 | Anber Abraheem Shlash Mohammad | 44 | 208 | 4,754 | 11 |

@@ -88,8 +88,12 @@ SpectralRankingGlobal/
 ```
 
 ## Data persistence
+`config.yaml`'s `OPENALEX` key points directly at the OA converted-data root (its subfolder
+name — `parquet`, `parquet_converted`, etc. — has changed across snapshots; `paths.openalex`
+always means "the directory containing `works/`, `sources.parquet`, ...", no code hardcodes
+the subfolder name):
 ```
-OPENALEX/parquet/
+OPENALEX/
   works/*.parquet            OA snapshot — works
   authorships/*.parquet      OA snapshot — authorships
   work_topics/*.parquet      OA snapshot — work×topic×score + full hierarchy

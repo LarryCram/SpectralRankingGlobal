@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=80, network=7,500 works)
+## Topic 0  (n_hcw--=80, network=7,213 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Brian Meneses-Claudio | 21 | 197 | 1,165 | 17 |
-| 2 | Eduardo Melguizo-Ibáñez | 12 | 134 | 539 | 16 |
-| 3 | Bernd Blobel | 24 | 584 | 2,768 | 16 |
+| 1 | Chun‐Pin Chiang | 58 | 673 | 12,836 | 38 |
+| 2 | Feng-Chou Cheng | 14 | 124 | 777 | 30 |
+| 3 | Ling-Hsia Wang | 12 | 78 | 521 | 23 |
 
-## Topic 1  (n_hcw--=78, network=4,947 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | M.I. Sayyed | 100 | 1,139 | 40,014 | 153 |
-| 2 | K.A. Mahmoud | 55 | 323 | 8,227 | 48 |
-| 3 | H.O. Tekın | 77 | 497 | 16,936 | 47 |
-
-## Topic 2  (n_hcw--=71, network=8,464 works)
+## Topic 1  (n_hcw--=67, network=7,755 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Giuseppe Minervini | 41 | 337 | 8,116 | 41 |
-| 2 | M.I. Sayyed | 100 | 1,139 | 40,014 | 36 |
-| 3 | Yasser Fakri Mustafa | 47 | 506 | 8,210 | 27 |
+| 1 | M.I. Sayyed | 102 | 1,143 | 41,679 | 179 |
+| 2 | K.A. Mahmoud | 56 | 322 | 8,697 | 65 |
+| 3 | H.O. Tekın | 78 | 496 | 17,382 | 64 |
 
-## Topic 3  (n_hcw--=67, network=7,781 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Marcos dos Santos | 38 | 650 | 3,340 | 30 |
-| 2 | Carlos Francısco Sımões Gomes | 39 | 557 | 3,769 | 25 |
-| 3 | Miguel Ângelo Lellis Moreira | 23 | 151 | 1,474 | 19 |
-
-## Topic 4  (n_hcw--=61, network=7,011 works)
+## Topic 2  (n_hcw--=66, network=6,815 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | M.S. Al-Buriahi | 87 | 645 | 20,647 | 86 |
-| 2 | Z.A. Alrowaili | 50 | 354 | 8,981 | 75 |
-| 3 | I.O. Olarinoye | 46 | 221 | 6,534 | 62 |
+| 1 | Marcos dos Santos | 38 | 648 | 3,414 | 35 |
+| 2 | Carlos Francısco Sımões Gomes | 40 | 538 | 3,804 | 29 |
+| 3 | Miguel Ângelo Lellis Moreira | 23 | 151 | 1,504 | 22 |
 
-## Topic 5  (n_hcw--=55, network=6,521 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Yaodong Gu | 37 | 541 | 6,543 | 50 |
-| 2 | F. M. Javed Mehedi Shamrat | 28 | 83 | 2,842 | 29 |
-| 3 | Datao Xu | 17 | 68 | 1,236 | 29 |
-
-## Topic 6  (n_hcw--=40, network=7,605 works)
+## Topic 3  (n_hcw--=50, network=3,776 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Mayeen Uddin Khandaker | 68 | 881 | 21,554 | 38 |
-| 2 | Johnbosco C. Egbueri | 51 | 148 | 7,079 | 37 |
-| 3 | Marta Rosaria Marino | 5 | 98 | 127 | 34 |
+| 1 | Agung Dwi Laksono | 27 | 314 | 2,813 | 40 |
+| 2 | Didi Suryadi | 18 | 83 | 1,028 | 40 |
+| 3 | Giuseppe Minervini | 44 | 361 | 9,906 | 32 |
 
-## Topic 7  (n_hcw--=37, network=2,934 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Mayeen Uddin Khandaker | 68 | 881 | 21,554 | 25 |
-| 2 | Selina Yeasmin | 18 | 92 | 836 | 23 |
-| 3 | Mufti Mahmud | 61 | 440 | 13,145 | 23 |
-
-## Topic 8  (n_hcw--=35, network=4,896 works)
+## Topic 4  (n_hcw--=50, network=5,681 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sampath Boopathi | 63 | 295 | 10,510 | 35 |
-| 2 | Ryuichi Ohta | 26 | 346 | 2,330 | 31 |
-| 3 | Chiaki Sano | 27 | 374 | 3,279 | 27 |
+| 1 | M.S. Al-Buriahi | 88 | 657 | 21,745 | 86 |
+| 2 | Z.A. Alrowaili | 51 | 354 | 9,427 | 76 |
+| 3 | I.O. Olarinoye | 47 | 221 | 6,846 | 63 |
 
-## Topic 9  (n_hcw--=27, network=4,222 works)
+## Topic 5  (n_hcw--=48, network=5,863 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Déborah Carvalho Malta | 113 | 1,132 | 177,763 | 25 |
-| 2 | Lígia Giovanella | 43 | 253 | 7,000 | 22 |
-| 3 | Antônio Luiz Pinho Ribeiro | 80 | 937 | 135,490 | 21 |
+| 1 | F. M. Javed Mehedi Shamrat | 28 | 84 | 2,968 | 29 |
+| 2 | Ari Wibowo Kurniawan | 12 | 207 | 521 | 20 |
+| 3 | Ali Shehadeh | 32 | 68 | 2,259 | 18 |
+
+## Topic 6  (n_hcw--=41, network=7,726 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Mayeen Uddin Khandaker | 70 | 918 | 22,654 | 37 |
+| 2 | Johnbosco C. Egbueri | 54 | 167 | 7,666 | 37 |
+| 3 | Marta Rosaria Marino | 5 | 98 | 129 | 34 |
+
+## Topic 7  (n_hcw--=34, network=3,154 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Viol Dhea Kharisma | 27 | 126 | 1,911 | 39 |
+| 2 | Ibrahim H. Eissa | 53 | 238 | 7,961 | 39 |
+| 3 | Eslam B. Elkaeed | 45 | 291 | 6,943 | 34 |
+
+## Topic 8  (n_hcw--=30, network=3,892 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sampath Boopathi | 63 | 272 | 10,020 | 33 |
+| 2 | Ryuichi Ohta | 26 | 353 | 2,421 | 31 |
+| 3 | Chiaki Sano | 27 | 377 | 3,345 | 27 |
+
+## Topic 9  (n_hcw--=30, network=2,713 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Mufti Mahmud | 62 | 438 | 13,844 | 23 |
+| 2 | Selina Yeasmin | 19 | 100 | 928 | 23 |
+| 3 | M. M. Mahfuz Siraz | 21 | 51 | 862 | 22 |

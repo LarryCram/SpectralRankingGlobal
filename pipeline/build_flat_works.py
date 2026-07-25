@@ -293,13 +293,13 @@ def main():
     paths    = load_config()
     settings = load_settings()
 
-    works_path        = f"{paths.openalex}/parquet/works/*.parquet"
-    sources_path      = f"{paths.openalex}/parquet/sources.parquet"
-    authorships_path  = f"{paths.openalex}/parquet/authorships/*.parquet"
-    institutions_path = f"{paths.openalex}/parquet/institutions.parquet"
-    topics_path       = f"{paths.openalex}/parquet/work_topics/*.parquet"
-    topics_meta_path  = f"{paths.openalex}/parquet/topics.parquet"
-    refs_glob         = f"{paths.openalex}/parquet/references/*.parquet"
+    works_path        = f"{paths.openalex}/works/*.parquet"
+    sources_path      = f"{paths.openalex}/sources.parquet"
+    authorships_path  = f"{paths.openalex}/authorships/*.parquet"
+    institutions_path = f"{paths.openalex}/institutions.parquet"
+    topics_path       = f"{paths.openalex}/work_topics/*.parquet"
+    topics_meta_path  = f"{paths.openalex}/topics.parquet"
+    refs_glob         = f"{paths.openalex}/references/*.parquet"
     fw_path  = str(paths.working / f"flat_works_{settings.year_min}_{settings.year_max}.parquet")
     cr_path  = str(paths.working / f"corpus_references_{settings.year_min}_{settings.year_max}.parquet")
 

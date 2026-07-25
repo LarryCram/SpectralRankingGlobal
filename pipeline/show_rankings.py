@@ -3,8 +3,8 @@ show_rankings.py — Display field rankings with OA names and run diagnostics.
 
 Reads  : WORKING/rankings_{field_idx}_{window}.parquet
          WORKING/rankings_{field_idx}_{window}_diag.json
-         OPENALEX/parquet/sources.parquet
-         OPENALEX/parquet/institutions.parquet
+         OPENALEX/parquet_converted/sources.parquet
+         OPENALEX/parquet_converted/institutions.parquet
 
 Usage:
   .venv/bin/python pipeline/show_rankings.py --field 14
@@ -29,8 +29,8 @@ def show_rankings(field_idx: int, window: str, n: int = 25) -> None:
 
     rk_path   = working / f'rankings_{field_idx}_{window}.parquet'
     diag_path = working / f'rankings_{field_idx}_{window}_diag.json'
-    src_path  = f'{paths.openalex}/parquet/sources.parquet'
-    inst_path = f'{paths.openalex}/parquet/institutions.parquet'
+    src_path  = f'{paths.openalex}/sources.parquet'
+    inst_path = f'{paths.openalex}/institutions.parquet'
 
     if not rk_path.exists():
         raise FileNotFoundError(

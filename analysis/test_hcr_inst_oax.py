@@ -559,7 +559,7 @@ def main() -> None:
     args = parser.parse_args()
 
     paths = load_config()
-    inst_path = str(paths.openalex / 'parquet' / 'institutions.parquet')
+    inst_path = str(paths.openalex / 'institutions.parquet')
     hcr_path  = Path(__file__).parent.parent / 'data' / '2025_HCR.xlsx'
 
     hcr  = pd.read_excel(hcr_path)

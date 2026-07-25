@@ -17,7 +17,7 @@ Inputs:
   WORKING/enclave_nmf_{window}_{label}.parquet    HCW-- with topic_name
   WORKING/enclave_hcw_{window}_{label}.parquet    all HCW, for source_idx
   WORKING/corpus_references_{ymin}_{ymax}.parquet
-  OPENALEX/parquet/sources.parquet
+  OPENALEX/parquet_converted/sources.parquet
 
 Outputs:
   enclaves/reports/{field_idx}_{window}_{label}.md   one report per field
@@ -75,7 +75,7 @@ def _find_components(nodes: set, edges: list[tuple]) -> list[set]:
 
 def load_source_names(openalex_path: Path, source_ids: set) -> dict:
     """Returns {source_idx: display_name}."""
-    src_path = str(openalex_path / 'parquet' / 'sources.parquet')
+    src_path = str(openalex_path / 'sources.parquet')
     con = duckdb.connect()
     con.register('_ids', pd.DataFrame({'source_idx': list(source_ids)}))
     df = con.execute(f"""

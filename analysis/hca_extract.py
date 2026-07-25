@@ -418,7 +418,7 @@ def main() -> None:
 
     paths    = load_config()
     settings = load_settings()
-    oa    = paths.openalex / 'parquet'
+    oa    = paths.openalex
     w     = paths.working
 
     flat_works_path  = w / f'flat_works_{settings.year_min}_{settings.year_max}.parquet'

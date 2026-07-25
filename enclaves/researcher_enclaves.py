@@ -9,8 +9,8 @@ Inputs:
   WORKING/enclave_nmf_{window}_{label}.parquet
   WORKING/enclave_hcw_{window}_{label}.parquet    (for source_idx)
   WORKING/corpus_references_{ymin}_{ymax}.parquet
-  OPENALEX/parquet/authorships/*.parquet
-  OPENALEX/parquet/authors/*.parquet
+  OPENALEX/parquet_converted/authorships/*.parquet
+  OPENALEX/parquet_converted/authors/*.parquet
 
 Outputs:
   enclaves/reports/{field_idx}_{window}_{label}_researchers.md  (one per field)
@@ -175,7 +175,7 @@ def main() -> None:
     out_dir   = Path(__file__).parent / 'reports'
     out_dir.mkdir(exist_ok=True)
 
-    oa        = paths.openalex / 'parquet'
+    oa        = paths.openalex
     auth_glob = str(oa / 'authorships' / '*.parquet')
     au_glob   = str(oa / 'authors'     / '*.parquet')
 

@@ -208,7 +208,7 @@ def main() -> None:
     test_mode = '--test' in sys.argv
     paths = load_config()
     clusters_path   = paths.working / 'hca_clusters.parquet'
-    oax_authorships = paths.openalex / 'parquet' / 'authorships' / '*.parquet'
+    oax_authorships = paths.openalex / 'authorships' / '*.parquet'
 
     clusters = pd.read_parquet(clusters_path)
     n_multi = (clusters['cluster_n'] > 1).sum()

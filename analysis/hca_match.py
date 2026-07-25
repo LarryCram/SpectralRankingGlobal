@@ -209,7 +209,7 @@ def main() -> None:
     paths = load_config()
     hca_path     = paths.working / 'hcw_authors.parquet'
     clusters_path = paths.working / 'hca_clusters.parquet'
-    oax          = paths.openalex / 'parquet'
+    oax          = paths.openalex
 
     print('Phase 1: loading hca_authors...')
     hca, hca_uniq, row_hn = load_hca(hca_path)

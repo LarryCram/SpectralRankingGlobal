@@ -2,66 +2,66 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=30, network=2,921 works)
+## Topic 0  (n_hcw--=31, network=4,210 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Tokeer Ahmad | 60 | 233 | 10,125 | 43 |
-| 2 | Yong Pan | 73 | 536 | 11,099 | 24 |
-| 3 | Saad H. Ammar | 40 | 130 | 3,197 | 23 |
+| 1 | Zao Yi | 82 | 365 | 18,481 | 64 |
+| 2 | Hussein A.Z. AL-bonsrulah | 19 | 120 | 1,286 | 47 |
+| 3 | Nidal H. Abu‐Hamdeh | 56 | 361 | 11,042 | 39 |
 
-## Topic 1  (n_hcw--=29, network=3,690 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Zao Yi | 80 | 363 | 17,512 | 64 |
-| 2 | Hussein A.Z. AL-bonsrulah | 19 | 116 | 1,247 | 46 |
-| 3 | Nidal H. Abu‐Hamdeh | 56 | 361 | 10,831 | 38 |
-
-## Topic 2  (n_hcw--=24, network=5,044 works)
+## Topic 1  (n_hcw--=30, network=2,933 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Tomiwa Sunday Adebayo | 88 | 330 | 21,641 | 71 |
-| 2 | Asif Raihan | 52 | 189 | 8,157 | 39 |
-| 3 | Liton Chandra Voumik | 31 | 97 | 2,808 | 30 |
+| 1 | Tokeer Ahmad | 61 | 232 | 10,555 | 43 |
+| 2 | Saad H. Ammar | 42 | 134 | 3,409 | 23 |
+| 3 | José Cleiton Sousa dos Santos | 69 | 244 | 11,139 | 21 |
 
-## Topic 3  (n_hcw--=24, network=7,980 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Zao Yi | 80 | 363 | 17,512 | 54 |
-| 2 | Mohd. Muddassir | 33 | 368 | 4,768 | 52 |
-| 3 | Alireza Nezamzadeh‐Ejhieh | 89 | 260 | 18,148 | 45 |
-
-## Topic 4  (n_hcw--=17, network=6,246 works)
+## Topic 2  (n_hcw--=25, network=8,817 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Aziz Habibi‐Yangjeh | 76 | 353 | 19,159 | 48 |
-| 2 | Md. Shahinoor Islam | 47 | 120 | 6,909 | 31 |
-| 3 | Zaid H. Jabbar | 38 | 76 | 2,581 | 24 |
+| 1 | Zao Yi | 82 | 365 | 18,481 | 53 |
+| 2 | Mohd. Muddassir | 33 | 370 | 5,023 | 52 |
+| 3 | Alireza Nezamzadeh‐Ejhieh | 89 | 267 | 18,573 | 45 |
 
-## Topic 5  (n_hcw--=17, network=5,858 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Aziz Habibi‐Yangjeh | 76 | 353 | 19,159 | 54 |
-| 2 | Zao Yi | 80 | 363 | 17,512 | 37 |
-| 3 | Alireza Khataee | 106 | 840 | 47,599 | 22 |
-
-## Topic 6  (n_hcw--=15, network=4,616 works)
+## Topic 3  (n_hcw--=23, network=4,956 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Vinod Kumar Gupta | 158 | 882 | 97,481 | 26 |
-| 2 | Kezhen Qi | 46 | 192 | 8,483 | 21 |
-| 3 | Shilpi Agarwal | 63 | 152 | 13,913 | 19 |
+| 1 | Tomiwa Sunday Adebayo | 89 | 350 | 22,456 | 73 |
+| 2 | Asif Raihan | 54 | 215 | 8,749 | 39 |
+| 3 | Liton Chandra Voumik | 32 | 97 | 3,016 | 30 |
 
-## Topic 7  (n_hcw--=9, network=3,748 works)
+## Topic 4  (n_hcw--=17, network=6,300 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Prabhakar Sharma | 47 | 191 | 6,623 | 26 |
-| 2 | Shubham Sharma | 65 | 812 | 17,842 | 23 |
-| 3 | M. Ijaz Khan | 98 | 638 | 30,582 | 15 |
+| 1 | Aziz Habibi‐Yangjeh | 77 | 353 | 19,455 | 48 |
+| 2 | Md. Shahinoor Islam | 48 | 122 | 7,268 | 31 |
+| 3 | Zaid H. Jabbar | 39 | 80 | 2,771 | 24 |
+
+## Topic 5  (n_hcw--=17, network=5,896 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Aziz Habibi‐Yangjeh | 77 | 353 | 19,455 | 54 |
+| 2 | Zao Yi | 82 | 365 | 18,481 | 37 |
+| 3 | Alireza Khataee | 107 | 843 | 48,745 | 22 |
+
+## Topic 6  (n_hcw--=15, network=3,881 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Vinod Kumar Gupta | 160 | 878 | 98,416 | 26 |
+| 2 | Kezhen Qi | 47 | 192 | 9,009 | 19 |
+| 3 | Shilpi Agarwal | 63 | 153 | 14,022 | 19 |
+
+## Topic 7  (n_hcw--=9, network=3,775 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Prabhakar Sharma | 49 | 197 | 7,088 | 27 |
+| 2 | Shubham Sharma | 66 | 780 | 18,519 | 21 |
+| 3 | Mohamed Abbas | 41 | 417 | 6,936 | 15 |

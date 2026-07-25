@@ -241,8 +241,8 @@ def _print_top_units(db, fw: str, src_p: str, inst_p: str) -> None:
 def main():
     paths   = load_config()
     fw      = str(paths.working / f"flat_works_{YEAR_LO}_{YEAR_HI}.parquet")
-    src_p   = f"{paths.openalex}/parquet/sources.parquet"
-    inst_p  = f"{paths.openalex}/parquet/institutions.parquet"
+    src_p   = f"{paths.openalex}/sources.parquet"
+    inst_p  = f"{paths.openalex}/institutions.parquet"
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
         db.execute("SET memory_limit = '56GB'")

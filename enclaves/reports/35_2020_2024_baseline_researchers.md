@@ -2,50 +2,50 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=32, network=4,154 works)
+## Topic 0  (n_hcw--=35, network=4,739 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Alessandro Dourado Loguércio | 78 | 772 | 22,299 | 58 |
-| 2 | Alessandra Reis | 77 | 630 | 20,294 | 48 |
-| 3 | Mohammed M. Gad | 35 | 167 | 4,441 | 40 |
+| 1 | He Liu | 27 | 233 | 3,685 | 18 |
+| 2 | Artak Heboyan | 28 | 293 | 2,960 | 17 |
+| 3 | Ya Shen | 66 | 381 | 15,433 | 16 |
 
-## Topic 1  (n_hcw--=30, network=2,633 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Chun Hung Chu | 70 | 528 | 18,466 | 40 |
-| 2 | Edward Chin Man Lo | 82 | 425 | 21,410 | 31 |
-| 3 | Duangporn Duangthip | 36 | 147 | 4,467 | 26 |
-
-## Topic 2  (n_hcw--=18, network=1,487 works)
+## Topic 1  (n_hcw--=25, network=2,271 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Giuseppe Minervini | 41 | 337 | 8,116 | 30 |
-| 2 | Marco Cicciù | 40 | 301 | 5,447 | 20 |
-| 3 | Francesco Inchingolo | 56 | 487 | 11,739 | 19 |
+| 1 | Alessandro Dourado Loguércio | 78 | 776 | 22,572 | 49 |
+| 2 | Alessandra Reis | 78 | 617 | 20,475 | 41 |
+| 3 | Carlos Estrela | 56 | 463 | 11,520 | 35 |
 
-## Topic 3  (n_hcw--=17, network=1,712 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Artak Heboyan | 27 | 287 | 2,717 | 13 |
-| 2 | Francesco D’Ambrosio | 26 | 62 | 1,714 | 13 |
-| 3 | Francesco Giordano | 18 | 142 | 1,044 | 10 |
-
-## Topic 4  (n_hcw--=14, network=1,344 works)
+## Topic 2  (n_hcw--=21, network=2,374 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Andrej Thurzo | 24 | 69 | 1,744 | 10 |
-| 2 | K. Singh | 40 | 375 | 7,689 | 6 |
-| 3 | Mohmed Isaqali Karobari | 32 | 259 | 3,684 | 6 |
+| 1 | Edward Chin Man Lo | 83 | 425 | 21,933 | 38 |
+| 2 | Duangporn Duangthip | 36 | 153 | 4,645 | 29 |
+| 3 | Junji Tagami | 79 | 853 | 27,893 | 19 |
 
-## Topic 5  (n_hcw--=10, network=1,675 works)
+## Topic 3  (n_hcw--=18, network=1,496 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Giuseppe Minervini | 41 | 337 | 8,116 | 7 |
-| 2 | Abanoub Riad | 42 | 135 | 10,389 | 6 |
-| 3 | Guglielmo Campus | 40 | 320 | 7,383 | 5 |
+| 1 | Andrea Scribante | 49 | 283 | 6,513 | 19 |
+| 2 | John W. Nicholson | 45 | 293 | 7,886 | 17 |
+| 3 | Nayem Hossain | 37 | 183 | 5,118 | 16 |
+
+## Topic 4  (n_hcw--=17, network=3,969 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Giuseppe Minervini | 44 | 361 | 9,906 | 8 |
+| 2 | Muhammad Sohail Zafar | 58 | 392 | 12,986 | 7 |
+| 3 | Zohaib Khurshid | 57 | 250 | 11,819 | 7 |
+
+## Topic 5  (n_hcw--=14, network=1,487 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Dhanraj Ganapathy | 26 | 522 | 3,567 | 22 |
+| 2 | Saja Mohsen Alardhi | 21 | 58 | 1,691 | 10 |
+| 3 | Ramin Ranjbarzadeh | 37 | 77 | 3,890 | 10 |
