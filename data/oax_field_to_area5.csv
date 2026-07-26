@@ -1,0 +1,28 @@
+field_idx,field_name,area5_code,area5_label
+11,Ag&Bio,LES,Life and Earth Science
+12,Arts&Hum,SSH,Social Science and Humanities
+13,Biochem,LES,Life and Earth Science
+14,Business,SSH,Social Science and Humanities
+15,ChemEng,PSE,Physical Science and Engineering
+16,Chemistry,PSE,Physical Science and Engineering
+17,CompSci,MCS,"Mathematics, Computing and Information Science"
+18,Decision,SSH,Social Science and Humanities
+19,Earth,LES,Life and Earth Science
+20,Economics,SSH,Social Science and Humanities
+21,Energy,PSE,Physical Science and Engineering
+22,Engineering,PSE,Physical Science and Engineering
+23,EnvSci,LES,Life and Earth Science
+24,Immunol,LES,Life and Earth Science
+25,Materials,PSE,Physical Science and Engineering
+26,Maths,MCS,"Mathematics, Computing and Information Science"
+27,Medicine,BHS,Biomedical and Health Science
+28,Neurosci,BHS,Biomedical and Health Science
+29,Nursing,BHS,Biomedical and Health Science
+30,Pharma,BHS,Biomedical and Health Science
+31,Physics,PSE,Physical Science and Engineering
+32,Psychology,SSH,Social Science and Humanities
+33,SocSci,SSH,Social Science and Humanities
+34,Vet,LES,Life and Earth Science
+35,Dentistry,BHS,Biomedical and Health Science
+36,HealthProf,BHS,Biomedical and Health Science
+,,IND,Indigenous Studies

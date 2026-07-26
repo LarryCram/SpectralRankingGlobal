@@ -54,6 +54,8 @@ SpectralRankingGlobal/
     run_leiden_sensitivity.py  #   ✅ parameter sensitivity suite for Leiden
     run_leiden_bloc.py         #   ✅ country-bloc Leiden rankings
     run_field_bloc.py          #   ✅ country-bloc OA field rankings
+    run_area5.py               #   ✅ FOR2020_AREA5 rankings (baseline only) — see FOR/AREA5 section
+    run_for_division.py        #   ✅ FOR2020 division-level rankings (baseline only) — see FOR/AREA5 section
     pipeline_status.py         #   ✅ "where am I up to" freshness report — see Pipeline guard system
     show_rankings.py           #   display rankings with OA names
     katz_ranker.py             #   spectral algorithms (Perron/Katz, bipartite) — pure math
@@ -79,6 +81,8 @@ SpectralRankingGlobal/
   data/
     bloc.xlsx                  #   bloc_name → ISO-3166-1-alpha-2 country codes
     HEP_concordances.xlsx      #   AU HEP name → institution_idx mapping
+    oax_field_to_area5.csv     #   OA field_idx → FOR2020_AREA5 code — see FOR/AREA5 section
+    oax_subfield_to_for2020.csv #  OA subfield_idx → FOR2020 group/division — see FOR/AREA5 section
   ZARCHIVE/                    # superseded EconomicsBusiness code
   config.yaml                  # machine-specific paths (gitignored)
   requirements.txt
@@ -125,6 +129,10 @@ WORKING/
   el_{field_idx}_{window}_{label}.parquet   stage 3; one per (field, label)
   rankings_{field_idx}_{window}_{label}.parquet      stage 4; ranked units
   rankings_{field_idx}_{window}_{label}_diag.json    stage 4; diagnostics
+  area5/rankings_{area5_idx}_{window}_baseline.parquet          FOR2020_AREA5 rankings
+  area5/rankings_{area5_idx}_{window}_baseline_diag.json        (+ area5_code/label/members)
+  for_division/rankings_{division_code}_{window}_baseline.parquet   FOR2020 division rankings
+  for_division/rankings_{division_code}_{window}_baseline_diag.json (+ division label/members)
   enclave_hcw_{window}_{label}.parquet     stage E1; HCW with v scores + titles
                                              cols: field_idx, work_idx, publication_year,
                                                source_idx, n_intra, year_threshold,
@@ -261,6 +269,68 @@ future freshness checks. Tests: `util/tests/test_guard.py` (16 tests).
 | 34        | Veterinary                                    | Health Sciences  | 4. Biomedical and Health Sciences       |
 | 35        | Dentistry                                     | Health Sciences  | 4. Biomedical and Health Sciences       |
 | 36        | Health Professions                            | Health Sciences  | 4. Biomedical and Health Sciences       |
+
+## FOR2020/AREA5 classification (`pipeline/run_area5.py`, `pipeline/run_for_division.py`)
+Two ANZSRC-grounded groupings, sourced from `LarryCram/ResearchClassification`
+(`pip install git+https://github.com/LarryCram/ResearchClassification.git`), sitting
+alongside — not replacing — the OA field/Leiden/subfield levels above. Both are fully
+decoupled from `Run`/`util/runs.py`'s field_idx-range dispatch (`is_leiden`/`is_subfield`)
+by design: no new numeric band, no `flat_works` schema change. `field_idx` inside
+`Run` for these two scripts is just that run's own scratch-candidacy identity, scoped to a
+throwaway temp file under `WORKING/.tmp/` and never routed through `Run.sc_path()`/`ic_path()`.
+
+- `data/oax_field_to_area5.csv` / `data/oax_subfield_to_for2020.csv` — built once by
+  `util/build_for_mapping.py` (manual, not part of the guarded rerun order — only needs
+  re-running if `ResearchClassification` itself is updated). Neither touches `flat_works`;
+  joined ad hoc against the existing `field_source_cands`/`subfield_source_cands` (etc.)
+  candidacy tables at ranking time.
+- No new candidacy or edge-list files: both scripts re-aggregate the *existing*
+  `field_source_cands`/`field_inst_cands` (AREA5) or `subfield_source_cands`/
+  `subfield_inst_cands` (FOR-division) parquets — already the expensive GROUP BY over all
+  of flat_works — into scratch temp parquet files, build the edge list as another scratch
+  temp file, and delete both after ranking. Only `WORKING/area5/rankings_*.parquet` /
+  `WORKING/for_division/rankings_*.parquet` + their `_diag.json` are kept.
+- Baseline label only (τ=10/yr, m=(0,1,1,0), α=1.0, ρ=0) — no bloc variants, no sensitivity
+  suite, for this first pass.
+- Provenance (which OA fields/subfields feed each group, resolver confidence/match_method)
+  lives in each ranking's own `_diag.json`, not encoded into the filename — the directory
+  (`area5/` vs `for_division/`) is what disambiguates scheme, so the bare numeric code inside
+  each filename stays exactly as ANZSRC/AREA5 define it (no collision-avoiding offset needed).
+
+### AREA5 groups (`AREA5_IDX` in `run_area5.py`) — nearly identical to Leiden, one field moves
+```
+1  MCS  Mathematics, Computing and Information Science   [17, 26]                  (= Leiden 1)
+2  PSE  Physical Science and Engineering                 [15, 16, 21, 22, 25, 31]  (= Leiden 2)
+3  LES  Life and Earth Science                           [11, 13, 19, 23, 24, 34]  (Leiden 3 + Vet)
+4  BHS  Biomedical and Health Science                     [27, 28, 29, 30, 35, 36]  (Leiden 4 − Vet)
+5  SSH  Social Science and Humanities                     [12, 14, 18, 20, 32, 33]  (= Leiden 5)
+6  IND  Indigenous Studies                                 []  — unreached by any OA field;
+       carried as a recognized, always-listed, currently-unpopulated category (see below)
+```
+Only Veterinary (34) moves, from Leiden's Biomedical/Health group to AREA5's Life & Earth
+Science group — ANZSRC places Veterinary Science under FOR division 30 ("Agricultural,
+Veterinary and Food Sciences"), not clinical medicine.
+
+**Indigenous Studies**: confirmed exhaustively — no OA field or subfield in this project's
+data resolves there via OpenAlex's topic hierarchy (there is no dedicated Indigenous-studies
+branch distinguishable from the underlying discipline it's expressed through, and
+`ResearchClassification` only bridges *from* FOR2020 division 45 outward via a
+`cultural_proxy`, never the OAX→FOR direction this project needs). `run_area5.py` skips
+computing a ranking for it (nothing to rank) but still lists it explicitly rather than
+silently omitting it. Actual per-work identification of Indigenous-studies-relevant works
+would need a different data source entirely — not something this package or OpenAlex's
+topic hierarchy can provide.
+
+### FOR2020 division level — resolved at subfield precision, only 16–22 of 23 divisions reached
+Resolved from `subfield_idx` (not `field_idx`) via the fully-audited OAX-subfield→FOR2020-group
+bridge (0 `below_floor` across all 252 subfields), then truncated to 2 digits for division —
+higher fidelity than the coarser 26-row field→division bridge, and (since `flat_works` already
+carries `subfield_idx`) gives finer, more divisions-reached coverage for free. Regenerate
+`data/oax_subfield_to_for2020.csv` (via `util/build_for_mapping.py`) to get the current exact
+division→member-subfield breakdown; at field-level granularity alone (for context/comparison)
+only 16 of 23 divisions are reached and 21 of 26 OA fields land 1:1 in their own division —
+division-level ranking is a much smaller step up from field-level than AREA5 is. See each
+division's own `_diag.json` for its exact member `subfield_idx` list.
 
 ## Field index mapping (OA → Clarivate HCR categories)
 Clarivate HCR uses ESI categories, not OA fields. Several OA fields map to the same Clarivate

@@ -121,7 +121,9 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
                     ic_path: str,
                     run: Run,
                     out_path: str,
-                    bloc_codes: tuple = ()) -> int:
+                    bloc_codes: tuple = (),
+                    member_ids: tuple = (),
+                    filter_col_override: str = None) -> int:
     """
     Build field-specific citation edge list parquet for one Run.
 
@@ -131,6 +133,15 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     bloc_codes: when non-empty, apply all-in country filter — a work is included only
     if every institution affiliated with it (in this field+window) has a country_code
     in bloc_codes.  Pass tuple(settings.blocs[run.bloc]) when run.bloc != ''.
+
+    member_ids / filter_col_override: for grouping schemes decoupled from Run's own
+    field_idx-range dispatch (e.g. AREA5 grouping several OA field_idx into one area,
+    FOR-division grouping several subfield_idx into one division) — when member_ids is
+    non-empty, flat_works is filtered by `filter_col IN member_ids` instead of
+    `filter_col = run.field_idx`; filter_col_override picks the column ('field_idx' or
+    'subfield_idx') explicitly instead of inferring it from run.is_leiden/is_subfield.
+    run.field_idx itself is still used as this call's own scratch-candidacy identity
+    (sc_path/ic_path are expected to already be scoped to that single group code).
 
     Returns row count of the output edge list.
     """
@@ -143,12 +154,19 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     #   leiden   (field_idx 1–5)    → filter by leiden_idx
     #   subfield (field_idx ≥ 1000) → filter by subfield_idx; no aggregation needed
     #   field    (field_idx 11–36)  → filter by field_idx; aggregate subfields
-    if run.is_leiden:
+    if filter_col_override is not None:
+        filter_col = filter_col_override
+    elif run.is_leiden:
         filter_col = 'leiden_idx'
     elif run.is_subfield:
         filter_col = 'subfield_idx'
     else:
         filter_col = 'field_idx'
+
+    if member_ids:
+        match_clause = f"{filter_col} IN ({', '.join(str(m) for m in member_ids)})"
+    else:
+        match_clause = f"{filter_col} = {field_idx}"
 
     # ── 1. Retained units ─────────────────────────────────────────────────────
     db.execute(f"""
@@ -178,7 +196,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
         db.execute(f"""
             CREATE OR REPLACE TEMP TABLE _excl_works AS
             SELECT DISTINCT work_idx FROM '{fw_path}'
-            WHERE {filter_col} = {field_idx}
+            WHERE {match_clause}
               AND publication_year BETWEEN {tc0} AND {tc1}
               AND country_code NOT IN ({codes_sql})
         """)
@@ -197,7 +215,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
             SELECT work_idx, source_idx, institution_idx,
                    inst_weight, direct_inst_weight, field_weight
             FROM '{fw_path}'
-            WHERE {filter_col} = {field_idx}
+            WHERE {match_clause}
               AND publication_year BETWEEN {tc0} AND {tc1}
               AND source_idx      IN (SELECT source_idx      FROM _cands_s)
               AND institution_idx IN (SELECT institution_idx FROM _cands_u)
@@ -211,7 +229,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
                    ANY_VALUE(direct_inst_weight) AS direct_inst_weight,
                    SUM(field_weight)             AS field_weight
             FROM '{fw_path}'
-            WHERE {filter_col} = {field_idx}
+            WHERE {match_clause}
               AND publication_year BETWEEN {tc0} AND {tc1}
               AND source_idx      IN (SELECT source_idx      FROM _cands_s)
               AND institution_idx IN (SELECT institution_idx FROM _cands_u)

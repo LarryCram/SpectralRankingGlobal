@@ -1,0 +1,253 @@
+subfield_idx,for_group_code,for_group_label,for_division_code,for_division_label,confidence,match_method
+1100,3002,"Agriculture, land and farm management",30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",0.163,constrained_lexical
+1102,3004,Crop and pasture production,30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",0.188,constrained_lexical
+1103,3109,Zoology,31,BIOLOGICAL SCIENCES,1.0,exact_match
+1104,3005,Fisheries sciences,30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",0.7,manual_override
+1105,3103,Ecology,31,BIOLOGICAL SCIENCES,1.0,exact_match
+1106,3006,Food sciences,30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",1.0,exact_match
+1107,3007,Forestry sciences,30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",1.0,exact_match
+1108,3008,Horticultural production,30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",0.7,manual_override
+1109,3109,Zoology,31,BIOLOGICAL SCIENCES,0.7,manual_override
+1110,3108,Plant biology,31,BIOLOGICAL SCIENCES,1.0,exact_match
+1111,4106,Soil sciences,41,ENVIRONMENTAL SCIENCES,1.0,exact_match
+1200,4705,Literary studies,47,"LANGUAGE, COMMUNICATION AND CULTURE",0.333,constrained_lexical
+1202,4303,Historical studies,43,"HISTORY, HERITAGE AND ARCHAEOLOGY",0.7,manual_override
+1203,4704,Linguistics,47,"LANGUAGE, COMMUNICATION AND CULTURE",0.179,constrained_lexical
+1204,4301,Archaeology,43,"HISTORY, HERITAGE AND ARCHAEOLOGY",0.7,manual_override
+1205,4705,Literary studies,47,"LANGUAGE, COMMUNICATION AND CULTURE",0.455,constrained_lexical
+1206,4102,Ecological applications,41,ENVIRONMENTAL SCIENCES,0.7,manual_override
+1207,5002,History and philosophy of specific fields,50,PHILOSOPHY AND RELIGIOUS STUDIES,0.7,manual_override
+1208,4705,Literary studies,47,"LANGUAGE, COMMUNICATION AND CULTURE",1.0,exact_match
+1209,4302,"Heritage, archive and museum studies",43,"HISTORY, HERITAGE AND ARCHAEOLOGY",0.7,manual_override
+1210,3603,Music,36,CREATIVE ARTS AND WRITING,1.0,exact_match
+1211,5003,Philosophy,50,PHILOSOPHY AND RELIGIOUS STUDIES,1.0,exact_match
+1212,5004,Religious studies,50,PHILOSOPHY AND RELIGIOUS STUDIES,1.0,exact_match
+1213,3606,Visual arts,36,CREATIVE ARTS AND WRITING,0.7,manual_override
+1302,3101,Biochemistry and cell biology,31,BIOLOGICAL SCIENCES,0.7,manual_override
+1303,3101,Biochemistry and cell biology,31,BIOLOGICAL SCIENCES,0.136,constrained_lexical
+1304,3102,Bioinformatics and computational biology,31,BIOLOGICAL SCIENCES,0.1,constrained_lexical
+1305,3101,Biochemistry and cell biology,31,BIOLOGICAL SCIENCES,0.087,constrained_lexical
+1306,3102,Bioinformatics and computational biology,31,BIOLOGICAL SCIENCES,0.086,constrained_lexical
+1307,3101,Biochemistry and cell biology,31,BIOLOGICAL SCIENCES,0.7,manual_override
+1308,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+1309,3109,Zoology,31,BIOLOGICAL SCIENCES,0.25,constrained_lexical
+1310,3205,Medical biochemistry and metabolomics,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+1311,3105,Genetics,31,BIOLOGICAL SCIENCES,1.0,exact_match
+1312,3101,Biochemistry and cell biology,31,BIOLOGICAL SCIENCES,0.05,constrained_lexical
+1313,3101,Biochemistry and cell biology,31,BIOLOGICAL SCIENCES,0.7,manual_override
+1314,3208,Medical physiology,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+1315,3101,Biochemistry and cell biology,31,BIOLOGICAL SCIENCES,0.7,manual_override
+1402,3501,"Accounting, auditing and accountability",35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",1.0,exact_match
+1403,3506,Marketing,35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",0.4,constrained_lexical
+1404,4609,Information systems,46,INFORMATION AND COMPUTING SCIENCES,1.0,exact_match
+1405,4609,Information systems,46,INFORMATION AND COMPUTING SCIENCES,0.196,constrained_lexical
+1406,3506,Marketing,35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",1.0,exact_match
+1407,3507,"Strategy, management and organisational behaviour",35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",0.209,constrained_lexical
+1408,3507,"Strategy, management and organisational behaviour",35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",1.0,exact_match
+1409,3508,Tourism,35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",1.0,exact_match
+1410,3505,Human resources and industrial relations,35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",1.0,exact_match
+1502,4003,Biomedical engineering,40,ENGINEERING,0.7,manual_override
+1503,4004,Chemical engineering,40,ENGINEERING,0.7,manual_override
+1504,4005,Civil engineering,40,ENGINEERING,0.5,constrained_lexical
+1506,4004,Chemical engineering,40,ENGINEERING,0.7,manual_override
+1507,4004,Chemical engineering,40,ENGINEERING,0.25,constrained_lexical
+1508,4004,Chemical engineering,40,ENGINEERING,0.375,constrained_lexical
+1602,3401,Analytical chemistry,34,CHEMICAL SCIENCES,1.0,exact_match
+1603,3406,Physical chemistry,34,CHEMICAL SCIENCES,0.7,manual_override
+1604,3402,Inorganic chemistry,34,CHEMICAL SCIENCES,1.0,exact_match
+1605,3405,Organic chemistry,34,CHEMICAL SCIENCES,1.0,exact_match
+1606,3406,Physical chemistry,34,CHEMICAL SCIENCES,1.0,exact_match
+1607,3406,Physical chemistry,34,CHEMICAL SCIENCES,0.188,constrained_lexical
+1702,4602,Artificial intelligence,46,INFORMATION AND COMPUTING SCIENCES,1.0,exact_match
+1703,4613,Theory of computation,46,INFORMATION AND COMPUTING SCIENCES,0.217,constrained_lexical
+1704,3303,Design,33,BUILT ENVIRONMENT AND DESIGN,1.0,exact_match
+1705,4606,Distributed computing and systems software,46,INFORMATION AND COMPUTING SCIENCES,0.146,constrained_lexical
+1706,4601,Applied computing,46,INFORMATION AND COMPUTING SCIENCES,0.7,manual_override
+1707,4603,Computer vision and multimedia computation,46,INFORMATION AND COMPUTING SCIENCES,0.114,constrained_lexical
+1708,3301,Architecture,33,BUILT ENVIRONMENT AND DESIGN,1.0,exact_match
+1709,4007,"Control engineering, mechatronics and robotics",40,ENGINEERING,0.154,constrained_lexical
+1710,4609,Information systems,46,INFORMATION AND COMPUTING SCIENCES,1.0,exact_match
+1711,4006,Communications engineering,40,ENGINEERING,0.7,manual_override
+1712,4612,Software engineering,46,INFORMATION AND COMPUTING SCIENCES,0.7,manual_override
+1800,3599,"Other commerce, management, tourism and services",35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",0.7,manual_override
+1802,4609,Information systems,46,INFORMATION AND COMPUTING SCIENCES,1.0,exact_match
+1803,3507,"Strategy, management and organisational behaviour",35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",0.7,manual_override
+1804,4905,Statistics,49,MATHEMATICAL SCIENCES,0.7,manual_override
+1902,3701,Atmospheric sciences,37,EARTH SCIENCES,1.0,exact_match
+1904,3709,Physical geography and environmental geoscience,37,EARTH SCIENCES,0.7,manual_override
+1906,3703,Geochemistry,37,EARTH SCIENCES,1.0,exact_match
+1907,3705,Geology,37,EARTH SCIENCES,1.0,exact_match
+1908,3706,Geophysics,37,EARTH SCIENCES,1.0,exact_match
+1910,3708,Oceanography,37,EARTH SCIENCES,1.0,exact_match
+1911,3705,Geology,37,EARTH SCIENCES,0.1,constrained_lexical
+1912,5109,Space sciences,51,PHYSICAL SCIENCES,1.0,exact_match
+2000,3802,Econometrics,38,ECONOMICS,1.0,exact_match
+2002,3802,Econometrics,38,ECONOMICS,1.0,exact_match
+2003,3502,"Banking, finance and investment",35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",1.0,exact_match
+2100,4004,Chemical engineering,40,ENGINEERING,0.7,manual_override
+2102,4008,Electrical engineering,40,ENGINEERING,0.8,constrained_lexical
+2103,4004,Chemical engineering,40,ENGINEERING,0.7,manual_override
+2104,4004,Chemical engineering,40,ENGINEERING,0.5,constrained_lexical
+2105,4104,Environmental management,41,ENVIRONMENTAL SCIENCES,0.7,manual_override
+2200,4005,Civil engineering,40,ENGINEERING,0.75,constrained_lexical
+2202,4001,Aerospace engineering,40,ENGINEERING,1.0,exact_match
+2203,4002,Automotive engineering,40,ENGINEERING,1.0,exact_match
+2204,4003,Biomedical engineering,40,ENGINEERING,1.0,exact_match
+2205,4005,Civil engineering,40,ENGINEERING,1.0,exact_match
+2206,4012,Fluid mechanics and thermal engineering,40,ENGINEERING,0.194,constrained_lexical
+2207,4007,"Control engineering, mechatronics and robotics",40,ENGINEERING,0.143,constrained_lexical
+2208,4008,Electrical engineering,40,ENGINEERING,1.0,exact_match
+2209,4014,Manufacturing engineering,40,ENGINEERING,1.0,exact_match
+2210,4017,Mechanical engineering,40,ENGINEERING,1.0,exact_match
+2211,4017,Mechanical engineering,40,ENGINEERING,0.12,constrained_lexical
+2212,4015,Maritime engineering,40,ENGINEERING,0.7,manual_override
+2213,4005,Civil engineering,40,ENGINEERING,0.259,constrained_lexical
+2214,4701,Communication and media studies,47,"LANGUAGE, COMMUNICATION AND CULTURE",0.7,manual_override
+2215,3302,Building,33,BUILT ENVIRONMENT AND DESIGN,0.7,manual_override
+2216,3301,Architecture,33,BUILT ENVIRONMENT AND DESIGN,1.0,exact_match
+2302,4102,Ecological applications,41,ENVIRONMENTAL SCIENCES,0.7,manual_override
+2303,3103,Ecology,31,BIOLOGICAL SCIENCES,1.0,exact_match
+2304,4105,Pollution and contamination,41,ENVIRONMENTAL SCIENCES,0.7,manual_override
+2305,4011,Environmental engineering,40,ENGINEERING,1.0,exact_match
+2306,3702,Climate change science,37,EARTH SCIENCES,0.7,manual_override
+2307,3214,Pharmacology and pharmaceutical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2308,3304,Urban and regional planning,33,BUILT ENVIRONMENT AND DESIGN,0.164,constrained_lexical
+2309,4104,Environmental management,41,ENVIRONMENTAL SCIENCES,0.7,manual_override
+2310,4105,Pollution and contamination,41,ENVIRONMENTAL SCIENCES,0.7,manual_override
+2311,4104,Environmental management,41,ENVIRONMENTAL SCIENCES,0.125,constrained_lexical
+2312,3707,Hydrology,37,EARTH SCIENCES,0.7,manual_override
+2402,3107,Microbiology,31,BIOLOGICAL SCIENCES,1.0,exact_match
+2403,3204,Immunology,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2404,3107,Microbiology,31,BIOLOGICAL SCIENCES,1.0,exact_match
+2405,3104,Evolutionary biology,31,BIOLOGICAL SCIENCES,0.15,constrained_lexical
+2406,3107,Microbiology,31,BIOLOGICAL SCIENCES,0.7,manual_override
+2500,4016,Materials engineering,40,ENGINEERING,0.333,constrained_lexical
+2502,4016,Materials engineering,40,ENGINEERING,0.091,constrained_lexical
+2503,4016,Materials engineering,40,ENGINEERING,0.429,constrained_lexical
+2504,3403,Macromolecular and materials chemistry,34,CHEMICAL SCIENCES,0.098,constrained_lexical
+2505,3403,Macromolecular and materials chemistry,34,CHEMICAL SCIENCES,1.0,exact_match
+2506,4016,Materials engineering,40,ENGINEERING,0.7,manual_override
+2507,4016,Materials engineering,40,ENGINEERING,0.138,constrained_lexical
+2508,4016,Materials engineering,40,ENGINEERING,0.7,manual_override
+2602,4901,Applied mathematics,49,MATHEMATICAL SCIENCES,0.286,constrained_lexical
+2604,4901,Applied mathematics,49,MATHEMATICAL SCIENCES,1.0,exact_match
+2605,4903,Numerical and computational mathematics,49,MATHEMATICAL SCIENCES,1.0,exact_match
+2607,4901,Applied mathematics,49,MATHEMATICAL SCIENCES,0.231,constrained_lexical
+2608,4904,Pure mathematics,49,MATHEMATICAL SCIENCES,0.483,constrained_lexical
+2610,4902,Mathematical physics,49,MATHEMATICAL SCIENCES,1.0,exact_match
+2611,4903,Numerical and computational mathematics,49,MATHEMATICAL SCIENCES,0.25,constrained_lexical
+2612,4903,Numerical and computational mathematics,49,MATHEMATICAL SCIENCES,0.7,manual_override
+2613,4905,Statistics,49,MATHEMATICAL SCIENCES,0.7,manual_override
+2614,4901,Applied mathematics,49,MATHEMATICAL SCIENCES,0.667,constrained_lexical
+2702,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.667,constrained_lexical
+2703,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2704,3205,Medical biochemistry and metabolomics,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2705,3201,Cardiovascular medicine and haematology,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2706,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.222,constrained_lexical
+2707,4208,"Traditional, complementary and integrative medicine",42,HEALTH SCIENCES,0.132,constrained_lexical
+2708,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.147,constrained_lexical
+2711,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.156,constrained_lexical
+2712,3205,Medical biochemistry and metabolomics,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2713,4202,Epidemiology,42,HEALTH SCIENCES,1.0,exact_match
+2714,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.286,constrained_lexical
+2715,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2716,3105,Genetics,31,BIOLOGICAL SCIENCES,1.0,exact_match
+2717,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2718,4203,Health services and systems,42,HEALTH SCIENCES,0.7,manual_override
+2720,3201,Cardiovascular medicine and haematology,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2721,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.118,constrained_lexical
+2723,3204,Immunology,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2724,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2725,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.067,constrained_lexical
+2726,3107,Microbiology,31,BIOLOGICAL SCIENCES,1.0,exact_match
+2727,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2728,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2729,3215,Reproductive medicine,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2730,3211,Oncology and carcinogenesis,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2731,3212,Ophthalmology and optometry,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2732,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.211,constrained_lexical
+2733,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.182,constrained_lexical
+2734,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.091,constrained_lexical
+2735,3213,Paediatrics,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2736,3214,Pharmacology and pharmaceutical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2737,3208,Medical physiology,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2738,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.065,constrained_lexical
+2739,4206,Public health,42,HEALTH SCIENCES,1.0,exact_match
+2740,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.081,constrained_lexical
+2741,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.119,constrained_lexical
+2742,4201,Allied health and rehabilitation science,42,HEALTH SCIENCES,0.7,manual_override
+2743,3215,Reproductive medicine,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2745,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.065,constrained_lexical
+2746,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.073,constrained_lexical
+2747,3204,Immunology,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2748,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2802,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2803,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2804,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2805,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2806,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2807,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2808,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2809,3209,Neurosciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+2910,4205,Nursing,42,HEALTH SCIENCES,0.7,manual_override
+2911,4205,Nursing,42,HEALTH SCIENCES,0.7,manual_override
+2916,3210,Nutrition and dietetics,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+2922,4205,Nursing,42,HEALTH SCIENCES,0.7,manual_override
+3002,3214,Pharmacology and pharmaceutical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+3003,3214,Pharmacology and pharmaceutical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+3004,3214,Pharmacology and pharmaceutical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+3005,3214,Pharmacology and pharmaceutical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.7,manual_override
+3102,5103,Classical physics,51,PHYSICAL SCIENCES,0.7,manual_override
+3103,5101,Astronomical sciences,51,PHYSICAL SCIENCES,0.231,constrained_lexical
+3104,5104,Condensed matter physics,51,PHYSICAL SCIENCES,1.0,exact_match
+3105,5199,Other physical sciences,51,PHYSICAL SCIENCES,0.7,manual_override
+3106,5107,Particle and high energy physics,51,PHYSICAL SCIENCES,0.7,manual_override
+3107,5102,"Atomic, molecular and optical physics",51,PHYSICAL SCIENCES,0.125,constrained_lexical
+3108,5106,Nuclear and plasma physics,51,PHYSICAL SCIENCES,0.7,manual_override
+3109,4901,Applied mathematics,49,MATHEMATICAL SCIENCES,0.238,constrained_lexical
+3200,5299,Other psychology,52,PSYCHOLOGY,0.7,manual_override
+3202,5201,Applied and developmental psychology,52,PSYCHOLOGY,1.0,exact_match
+3203,5203,Clinical and health psychology,52,PSYCHOLOGY,0.7,manual_override
+3204,5201,Applied and developmental psychology,52,PSYCHOLOGY,0.167,constrained_lexical
+3205,5204,Cognitive and computational psychology,52,PSYCHOLOGY,0.129,constrained_lexical
+3206,5202,Biological psychology,52,PSYCHOLOGY,0.7,manual_override
+3207,5205,Social and personality psychology,52,PSYCHOLOGY,1.0,exact_match
+3300,4499,Other human society,44,HUMAN SOCIETY,0.7,manual_override
+3302,4301,Archaeology,43,"HISTORY, HERITAGE AND ARCHAEOLOGY",0.7,manual_override
+3303,4404,Development studies,44,HUMAN SOCIETY,1.0,exact_match
+3304,3901,Curriculum and pedagogy,39,EDUCATION,0.112,constrained_lexical
+3305,4404,Development studies,44,HUMAN SOCIETY,1.0,exact_match
+3306,4299,Other health sciences,42,HEALTH SCIENCES,0.7,manual_override
+3307,4499,Other human society,44,HUMAN SOCIETY,0.7,manual_override
+3308,4807,Public law,48,LAW AND LEGAL STUDIES,0.13,constrained_lexical
+3309,4610,Library and information studies,46,INFORMATION AND COMPUTING SCIENCES,1.0,exact_match
+3310,4704,Linguistics,47,"LANGUAGE, COMMUNICATION AND CULTURE",0.7,manual_override
+3311,4499,Other human society,44,HUMAN SOCIETY,0.7,manual_override
+3312,4410,Sociology,44,HUMAN SOCIETY,0.7,manual_override
+3313,3509,"Transportation, logistics and supply chains",35,"COMMERCE, MANAGEMENT, TOURISM AND SERVICES",1.0,exact_match
+3314,4401,Anthropology,44,HUMAN SOCIETY,1.0,exact_match
+3315,4701,Communication and media studies,47,"LANGUAGE, COMMUNICATION AND CULTURE",0.188,constrained_lexical
+3316,4702,Cultural studies,47,"LANGUAGE, COMMUNICATION AND CULTURE",1.0,exact_match
+3317,4403,Demography,44,HUMAN SOCIETY,1.0,exact_match
+3318,4405,Gender studies,44,HUMAN SOCIETY,1.0,exact_match
+3319,4403,Demography,44,HUMAN SOCIETY,0.286,constrained_lexical
+3320,4408,Political science,44,HUMAN SOCIETY,0.7,manual_override
+3321,4407,Policy and administration,44,HUMAN SOCIETY,0.455,constrained_lexical
+3322,3304,Urban and regional planning,33,BUILT ENVIRONMENT AND DESIGN,0.7,manual_override
+3402,3009,Veterinary sciences,30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",0.7,manual_override
+3404,3009,Veterinary sciences,30,"AGRICULTURAL, VETERINARY AND FOOD SCIENCES",0.32,constrained_lexical
+3500,3203,Dentistry,32,BIOMEDICAL AND CLINICAL SCIENCES,1.0,exact_match
+3504,3203,Dentistry,32,BIOMEDICAL AND CLINICAL SCIENCES,0.333,constrained_lexical
+3505,3203,Dentistry,32,BIOMEDICAL AND CLINICAL SCIENCES,0.5,constrained_lexical
+3506,3202,Clinical sciences,32,BIOMEDICAL AND CLINICAL SCIENCES,0.385,constrained_lexical
+3600,4203,Health services and systems,42,HEALTH SCIENCES,0.146,constrained_lexical
+3603,4208,"Traditional, complementary and integrative medicine",42,HEALTH SCIENCES,0.7,manual_override
+3604,4203,Health services and systems,42,HEALTH SCIENCES,0.7,manual_override
+3605,4609,Information systems,46,INFORMATION AND COMPUTING SCIENCES,0.281,constrained_lexical
+3607,4201,Allied health and rehabilitation science,42,HEALTH SCIENCES,0.333,constrained_lexical
+3608,4203,Health services and systems,42,HEALTH SCIENCES,0.7,manual_override
+3609,4203,Health services and systems,42,HEALTH SCIENCES,0.19,constrained_lexical
+3611,4203,Health services and systems,42,HEALTH SCIENCES,0.214,constrained_lexical
+3612,4201,Allied health and rehabilitation science,42,HEALTH SCIENCES,0.7,manual_override
+3614,4203,Health services and systems,42,HEALTH SCIENCES,0.417,constrained_lexical
+3616,4201,Allied health and rehabilitation science,42,HEALTH SCIENCES,0.7,manual_override

@@ -50,6 +50,13 @@ system" section for how staleness is now caught automatically instead of silentl
 - ✅ Stage E5: `researcher_enclaves.py` — 26 researcher MD reports (OA authors schema
   bug fixed this session — see CHANGELOG.md)
 - ✅ `enclaves/plot_hca_hcr.py` — 6 PDFs (combined + 5 Leiden group), HCR-overlay included
+- ✅ FOR2020/AREA5 classification: `pipeline/run_area5.py` (5 populated AREA5 groups, +
+  Indigenous Studies correctly skipped — unreachable from OA data) and
+  `pipeline/run_for_division.py` (FOR2020 division-level rankings) — baseline label only, not
+  part of the guarded rerun order below (decoupled from `flat_works`/`Run`; see REFERENCE.md's
+  "FOR2020/AREA5 classification" section). Reference tables
+  (`data/oax_field_to_area5.csv`/`data/oax_subfield_to_for2020.csv`) built once by
+  `util/build_for_mapping.py`, re-run only if `ResearchClassification` itself is updated.
 
 ## Rerun order
 Every stage above is guard-wired (see `REFERENCE.md`): each script checks its own

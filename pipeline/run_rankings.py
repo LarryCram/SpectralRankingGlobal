@@ -72,15 +72,24 @@ def rank_field(db: duckdb.DuckDBPyConnection,
                run: Run,
                working_dir: str,
                out_path: str,
-               verbose: bool = True) -> tuple[pd.DataFrame, dict]:
+               verbose: bool = True,
+               el_path: str = None,
+               sc_path: str = None,
+               ic_path: str = None) -> tuple[pd.DataFrame, dict]:
     """
     Build CSR matrices, run spectral ranking, write rankings parquet.
     Returns (df, diag) where diag holds counts and algorithm diagnostics.
+
+    el_path/sc_path/ic_path default to run.el_path()/sc_path()/ic_path()'s own
+    field/leiden/subfield dispatch; pass them explicitly for a grouping scheme
+    decoupled from that dispatch (e.g. AREA5/FOR-division), where run.field_idx is
+    just this call's own scratch-candidacy identity, not something Run's path
+    methods should derive a file location from.
     """
     import duckdb as _duckdb
-    el_path = run.el_path(working_dir)
-    sc_path = run.sc_path(working_dir)
-    ic_path = run.ic_path(working_dir)
+    el_path = el_path or run.el_path(working_dir)
+    sc_path = sc_path or run.sc_path(working_dir)
+    ic_path = ic_path or run.ic_path(working_dir)
 
     if not Path(el_path).exists():
         raise FileNotFoundError(
