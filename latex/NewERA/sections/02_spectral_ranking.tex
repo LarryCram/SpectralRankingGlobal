@@ -1,5 +1,116 @@
 % ---------------------------------------------------------------
-\section{Spectral Ranking}
+\section{Bipartite Spectral Ranking Methodology}
 \label{sec:spectral_ranking}
 % ---------------------------------------------------------------
 
+\subsection{Bipartite Network Formulation}
+
+Traditional bibliometrics model citation graphs as unipartite networks—either direct journal-to-journal citation matrices or direct institution-to-institution citation exchanges. However, scientific communication fundamentally operates as a bipartite interaction between two distinct types of entities:
+\begin{itemize}
+    \item \textbf{Publishing Channels / Sources ($\mathcal{S}$)}: Peer-reviewed journals, book series, and selective conference proceedings ($|\mathcal{S}| = N_S$).
+    \item \textbf{Research Institutions ($\mathcal{I}$)}: Universities, hospitals, and public research agencies ($|\mathcal{I}| = N_U$).
+\end{itemize}
+
+Articles are authored by researchers affiliated with institutions $\mathcal{I}$ and published in sources $\mathcal{S}$. When article $A$ (published in source $s \in \mathcal{S}$ with author affiliations $i \in \mathcal{I}$) cites article $B$ (published in source $s' \in \mathcal{S}$ with author affiliations $i' \in \mathcal{I}$), this citation generates two complementary cross-entity links:
+\begin{enumerate}
+    \item A citation link from citing source $s$ to cited institution $i'$.
+    \item A citation link from citing institution $i$ to cited source $s'$.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=2.8cm and 3.5cm,
+    entity/.style={rectangle, rounded corners=6pt, draw=blue!70!black, fill=blue!8, very thick, minimum width=3.2cm, minimum height=1.4cm, align=center, font=\bfseries},
+    process/.style={rectangle, draw=gray!70, fill=gray!10, rounded corners=3pt, minimum width=2.6cm, minimum height=1.0cm, align=center, font=\small},
+    arrow/.style={-{Stealth[scale=1.1]}, thick, draw=blue!80!black},
+    darrow/.style={-{Stealth[scale=1.1]}, thick, dashed, draw=red!70!black}
+]
+
+% Entities
+\node[entity] (sources) {Publishing Sources\\$\mathcal{S}$ (Journals, Conferences)};
+\node[entity, right=of sources] (insts) {Research Institutions\\$\mathcal{I}$ (Universities, Institutes)};
+
+% Cross citation transitions
+\draw[arrow] ([yshift=6pt]sources.east) -- node[above, font=\small] {$H_{SI}$ (Citing Source $\to$ Cited Inst)} ([yshift=6pt]insts.west);
+\draw[arrow] ([yshift=-6pt]insts.west) -- node[below, font=\small] {$H_{IS}$ (Citing Inst $\to$ Cited Source)} ([yshift=-6pt]sources.east);
+
+% Breiger Projection loops
+\draw[darrow] (sources.north) .. controls +(up:1.4cm) and +(left:1.4cm) .. node[above left, font=\footnotesize] {One-mode $M_S = H_{SI} H_{IS}$} (sources.west);
+\draw[darrow] (insts.north) .. controls +(up:1.4cm) and +(right:1.4cm) .. node[above right, font=\footnotesize] {One-mode $M_I = H_{IS} H_{SI}$} (insts.east);
+
+% Resulting metrics below
+\node[process, below=1.2cm of sources] (vs) {Source Intensity $v_S$\\$\bar{v}_S = 1.0$};
+\node[process, below=1.2cm of insts] (vi) {Institutional Intensity $v_I$\\$\bar{v}_I = 1.0$};
+
+\draw[-{Stealth}] (sources.south) -- (vs);
+\draw[-{Stealth}] (insts.south) -- (vi);
+
+% Synthesis
+\node[process, fill=green!10, draw=green!60!black, below=2.6cm of $(sources)!0.5!(insts)$] (vwork) {Work-Level Influence\\$v_{\text{work}} = \frac{1}{2}\left(v_S + \bar{v}_I\right)$};
+
+\draw[-{Stealth}, thick] (vs.south) |- (vwork.west);
+\draw[-{Stealth}, thick] (vi.south) |- (vwork.east);
+
+\end{tikzpicture}%
+}
+\caption{Conceptual architecture of the bipartite source/institution spectral ranking model. Mutual reinforcement between publishing sources $\mathcal{S}$ and research institutions $\mathcal{I}$ yields one-mode Breiger projections ($M_S, M_I$), from which size-independent prestige intensities ($v_S, v_I$) and work-level status ($v_{\text{work}}$) are derived.}
+\label{fig:bipartite_schematic}
+\end{figure}
+
+Let $C_{SI}$ be the raw $N_S \times N_U$ cross-citation matrix where element $c_{s, i'}$ records the aggregate volume of citations from source $s$ to institution $i'$. Conversely, let $C_{IS}$ be the $N_U \times N_S$ cross-citation matrix where element $c_{i, s'}$ records the volume of citations from institution $i$ to source $s'$.
+
+\subsection{Fractional Weighting and Cross-Disciplinary Conservation}
+
+To prevent distortion from hyper-authored papers and multi-institution consortia, fractional weighting is applied at both the institution and disciplinary levels:
+\begin{enumerate}
+    \item \textbf{Author-Fractional Institutional Weight ($w_{\text{inst}}$)}: For an article with $n_a$ authors, where author $k$ has $n_{i,k}$ institutional affiliations, the institutional weight assigned to institution $j$ is:
+    \begin{equation}
+        w_{\text{inst}}(j) = \sum_{k=1}^{n_a} \frac{\mathbb{I}(j \in \text{Affil}_k)}{n_a \cdot n_{i,k}}, \quad \sum_{j \in \mathcal{I}} w_{\text{inst}}(j) = 1
+    \end{equation}
+    Papers with consortium authorship exceeding 29 authors are excluded to avoid massive particle-physics or genomics consortium distortions.
+    \item \textbf{Disciplinary Field Weight ($w_{\text{field}}$)}: When an article is assigned multiple topics across disciplines, the weight for field $X$ is normalized by the total topic confidence scores:
+    \begin{equation}
+        w_{\text{field}}(X) = \frac{\sum_{t \in X} \text{score}(t)}{\sum_{t} \text{score}(t)}, \quad \sum_{X} w_{\text{field}}(X) = 1
+    \end{equation}
+    An edge between citer $A$ and cited work $B$ in field $X$ receives weight $e_{AB} = \frac{1}{2}(w_{\text{field}}(A, X) + w_{\text{field}}(B, X))$, preserving total citation mass globally.
+\end{enumerate}
+
+\subsection{Row Normalization and Breiger Projection}
+
+Raw citation matrices are row-normalized to obtain row-stochastic transition operators $H_{SI}$ and $H_{IS}$:
+\begin{equation}
+    H_{SI} = D_{S}^{-1} C_{SI}, \quad H_{IS} = D_{I}^{-1} C_{IS}
+\end{equation}
+where $D_S$ and $D_I$ are diagonal degree matrices whose entries are row sums of $C_{SI}$ and $C_{IS}$ (with zero/dangling rows handled through uniform prior redistribution).
+
+Rather than solving a block-coupled $2 \times 2$ system directly, we utilize the classic Breiger one-mode dual projection \citep{breiger1974duality}. The round-trip operator for sources, $M_S$, and institutions, $M_I$, are defined as:
+\begin{equation}
+    M_S = H_{SI} H_{IS} \in \mathbb{R}^{N_S \times N_S}, \quad M_I = H_{IS} H_{SI} \in \mathbb{R}^{N_U \times N_U}
+\end{equation}
+$M_S$ represents a two-step citation walk: from a citing source to a cited institution, and then from that institution to the sources it cites. In network terms, this captures the mutual reinforcement principle pioneered by \citet{katz1953new}, \citet{bonacich1987power}, and \citet{kleinberg1999authoritative}, extended here to a bipartite scholarly setting related to invariant citation flows \citep{page1999pagerank, bergstrom2008eigenfactor}. $M_S$ is row-stochastic and, for connected citation graphs, primitive with spectral radius $\lambda_1 = 1.0$.
+
+\subsection{Eigensolve and Normalized Prestige Intensity \texorpdfstring{($v$)}{(v)}}
+
+The dominant Perron eigenvector $\pi_S$ satisfying $\pi_S = M_S^T \pi_S$ (normalized such that $\sum_{s} \pi_S(s) = 1$) yields the global prestige vector over publishing sources. The institutional prestige vector $\pi_I$ is obtained directly via:
+\begin{equation}
+    \pi_I = H_{SI}^T \pi_S, \quad \sum_{i} \pi_I(i) = 1
+\end{equation}
+The spectral gap, $1 - |\lambda_2|$, serves as a diagnostic of graph connectivity and community mixing. Across all fields in our data, $|\lambda_2| \le 0.67$, ensuring rapid geometric convergence and well-separated principal prestige dimensions.
+
+Raw prestige $\pi$ scales with publication volume: an institution that publishes 1,000 papers naturally accumulates more total prestige than one publishing 50 papers \citep{docampo2014internal}. To obtain a \textbf{size-independent research quality intensity}, following \citet{docampo2025screening}, we divide prestige by the institution's weighted publication output ($w_I$) and scale by entity count:
+\begin{equation}
+    v_S(s) = \frac{\pi_S(s)}{w_S(s)} \cdot N_S, \quad v_I(i) = \frac{\pi_I(i)}{w_I(i)} \cdot N_U
+\end{equation}
+By construction, the weighted mean across all qualifying entities is exactly unity:
+\begin{equation}
+    \bar{v}_S = \frac{1}{N_S} \sum_{s \in \mathcal{S}} v_S(s) \cdot w_S(s) = 1.0, \quad \bar{v}_I = \frac{1}{N_U} \sum_{i \in \mathcal{I}} v_I(i) \cdot w_I(i) = 1.0
+\end{equation}
+Values of $v > 1.0$ indicate performance above the global baseline; values $v < 1.0$ denote performance below the global mean.
+
+Finally, each published article inherits a dual status reflecting both its publication venue and its authorial institutional pedigree:
+\begin{equation}
+    v_{\text{work}} = \frac{1}{2}\left( v_S + \frac{1}{|\mathcal{I}_{\text{work}}|} \sum_{i \in \mathcal{I}_{\text{work}}} v_I(i) \right)
+\end{equation}
+This formulation provides a size-independent, field-normalized, and tamper-resistant assessment metric suitable for national evaluation.

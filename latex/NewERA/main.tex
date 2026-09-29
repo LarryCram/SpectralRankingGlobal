@@ -1,11 +1,12 @@
 \documentclass[11pt]{article}
 \setlength\parindent{10pt}
-\usepackage{booktabs, natbib, amsmath, amssymb, mathrsfs, tabularx, booktabs, makecell}
+\usepackage{booktabs, natbib, amsmath, amssymb, mathrsfs, tabularx, makecell}
 \usepackage[margin=1in]{geometry}
 \usepackage{caption}
+\usepackage{subcaption}
 \usepackage{authblk}
 \usepackage{tikz}
-\usetikzlibrary{positioning, arrows.meta}
+\usetikzlibrary{positioning, arrows.meta, calc}
 \usepackage{hyperref}
 \usepackage{graphicx}
 \pagestyle{plain}
@@ -30,7 +31,7 @@ Charles Darwin University, Brinkin, 0810, NT, Australia}
 \maketitle
 
 \begin{abstract}
-% TODO
+National research evaluation frameworks are transitioning from burdensome, submission-heavy assessment exercises toward agile, data-driven systems grounded in transparent global bibliometrics. However, conventional citation metrics suffer from systemic defects: raw volume bias that rewards scale over quality, reliance on opaque journal impact factors, and vulnerability to metric gaming. Here we introduce an evidence-based framework for national research evaluation utilizing a bipartite spectral ranking model. Modeling scientific influence as a mutual reinforcement network between publishing channels (sources, $\mathcal{S}$) and research institutions ($\mathcal{I}$), we apply a one-mode Breiger projection to derive an intrinsic, size-independent prestige intensity metric ($v$), calibrated such that the global average across any discipline is exactly unity ($1.0$). We ground this global model in national policy frameworks by establishing an audited concordance (AREA5) bridging the 23 two-digit divisions of the Australian ANZSRC FOR 2020 standard and OpenAlex's machine-learned topic hierarchy, preserving computing and mathematical sciences as an independent analytical pillar and properly aligning veterinary science with agriculture. Evaluating all 42 Australian Higher Education Providers across the 2020--2024 census window reveals that research intensity flourishes across diverse university mission groups, demonstrating that specialized technological universities (e.g., Swinburne and UTS in computing and engineering) and targeted institutions (e.g., ACU in social sciences and nursing) achieve world-leading excellence comparable to the comprehensive Group of Eight. Extensive geopolitical bloc and parameter sensitivity analyses confirm that institutional prestige rankings remain remarkably robust ($\rho_s > 0.98$ under OECD+G20 restrictions). The bipartite spectral framework provides higher education authorities with an open, reproducible, and equitable instrument for evidence-based research evaluation.
 \end{abstract}
 
 \input{sections/01_introduction}
@@ -40,5 +41,5 @@ Charles Darwin University, Brinkin, 0810, NT, Australia}
 \input{sections/05_discussion}
 
 \bibliographystyle{../spbasic}
-\bibliography{../MyLibrary}
+\bibliography{references,../MyLibrary}
 \end{document}

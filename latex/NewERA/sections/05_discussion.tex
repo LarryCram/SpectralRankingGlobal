@@ -1,5 +1,39 @@
 % ---------------------------------------------------------------
-\section{Discussion}
+\section{Discussion and Policy Implications}
 \label{sec:discussion}
 % ---------------------------------------------------------------
 
+\subsection{A Modern Pathway for National Research Evaluation}
+
+The findings presented in this study offer a direct, practical response to the core recommendations of the 2023 independent review of the Australian Research Council \citep[\textit{Trusting Australia's Ability};][]{sheil2023trusting} and the Australian Universities Accord \citep{accord2024final}: namely, that Australia should transition away from burdensome, submission-heavy retrospective evaluation exercises toward an agile, data-driven framework grounded in transparent global metrics.
+
+By utilizing the open scholarly graph provided by OpenAlex \citep{priem2022openalex}, the bipartite spectral model eliminates the extensive administrative overhead that characterized ERA rounds---where university research offices spent months cleaning institutional rosters, verifying four-digit FOR codes, and assembling bespoke publication portfolios. Because the bipartite framework continuously computes institutional influence $v_I$ directly from published scholarly artifacts, national funding councils and higher education ministries can monitor disciplinary research intensity dynamically, transparently, and reproducibly, adhering closely to the principles of the Leiden Manifesto \citep{hicks2015leiden} and the Metric Tide \citep{wilsdon2015metric}.
+
+\subsection{Structural Advantages for University Ecosystems}
+
+Deploying a size-independent prestige intensity metric ($v$) yields profound structural benefits for national research strategy:
+
+\begin{enumerate}
+    \item \textbf{Equitable Recognition Across University Mission Groups}:
+    Traditional university rankings and volume-weighted funding formulae create a powerful structural bias toward large, legacy multi-faculty universities with vast capital endowments \citep{docampo2015effect, docampo2017academic}. In contrast, the intensity metric $v_I$ reveals that technological universities (e.g., Swinburne and UTS in computer science) and specialized universities (e.g., ACU in social sciences and nursing) frequently achieve world-leading research intensity. National policy bodies can thus support diversity of mission and reward targeted excellence rather than incentivizing institutional homogenization.
+    
+    \item \textbf{Mitigating Metric Gaming and Journal Cartels}:
+    Because the spectral algorithm solves for the mutual reinforcement of publishing channels and authoring institutions, it is inherently resistant to the known pathologies of unipartite metrics. An editor attempting to inflate a journal's impact factor via coercive self-citation does not alter the institutional prestige vector $\pi_I$; conversely, paper-mill publications in low-tier open-access venues carry minimal weight in the Breiger projection because those sources fail to attract citations from premier institutions.
+    
+    \item \textbf{Policy Alignment via the AREA5 Taxonomy}:
+    By establishing an audited bridge to the ANZSRC FOR 2020 standard, the framework speaks directly to national policy portfolios. Maintaining computing and information sciences (MCS) as an independent macro-discipline provides clear visibility into national AI and digital capabilities, while aligning veterinary science with agriculture (LES) reflects authentic institutional structures in Australian universities.
+\end{enumerate}
+
+\subsection{Limitations and Future Directions}
+
+While the bipartite spectral methodology resolves primary dilemmas in bibliometric evaluation, several methodological considerations remain:
+
+\begin{itemize}
+    \item \textbf{Humanities and Creative Arts (HASS)}: While OpenAlex has substantially expanded coverage of books, book chapters, and monographs (reflected in our 8-type corpus), scholarly communication in the creative arts, literature, and regional history continues to rely on non-traditional research outputs (NTROs) and regional publisher ecosystems that accrue citations slowly. For these disciplines, bipartite spectral status should serve as a contextual complement to peer review rather than an exclusive evaluative determinant.
+    \item \textbf{Indigenous Research Recognition}: As documented in our taxonomy analysis, global automated topic hierarchies do not currently isolate Indigenous scholarship into a standalone branch. Given the vital national importance of ANZSRC Division 45 (\textit{Indigenous Studies}), assessing Indigenous research leadership requires dedicated, community-grounded frameworks that evaluate cultural authority, community benefit, and indigenous data sovereignty alongside standard bibliometric metrics.
+    \item \textbf{Subfield and Meso-Level Disaggregation}: The current framework operates successfully at both the 5-area macro level and the 26-field level. A logical next step is extending the spectral machinery downward into OpenAlex's ~294 subfields to expose hyper-specialized subdisciplinary strengths (e.g., distinguishing quantum computing from software engineering).
+\end{itemize}
+
+\subsection{Conclusion}
+
+The bipartite source/institution spectral ranking model establishes an equitable, mathematically rigorous, and policy-aligned paradigm for national research evaluation. By formalizing scientific status as a mutual reinforcement between scholarly venues and research institutions, and normalizing prestige by publication volume, the framework delivers an evidence-based assessment of research quality that decouples institutional size from intellectual influence. In a post-ERA environment, this methodology provides higher education authorities with an open, reproducible, and robust instrument for benchmarking national research capability on the world stage.

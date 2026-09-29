@@ -1,5 +1,51 @@
 % ---------------------------------------------------------------
-\section{Data}
+\section{Data Corpus and National Disciplinary Taxonomy}
 \label{sec:data}
 % ---------------------------------------------------------------
 
+\subsection{OpenAlex Snapshot and Corpus Filtering}
+
+The empirical foundation for this study is built from a global snapshot of OpenAlex citation metadata \citep{priem2022openalex} encompassing all scholarly works published between 2000 and 2025, with our primary national research evaluation focusing on the five-year census window \textbf{2020--2024}. 
+
+To construct an authoritative corpus, we extract a master relational table, \texttt{flat\_works}, containing approximately 261.4 million records structured at the $( \text{work} \times \text{institution} \times \text{subfield} )$ level. The following rigorous quality filters are applied:
+\begin{itemize}
+    \item \textbf{Scholarly Work Types}: Expanded to eight primary peer-reviewed formats: \textit{article, review, book, book-chapter, dissertation, letter, preprint, report}.
+    \item \textbf{Integrity and Completeness}: Filtered to non-retracted works, excluding paratext (editorials, front matter, tables of contents), and requiring $\text{referenced\_works\_count} \ge 1$.
+    \item \textbf{Consortium Threshold}: Works with $\text{authors\_count} > 29$ are excluded to eliminate mega-authored consortium publications whose author credits obscure institutional responsibility.
+    \item \textbf{Title Deduplication}: Normalized title deduplication ensures preprints and subsequent formal journal publications do not double-count citation linkages.
+    \item \textbf{Institution Types}: Restricted to research-performing organizational classes: \textit{education, nonprofit, government, healthcare, and other}. Clinical research institutes and university teaching hospitals are explicitly captured under the \textit{healthcare} designation.
+\end{itemize}
+
+\subsection{Retention Thresholds \texorpdfstring{($\tau$)}{(tau)}}
+
+To ensure statistical stability and avoid spurious eigenvalues driven by singleton or transient entities, minimum activity thresholds are enforced:
+\begin{itemize}
+    \item $\tau_S = 10.0$ weighted works per year for publishing sources (50.0 weighted works over the 2020--2024 window).
+    \item $\tau_U = 10.0$ weighted works per year for research institutions (50.0 weighted works over the 2020--2024 window).
+\end{itemize}
+Because thresholds are defined in weighted works per year, the qualification criterion remains invariant to the length of the census window.
+
+\subsection{The AREA5 Concordance: Bridging OpenAlex and ANZSRC FOR 2020}
+
+A central innovation of this framework is establishing a direct, audited mapping between OpenAlex's global topic hierarchy and the Australian and New Zealand Standard Research Classification \citep[ANZSRC 2020;][]{anzsrc2020}. 
+
+Rather than adopting the four-domain model of OpenAlex (which submerges computer science and mathematics into the physical sciences) or relying on the proprietary five-superfield model of the CWTS Leiden Ranking \citep{waltman2012new} (which places veterinary science into human biomedical health), we establish a unified \textbf{5 Broad Research Areas (AREA5)} framework. This taxonomy is explicitly grounded in the 23 two-digit divisions of ANZSRC FOR 2020 and linked directly to OpenAlex's 26 fields, as documented in Table~\ref{tab:area5_concordance}.
+
+\input{tables/tab1_area5_concordance}
+
+Two key boundary definitions warrant emphasis:
+\begin{enumerate}
+    \item \textbf{Mathematics and Computing (MCS)}: Information and Computing Sciences (Division 46) and Mathematical Sciences (Division 49) form an autonomous macro-discipline. This reflects their distinct publication mechanisms (where top computer science conferences carry equal or greater prestige than journals) and prevents their intensity from being obscured within heavy industrial engineering or chemistry.
+    \item \textbf{Veterinary Science (LES)}: In strict concordance with ANZSRC Division 30 (\textit{Agricultural, Veterinary and Food Sciences}), veterinary science is united with animal biology and agricultural ecology within Life and Earth Sciences (LES), rather than combined with human clinical medicine and hospital epidemiology in Biomedical and Health Sciences (BHS).
+    \item \textbf{Indigenous Studies (IND)}: Division 45 is an essential national research priority. Because machine-learned global topic models do not currently distinguish a standalone Indigenous branch from the underlying academic disciplines through which it is expressed, Division 45 is carried as an explicitly recognized, zero-populated category in global data rather than silently discarded.
+\end{enumerate}
+
+\subsection{Corpus Scale and Spectral Health}
+
+Table~\ref{tab:corpus_summary} reports the scale of the retained bipartite network and the corresponding eigensolve diagnostics across each of the five broad disciplines.
+
+\input{tables/tab2_corpus_summary}
+
+Across all five areas, the qualifying network encompasses thousands of selective sources ($N_S$ from 3,896 in MCS to 17,354 in SSH) and world research institutions ($N_U$ from 4,173 in MCS to 10,821 in BHS). In every case, the dominant eigenvalue $\lambda_1$ converges to $1.0000 \pm 0.0002$ under ARPACK Arnoldi iteration. 
+
+Crucially, the spectral gap ($1 - \lambda_2$) ranges between $0.3330$ and $0.5866$, confirming that the bipartite cross-citation graphs are strongly primitive, free of disconnected sub-components, and characterized by rapid geometric convergence of the prestige distribution.
