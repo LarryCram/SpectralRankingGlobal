@@ -20,3 +20,4 @@ latex/**/*.lof
 latex/**/*.lot
 latex/**/*.pdf
 !latex/NewERA/figures/*.pdf
+**/MyLibrary.bib
