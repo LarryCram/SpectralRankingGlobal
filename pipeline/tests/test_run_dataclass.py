@@ -200,6 +200,17 @@ class TestLeidenConstants:
     def test_medicine_in_leiden_4(self):
         assert 27 in LEIDEN_GROUPS[4]
 
+    def test_areas_single_source_of_truth(self):
+        from util.areas import AREAS, ALL_AREAS, FOR_DIV_TO_AREA_ID, FIELD_TO_AREA_ID
+        assert len(AREAS) == 5
+        assert len(ALL_AREAS) == 6
+        # Veterinary is in Area 3 (LES / FOR 30)
+        assert FIELD_TO_AREA_ID[34] == 3
+        # Computing / Math in Area 1 (MCS)
+        assert FOR_DIV_TO_AREA_ID[46] == 1
+        assert FOR_DIV_TO_AREA_ID[49] == 1
+
+
 
 # ─── default field values ─────────────────────────────────────────────────────
 

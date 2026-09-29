@@ -11,22 +11,23 @@ CIA  = frozenset({'CN', 'IN', 'US'})        # China, India, America
 CIAA = frozenset({'AU', 'CN', 'IN', 'US'})  # + Australia
 AU   = frozenset({'AU'})
 
-# CWTS Leiden main field index → OA field_idx members
-LEIDEN_GROUPS: dict[int, tuple[int, ...]] = {
-    1: (17, 26),
-    2: (15, 16, 21, 22, 25, 31),
-    3: (11, 13, 19, 23, 24),
-    4: (27, 28, 29, 30, 34, 35, 36),
-    5: (12, 14, 18, 20, 32, 33),
-}
+from .areas import (
+    AREAS,
+    ALL_AREAS,
+    AREA_GROUPS,
+    AREA_NAMES,
+    AREA_SHORT_NAMES,
+    AREA_MNEMONICS,
+    AREA_CODES,
+    AREA_IDX,
+    FIELD_TO_AREA_ID,
+    FIELD_TO_AREA_CODE,
+    FOR_DIV_TO_AREA_ID,
+    FOR_DIV_TO_AREA_CODE,
+    LEIDEN_GROUPS,
+    LEIDEN_NAMES,
+)
 
-LEIDEN_NAMES: dict[int, str] = {
-    1: 'Mathematics and Computer Science',
-    2: 'Physical Sciences and Engineering',
-    3: 'Life and Earth Sciences',
-    4: 'Biomedical and Health Sciences',
-    5: 'Social Sciences and Humanities',
-}
 
 # Abbreviated display names for OA fields (field_idx 11–36)
 FIELD_NAMES: dict[int, str] = {

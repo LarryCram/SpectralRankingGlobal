@@ -31,14 +31,10 @@ import seaborn as sns
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config
+from util.areas import AREA_MULTILINE_NAMES
 
-LEIDEN_NAMES = {
-    1: 'Mathematics and\nComputer Science',
-    2: 'Physical Sciences\nand Engineering',
-    3: 'Life and\nEarth Sciences',
-    4: 'Biomedical and\nHealth Sciences',
-    5: 'Social Sciences\nand Humanities',
-}
+LEIDEN_NAMES = AREA_MULTILINE_NAMES
+
 
 CMP_STYLE = {
     'OECDG20':    ('OECDG20',     '#e6ab02'),

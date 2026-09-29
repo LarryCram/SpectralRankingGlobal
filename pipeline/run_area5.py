@@ -38,27 +38,18 @@ import duckdb
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 from util import load_config, load_settings, load_runs
+from util.areas import AREA_IDX, ALL_AREAS
 
 from build_edge_list_field import build_edge_list
 from run_rankings import rank_field, show_top
 
-# area5_code -> small int identity, matching Leiden's own group numbering (not
-# reused *through* Leiden's dispatch — these scripts never call Run.is_leiden/
-# sc_path/ic_path — just a legible, familiar id for this script's own output).
-AREA5_IDX = {'MCS': 1, 'PSE': 2, 'LES': 3, 'BHS': 4, 'SSH': 5, 'IND': 6}
 
-
-def load_area5_groups(data_dir: Path) -> tuple[dict[str, tuple[int, ...]], dict[str, str]]:
+def load_area5_groups(data_dir: Path = None) -> tuple[dict[str, tuple[int, ...]], dict[str, str]]:
     """Returns (area5_code -> tuple of member field_idx, area5_code -> label)."""
-    groups: dict[str, list[int]] = {}
-    labels: dict[str, str] = {}
-    with open(data_dir / 'oax_field_to_area5.csv', newline='') as f:
-        for row in csv.DictReader(f):
-            code = row['area5_code']
-            labels[code] = row['area5_label']
-            if row['field_idx']:
-                groups.setdefault(code, []).append(int(row['field_idx']))
-    return {k: tuple(sorted(v)) for k, v in groups.items()}, labels
+    groups = {a.code: a.oax_fields for a in ALL_AREAS}
+    labels = {a.code: a.name for a in ALL_AREAS}
+    return groups, labels
+
 
 
 def build_scratch_candidacy(db: duckdb.DuckDBPyConnection, working_dir: Path,

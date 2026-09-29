@@ -28,43 +28,11 @@ from matplotlib.colors import LinearSegmentedColormap
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config
+from util.runs import FIELD_NAMES
+from util.areas import AREA_SHORT_NAMES
 
-FIELD_NAMES = {
-    11: "Agricultural and Biological Sciences",
-    12: "Arts and Humanities",
-    13: "Biochemistry, Genetics and Molecular Biology",
-    14: "Business, Management and Accounting",
-    15: "Chemical Engineering",
-    16: "Chemistry",
-    17: "Computer Science",
-    18: "Decision Sciences",
-    19: "Earth and Planetary Sciences",
-    20: "Economics, Econometrics and Finance",
-    21: "Energy",
-    22: "Engineering",
-    23: "Environmental Science",
-    24: "Immunology and Microbiology",
-    25: "Materials Science",
-    26: "Mathematics",
-    27: "Medicine",
-    28: "Neuroscience",
-    29: "Nursing",
-    30: "Pharmacology, Toxicology and Pharmaceutics",
-    31: "Physics and Astronomy",
-    32: "Psychology",
-    33: "Social Sciences",
-    34: "Veterinary",
-    35: "Dentistry",
-    36: "Health Professions",
-}
+LEIDEN_NAMES = AREA_SHORT_NAMES
 
-LEIDEN_NAMES = {
-    1: "Maths & CS",
-    2: "Physical Sci & Eng",
-    3: "Life & Earth Sci",
-    4: "Biomed & Health",
-    5: "Social Sci & Hum",
-}
 
 
 def build_pivot(working: Path, keys: pd.DataFrame, window: str,

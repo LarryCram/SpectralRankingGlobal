@@ -36,34 +36,13 @@ from matplotlib import colormaps
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, FIELD_NAMES, guard
 
-# OA field_idx (11–36) → CWTS Leiden group (1–5)
-_LEIDEN_GROUP = {
-    11: 3, 12: 5, 13: 3, 14: 5, 15: 2, 16: 2, 17: 1, 18: 5,
-    19: 3, 20: 5, 21: 2, 22: 2, 23: 3, 24: 3, 25: 2, 26: 1,
-    27: 4, 28: 4, 29: 4, 30: 4, 31: 2, 32: 5, 33: 5, 34: 4,
-    35: 4, 36: 4,
-}
-_LEIDEN_LABEL = {
-    1: 'Mathematics & Computer Science',
-    2: 'Physical Sciences & Engineering',
-    3: 'Life & Earth Sciences',
-    4: 'Biomedical & Health Sciences',
-    5: 'Social Sciences & Humanities',
-}
-_LEIDEN_SLUG = {
-    1: 'L1_MathCS',
-    2: 'L2_PhysEng',
-    3: 'L3_LifeEarth',
-    4: 'L4_BiomedHealth',
-    5: 'L5_SocialHum',
-}
-_LEIDEN_COLOUR = {
-    1: '#377eb8',
-    2: '#e41a1c',
-    3: '#4daf4a',
-    4: '#984ea3',
-    5: '#ff7f00',
-}
+from util.areas import (
+    LEIDEN_GROUP as _LEIDEN_GROUP,
+    LEIDEN_LABEL as _LEIDEN_LABEL,
+    LEIDEN_SLUG as _LEIDEN_SLUG,
+    LEIDEN_COLOUR as _LEIDEN_COLOUR,
+)
+
 
 _FIELD_SHORT = {
     11: 'Ag & Bio Sci',

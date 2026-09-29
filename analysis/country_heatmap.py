@@ -33,14 +33,10 @@ from matplotlib.colors import LinearSegmentedColormap
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, load_settings
 from util.runs import FIELD_NAMES
+from util.areas import AREA_MNEMONICS
 
-_LEIDEN_COL_NAMES = {
-    1: 'Maths&CS',
-    2: 'Phys&Eng',
-    3: 'Life&Earth',
-    4: 'Biomed',
-    5: 'Soc&Hum',
-}
+_LEIDEN_COL_NAMES = AREA_MNEMONICS
+
 
 _COL_NAMES = {
     'leiden': _LEIDEN_COL_NAMES,
