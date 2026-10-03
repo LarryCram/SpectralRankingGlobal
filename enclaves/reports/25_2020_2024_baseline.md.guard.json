@@ -1,11 +1,11 @@
 {
-  "output": "/home/lc/Projects/SpectralRankingGlobal/enclaves/reports/25_2020_2024_baseline.md",
+  "output": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/reports/25_2020_2024_baseline.md",
   "built_at": 1784980043.9821415,
   "build_seconds": null,
   "scripts": [
     {
-      "path": "/home/lc/Projects/SpectralRankingGlobal/enclaves/network_enclave.py",
-      "mtime": 1784973404.8194444
+      "path": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/network_enclave.py",
+      "mtime": 1790647200.883483
     }
   ],
   "inputs": [

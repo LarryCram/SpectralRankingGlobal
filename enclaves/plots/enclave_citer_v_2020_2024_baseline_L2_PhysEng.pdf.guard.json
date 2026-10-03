@@ -1,11 +1,11 @@
 {
-  "output": "/home/lc/Projects/SpectralRankingGlobal/enclaves/plots/enclave_citer_v_2020_2024_baseline_L2_PhysEng.pdf",
+  "output": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/plots/enclave_citer_v_2020_2024_baseline_L2_PhysEng.pdf",
   "built_at": 1784980088.085454,
   "build_seconds": null,
   "scripts": [
     {
-      "path": "/home/lc/Projects/SpectralRankingGlobal/enclaves/plot_hca_hcr.py",
-      "mtime": 1783164426.3786166
+      "path": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/plot_hca_hcr.py",
+      "mtime": 1790650712.3321013
     }
   ],
   "inputs": [

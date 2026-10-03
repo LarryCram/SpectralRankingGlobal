@@ -6,7 +6,7 @@ tables) see `REFERENCE.md`. For dated incidents, recodes, and bug-fix history se
 `CHANGELOG.md`.
 
 ## Project root
-`/home/lc/Projects/SpectralRankingGlobal`
+`/home/lc/Projects_Antigravity/SpectralRankingGlobal`
 
 ## Purpose
 Generalised spectral ranking of sources and institutions across all fields.
