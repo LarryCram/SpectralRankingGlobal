@@ -119,5 +119,7 @@ One `.md` file per (field, label):
 | 1 | HCW selection + quadrant labels | `build_enclave_hcw.py` | ✅ done |
 | 2 | NMF on HCW-- | `nmf_enclave.py` | ✅ done |
 | 3 | AI naming / merging | `nmf_enclave.py --auto-name-field` | ✅ done |
-| 4 | 1-hop network **per enclave** | `network_enclave.py` | ❌ needs rewrite |
-| 5 | MD report per field | — | ❌ not yet |
+| 4 | 1-hop network **per enclave** | `network_enclave.py` | ✅ done (26 field reports emitted to `enclaves/reports/`) |
+| 5 | MD report per field | `network_enclave.py` | ✅ done (26 reports) |
+| 5b| Researcher profiling | `researcher_enclaves.py` | ✅ done (26 researcher reports) |
+| 6 | Broad area plots + HCR overlay | `plot_hca_hcr.py` | ✅ done (6 PDFs in `enclaves/plots/`) |
