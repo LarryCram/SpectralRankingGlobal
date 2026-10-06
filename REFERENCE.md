@@ -508,3 +508,30 @@ the full flat_works scan before the tau filter is applied).
 - `run_leiden_bloc.py` — resolves `settings.blocs[run.bloc]` and passes to `build_edge_list`.
 - Candidacy (`build_field_candidacy.py`) is NOT bloc-filtered; candidacy thresholds are
   global.  Bloc runs share the same candidacy parquets as the baseline run.
+
+## ERA 2018 Emulation & ANZSRC FoR 2008 Evaluation (`pipeline/run_era2018.py`)
+
+Emulates the Australian Research Council's Excellence in Research for Australia (ERA) 2018 evaluation:
+- **Census Window**: `2011_2016` (6-year official reference window for ERA 2018 outputs).
+- **Classification Standard**: ANZSRC Fields of Research 2008 (FoR 2008), resolved dynamically via
+  `LarryCram/ResearchClassification` (`Resolver.resolve(..., "OAX", "FOR2008")`).
+  - Covers all 22 Two-Digit Divisions (`01`–`22`) and 110 Four-Digit Groups reachable from the corpus.
+- **Minimum Volume Thresholds & Alignment**:
+  - `tau_u = 50 / 6` (~8.333/yr): exactly 50.0 weighted works across the 6-year window, directly mirroring
+    the official ERA Low Volume Threshold (LVT = 50 apportioned research outputs). Australian HEPs with
+    fewer than 50 works are flagged as `NA` (Low Volume), matching ARC convention.
+  - `tau_s = 10.0/yr`: 60.0 weighted works across the 6-year window.
+- **Multidisciplinary Source Whitelist**:
+  - Flagship generalist journals (*Nature*, *Science*, *PNAS*, *PLOS ONE*, *Nature Communications*, etc.)
+    derived from the official ERA 2018 Journal List (`FoR == 'MD'`) are tracked in `data/md_journal_whitelist.parquet`
+    (708 matched OpenAlex sources).
+  - In `build_edge_list_field.py`, whitelisted sources qualify under a relaxed threshold:
+    `weighted_works >= 1.0` across the 6-year window.
+  - This dynamically allocates generalist journals to every FoR where they published eligible research.
+- **Data & Output Isolation**:
+  All ERA 2018 data and rankings are isolated under `WORKING/era2018/`:
+  - `candidacy/`: `subfield_source_cands_2011_2016.parquet`, `subfield_inst_cands_2011_2016.parquet`
+  - `division/`: `rankings_div_{code}_2011_2016_baseline.parquet` and `_diag.json`
+  - `group/`: `rankings_grp_{code}_2011_2016_baseline.parquet` and `_diag.json`
+  - `hep_reports/`: `era2018_au_hep_spectral_rankings.parquet` and `.csv` summarizing the 42 Australian HEPs.
+

@@ -23,7 +23,7 @@ seaborn==0.13.2
 openai==3.20.0
 python-dotenv==1.2.3
 
-# FOR/AREA5 classification (util/build_for_mapping.py only, not a pipeline runtime dependency)
+# Research classification & harmonisation (ANZSRC FoR 2008 / 2020, SEO, OpenAlex)
 research-classification @ git+https://github.com/LarryCram/ResearchClassification.git
 
 # dev

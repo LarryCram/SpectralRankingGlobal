@@ -57,6 +57,12 @@ system" section for how staleness is now caught automatically instead of silentl
   "FOR2020/AREA5 classification" section). Reference tables
   (`data/oax_field_to_area5.csv`/`data/oax_subfield_to_for2020.csv`) built once by
   `util/build_for_mapping.py`, re-run only if `ResearchClassification` itself is updated.
+- ✅ ERA 2018 emulation (ANZSRC FoR 2008): `pipeline/run_era2018.py` — official 6-year window
+  (2011–2016), τ_u = 50/6 ≈ 8.33/yr (50.0 works, matching ERA Low Volume Threshold),
+  τ_s = 10.0/yr, multidisciplinary whitelist (`data/md_journal_whitelist.parquet`, threshold
+  ≥1.0 work). Evaluates all 22 FoR 2008 divisions and 110 groups, isolated under
+  `WORKING/era2018/` with Australian HEP performance reporting.
+
 
 ## Rerun order
 Every stage above is guard-wired (see `REFERENCE.md`): each script checks its own

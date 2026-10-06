@@ -944,3 +944,42 @@ class TestEpsilonParameter:
         csr = self._csr(epsilon_corpus, 1)
         assert csr.is_sentinel_u is not None
         assert csr.is_sentinel_u.any()
+
+
+# ─── Multidisciplinary Whitelist filtering ────────────────────────────────────
+
+class TestWhitelistFiltering:
+    """Optional source whitelist: low-volume generalist journals qualify under relaxed threshold."""
+
+    def test_whitelist_includes_otherwise_excluded_source(self, corpus, tmp_path):
+        """S3=103 (weighted_works=10) is excluded under tau_s=10 (tau_abs=50),
+        but included when listed in whitelist with whitelist_tau_abs=1.0."""
+        # 1. Without whitelist: S3=103 must be absent
+        el_no_wl = _build_el(corpus, corpus['run'])
+        with duckdb.connect() as db:
+            sources_no_wl = set(db.execute(
+                f"SELECT DISTINCT citer_source_idx FROM '{el_no_wl}' "
+                f"UNION SELECT DISTINCT cited_source_idx FROM '{el_no_wl}'"
+            ).df().iloc[:, 0].tolist())
+        assert 103 not in sources_no_wl
+
+        # 2. Create whitelist parquet with source_idx=103
+        wl_path = str(tmp_path / 'whitelist.parquet')
+        with duckdb.connect() as db:
+            db.execute(f"COPY (SELECT 103::BIGINT AS source_idx) TO '{wl_path}' (FORMAT PARQUET)")
+
+        # 3. Build edge list with whitelist: run with tau_u=1.0 so U2=202 is retained to form the edge W1->W4
+        run_wl = replace(corpus['run'], tau_u=1.0, label='with-wl', field_idx=17)
+        el_wl_path = run_wl.el_path(str(corpus['tmp']))
+        with duckdb.connect() as db:
+            build_edge_list(
+                db, corpus['fw'], corpus['cr'], corpus['sc'], corpus['ic'], run_wl, el_wl_path,
+                whitelist_s_path=wl_path, whitelist_tau_abs=1.0
+            )
+            sources_wl = set(db.execute(
+                f"SELECT DISTINCT citer_source_idx FROM '{el_wl_path}' "
+                f"UNION SELECT DISTINCT cited_source_idx FROM '{el_wl_path}'"
+            ).df().iloc[:, 0].tolist())
+
+        assert 103 in sources_wl
+

@@ -4,6 +4,30 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-10-06 — ERA 2018 evaluation emulation + Multidisciplinary Whitelist + FoR 2008 resolution
+
+- **ResearchClassification Integration**: Fast-forward merged branch `oax-for2008` into `main`
+  in `LarryCram/ResearchClassification` and reinstalled into the project environment.
+  All 252 subfields in the master dataset now dynamically resolve to ANZSRC FoR 2008 4-digit
+  groups and parent 2-digit divisions via `Resolver.resolve(sf, "OAX", "FOR2008")`.
+- **Multidisciplinary Whitelist**:
+  - Implemented optional source whitelist support in `pipeline/build_edge_list_field.py` via
+    `whitelist_s_path` and `whitelist_tau_abs` (defaults to 1.0 weighted work across window).
+  - Built `data/md_journal_whitelist.parquet` (708 OpenAlex sources matching the 798 official
+    `MD`-flagged multidisciplinary journals in the ERA 2018 Journal List, including *Nature*,
+    *Science*, *PNAS*, *PLOS ONE*, *Nature Communications*, *Scientific Reports*).
+  - Added unit test `TestWhitelistFiltering` to `pipeline/tests/test_pipeline_params.py` (71/71 tests passing).
+- **ERA 2018 Dedicated Runner (`pipeline/run_era2018.py`)**:
+  - Encapsulates ERA 2018 6-year census window (`2011_2016`).
+  - Sets institutional retention threshold to match the ERA Low Volume Threshold (LVT):
+    `tau_u = 50 / 6` (~8.333/yr, exactly 50.0 weighted works across 6 years).
+  - Isolates all ERA 2018 outputs under `WORKING/era2018/` (`candidacy/`, `division/`,
+    `group/`, `hep_reports/`).
+  - Implemented automated Australian HEP performance summary extraction across all 42 HEPs.
+  - Successfully ran baseline for **Division 01: Mathematical Sciences**: 18 Australian HEPs
+    evaluated with continuous cardinal $v$-scores showing near-perfect alignment with ERA 5 outcomes
+    (top 5 AU HEPs UWA, ANU, MEL, QUT, SYD all rated ERA 5; DKN confirmed as boundary case at 50.58 works).
+
 ## 2026-07-04 — flat_works master table recode + full pipeline rebuild
 
 `flat_works` now carries `title`, `cited_by_count`, `authors_count`,

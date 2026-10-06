@@ -123,7 +123,9 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
                     out_path: str,
                     bloc_codes: tuple = (),
                     member_ids: tuple = (),
-                    filter_col_override: str = None) -> int:
+                    filter_col_override: str = None,
+                    whitelist_s_path: str = None,
+                    whitelist_tau_abs: float = 1.0) -> int:
     """
     Build field-specific citation edge list parquet for one Run.
 
@@ -142,6 +144,10 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     'subfield_idx') explicitly instead of inferring it from run.is_leiden/is_subfield.
     run.field_idx itself is still used as this call's own scratch-candidacy identity
     (sc_path/ic_path are expected to already be scoped to that single group code).
+
+    whitelist_s_path / whitelist_tau_abs: optional parquet/CSV of source_idx values
+    (e.g. multidisciplinary journals like Nature/Science) that qualify under a relaxed
+    threshold (default >= 1.0 weighted work across the window) instead of the standard tau_s.
 
     Returns row count of the output edge list.
     """
@@ -169,11 +175,23 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
         match_clause = f"{filter_col} = {field_idx}"
 
     # ── 1. Retained units ─────────────────────────────────────────────────────
+    if whitelist_s_path:
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _whitelist_s AS
+            SELECT DISTINCT source_idx FROM '{whitelist_s_path}'
+        """)
+        source_filter = f"""
+            (weighted_works >= {tau_s_abs}
+             OR (source_idx IN (SELECT source_idx FROM _whitelist_s) AND weighted_works >= {whitelist_tau_abs}))
+        """
+    else:
+        source_filter = f"weighted_works >= {tau_s_abs}"
+
     db.execute(f"""
         CREATE OR REPLACE TEMP TABLE _cands_s AS
         SELECT source_idx
         FROM '{sc_path}'
-        WHERE field_idx = {field_idx} AND weighted_works >= {tau_s_abs}
+        WHERE field_idx = {field_idx} AND {source_filter}
     """)
     db.execute(f"""
         CREATE OR REPLACE TEMP TABLE _cands_u AS
@@ -300,6 +318,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     db.execute(f"COPY (SELECT * FROM _edges_out) TO '{out_path}' (FORMAT PARQUET)")
 
     db.execute("DROP TABLE IF EXISTS _cands_s")
+    db.execute("DROP TABLE IF EXISTS _whitelist_s")
     db.execute("DROP TABLE IF EXISTS _cands_u")
     db.execute("DROP TABLE IF EXISTS _excl_works")
     db.execute("DROP TABLE IF EXISTS _fi")
