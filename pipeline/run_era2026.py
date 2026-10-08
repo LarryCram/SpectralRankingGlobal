@@ -1,11 +1,11 @@
 """
-pipeline/run_era2018.py — ERA 2018 emulation using Spectral Ranking bipartite engine.
+pipeline/run_era2026.py — ERA 2026 emulation using Spectral Ranking bipartite engine.
 
-Emulates ARC ERA 2018 evaluation:
+Emulates a modern "ERA 2026" evaluation:
 - Classification standard: ANZSRC FoR 2008 (2-digit Division and 4-digit Group)
   via research_classification.Resolver()
-- Census window: 2011–2016 (6-year official ERA 2018 evaluation window)
-- Population: All 42 Australian Higher Education Providers (HEPs)
+- Census window: 2020–2025 (6-year evaluation window: 2020, 2021, 2022, 2023, 2024, 2025)
+- Population: All Australian Higher Education Providers (HEPs) evaluated globally
 - Baseline settings:
     m = (0, 1, 1, 0)       -- bipartite (source <-> institution)
     alpha = 1.0            -- pure Perron leading eigenvector
@@ -16,20 +16,21 @@ Emulates ARC ERA 2018 evaluation:
     tau_u = 50 / 6         -- ~8.333/yr (50.0 weighted works over 6 yrs, matches ERA LVT)
     tau_s = 10.0           -- 60.0 weighted works over 6 yrs
     whitelist = data/md_journal_whitelist.parquet with threshold >= 1.0 weighted work
-- Output isolation: WORKING/era2018/
-    candidacy/   -- 2011_2016 subfield candidacy master tables
-    division/    -- rankings_div_{code}_2011_2016_baseline.parquet + diag.json
-    group/       -- rankings_grp_{code}_2011_2016_baseline.parquet + diag.json
-    hep_reports/ -- aggregated Australian HEP evaluation & ERA rating concordance
+- Output isolation: WORKING/era2026/
+    candidacy/   -- 2020_2025 subfield candidacy master tables
+    division/    -- rankings_div_{code}_2020_2025_baseline.parquet + diag.json
+    group/       -- rankings_grp_{code}_2020_2025_baseline.parquet + diag.json
+    hep_reports/ -- aggregated Australian HEP evaluation & rankings
 
 Usage:
-    .venv/bin/python pipeline/run_era2018.py --dry-run
-    .venv/bin/python pipeline/run_era2018.py --candidacy-only
-    .venv/bin/python pipeline/run_era2018.py --division 01
-    .venv/bin/python pipeline/run_era2018.py --group 0101
-    .venv/bin/python pipeline/run_era2018.py --divisions
-    .venv/bin/python pipeline/run_era2018.py --groups
-    .venv/bin/python pipeline/run_era2018.py --report
+    .venv/bin/python pipeline/run_era2026.py --dry-run
+    .venv/bin/python pipeline/run_era2026.py --candidacy-only
+    .venv/bin/python pipeline/run_era2026.py --division 01
+    .venv/bin/python pipeline/run_era2026.py --divisions
+    .venv/bin/python pipeline/run_era2026.py --group 0101
+    .venv/bin/python pipeline/run_era2026.py --groups
+    .venv/bin/python pipeline/run_era2026.py --report
+    .venv/bin/python pipeline/run_era2026.py --all
 """
 
 import argparse
@@ -53,16 +54,16 @@ from build_edge_list_field import build_edge_list
 from run_rankings import rank_field, show_top
 
 
-ERA_WINDOW = "2011_2016"
-ERA_YEAR_MIN = 2011
-ERA_YEAR_MAX = 2011 + 5  # 2016 (6 years inclusive)
+ERA_WINDOW = "2020_2025"
+ERA_YEAR_MIN = 2020
+ERA_YEAR_MAX = 2025  # 6 years inclusive (2020 through 2025)
 ERA_TAU_U = 50.0 / 6.0    # 50 weighted works over 6 years (ERA Low Volume Threshold)
 ERA_TAU_S = 10.0         # 60 weighted works over 6 years (baseline source threshold)
 ERA_WHITELIST_TAU = 1.0  # Multidisciplinary journal threshold
 
 
 def get_era_run() -> Run:
-    """Create Run specification matching ERA 2018 evaluation baseline."""
+    """Create Run specification matching ERA 2026 evaluation baseline."""
     return Run(
         tc0=ERA_YEAR_MIN,
         tc1=ERA_YEAR_MAX,
@@ -84,7 +85,7 @@ def get_era_run() -> Run:
 
 
 def ensure_candidacy(db: duckdb.DuckDBPyConnection, fw_path: str, cands_dir: Path) -> tuple[str, str]:
-    """Build or verify 2011-2016 subfield candidacy master tables."""
+    """Build or verify 2020-2025 subfield candidacy master tables."""
     cands_dir.mkdir(parents=True, exist_ok=True)
     out_s = str(cands_dir / f"subfield_source_cands_{ERA_WINDOW}.parquet")
     out_u = str(cands_dir / f"subfield_inst_cands_{ERA_WINDOW}.parquet")
@@ -93,7 +94,7 @@ def ensure_candidacy(db: duckdb.DuckDBPyConnection, fw_path: str, cands_dir: Pat
         print(f"Candidacy tables already exist:\n  → {out_s}\n  → {out_u}")
         return out_s, out_u
 
-    print(f"Building 2011–2016 subfield candidacy from {fw_path} ...")
+    print(f"Building 2020–2025 subfield candidacy from {fw_path} ...")
     t0 = time.time()
     n_s, n_u = build_subfield_candidacy(db, fw_path, ERA_WINDOW, out_s, out_u)
     print(f"  Built candidacy: {n_s:,} source rows, {n_u:,} inst rows [{time.time() - t0:.1f}s]")
@@ -105,7 +106,7 @@ def get_for2008_mappings(db: duckdb.DuckDBPyConnection, subfield_sc_path: str) -
     dict[str, tuple[int, ...]], dict[str, str]
 ]:
     """
-    Resolve active subfields in 2011-2016 to FoR 2008 Groups (4-digit)
+    Resolve active subfields in 2020-2025 to FoR 2008 Groups (4-digit)
     and Divisions (2-digit) using research_classification.Resolver.
     """
     r = Resolver()
@@ -149,7 +150,6 @@ def build_scratch_unit_candidacy(db: duckdb.DuckDBPyConnection,
     out_ic = str(tmp_dir / f"_era_{unit_code}_inst_cands.parquet")
     members_sql = ', '.join(str(s) for s in member_subfields)
 
-    # Use a dummy integer index (int(unit_code)) for field_idx in scratch tables
     dummy_field_idx = int(unit_code)
 
     db.execute(f"""
@@ -229,7 +229,7 @@ def run_unit(db: duckdb.DuckDBPyConnection,
 
 
 def generate_hep_report(era_dir: Path, data_dir: Path):
-    """Aggregate rankings across all completed FoRs for the 42 Australian HEPs."""
+    """Aggregate rankings across all completed FoRs for Australian HEPs."""
     reports_dir = era_dir / "hep_reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
 
@@ -242,6 +242,7 @@ def generate_hep_report(era_dir: Path, data_dir: Path):
     hep_df['inst_id'] = hep_df['institution_idx'].astype(str).str.lstrip('I').astype('int64')
     hep_map = dict(zip(hep_df['inst_id'], hep_df['HEP']))
     hep_names = dict(zip(hep_df['inst_id'], hep_df['Organisation']))
+    hep_groups = dict(zip(hep_df['inst_id'], hep_df['Grouping'])) if 'Grouping' in hep_df.columns else {}
     hep_ids = set(hep_map.keys())
     print(f"Loaded {len(hep_ids)} Australian HEPs from concordances (Keys sheet).")
 
@@ -252,59 +253,62 @@ def generate_hep_report(era_dir: Path, data_dir: Path):
     ]:
         if not level_dir.exists():
             continue
-        for pq in sorted(level_dir.glob(f"rankings_{prefix}_*_{ERA_WINDOW}_baseline.parquet")):
-            code = pq.stem.split('_')[2]
-            diag_file = pq.with_name(f"{pq.stem}_diag.json")
-            label = ""
-            if diag_file.exists():
-                diag = json.loads(diag_file.read_text())
-                label = diag.get("for_label", "")
+
+        for pq_path in sorted(level_dir.glob(f"rankings_{prefix}_*_{ERA_WINDOW}_baseline.parquet")):
+            diag_path = pq_path.with_name(pq_path.name.replace(".parquet", "_diag.json"))
+            diag = json.loads(diag_path.read_text()) if diag_path.exists() else {}
+
+            for_code = diag.get("for_code", pq_path.name.split("_")[2])
+            for_label = diag.get("for_label", f"FoR {for_code}")
 
             con = duckdb.connect()
-            df = con.execute(f"SELECT * FROM '{pq}' WHERE unit_type = 'U'").df()
-            if df.empty:
-                continue
+            df = con.execute(f"""
+                SELECT unit_idx, rank_v, rank_pi, v, pi, a_p
+                FROM '{pq_path}'
+                WHERE unit_type = 'U'
+            """).df()
 
-            # Compute Australian-only rank
-            au_subset = df[df['unit_idx'].isin(hep_ids)].copy()
-            if au_subset.empty:
-                continue
+            total_ranked = len(df)
+            df['is_hep'] = df['unit_idx'].isin(hep_ids)
+            au_df = df[df['is_hep']].copy()
 
-            au_subset['au_rank_v'] = au_subset['v'].rank(ascending=False, method='min').astype(int)
-            for _, r in au_subset.iterrows():
-                inst_idx = int(r['unit_idx'])
+            for _, row in au_df.iterrows():
+                u_id = int(row['unit_idx'])
+                hep_code = hep_map[u_id]
                 records.append({
-                    "for_level": level_name,
-                    "for_code": code,
-                    "for_label": label,
-                    "institution_idx": inst_idx,
-                    "hep_short_name": hep_map.get(inst_idx, ""),
-                    "v": r['v'],
-                    "pi": r['pi'],
-                    "rank_v_global": int(r['rank_v']),
-                    "rank_v_au": int(r['au_rank_v']),
-                    "rank_pi_global": int(r['rank_pi']),
-                    "a_p": float(r['a_p']) if 'a_p' in r and pd.notna(r['a_p']) else None,
+                    'level': level_name,
+                    'for_code': for_code,
+                    'for_label': for_label,
+                    'hep': hep_code,
+                    'organisation': hep_names[u_id],
+                    'grouping': hep_groups.get(u_id, 'Other'),
+                    'institution_idx': u_id,
+                    'v': row['v'],
+                    'rank_v': int(row['rank_v']),
+                    'rank_pi': int(row['rank_pi']),
+                    'pi': row['pi'],
+                    'a_p': row['a_p'],
+                    'total_ranked_global': total_ranked,
                 })
 
     if not records:
-        print("No Australian HEP rankings found to summarize.")
+        print("No Australian HEP records found across completed rankings.")
         return
 
-    report_df = pd.DataFrame(records)
-    out_pq = reports_dir / "era2018_au_hep_spectral_rankings.parquet"
-    out_csv = reports_dir / "era2018_au_hep_spectral_rankings.csv"
-    report_df.to_parquet(out_pq)
-    report_df.to_csv(out_csv, index=False)
-    print(f"\nGenerated Australian HEP summary report ({len(report_df):,} records):")
+    rep_df = pd.DataFrame(records)
+    out_pq = reports_dir / f"era2026_au_hep_spectral_rankings.parquet"
+    out_csv = reports_dir / f"era2026_au_hep_spectral_rankings.csv"
+    rep_df.to_parquet(out_pq, index=False)
+    rep_df.to_csv(out_csv, index=False)
+    print(f"\nGenerated Australian HEP report across {len(rep_df)} evaluations:")
     print(f"  → {out_pq}")
     print(f"  → {out_csv}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run ERA 2018 Spectral Ranking Emulation")
+    parser = argparse.ArgumentParser(description="Run ERA 2026 Spectral Ranking Emulation (2020-2025)")
     parser.add_argument("--dry-run", action="store_true", help="Inspect configuration without execution")
-    parser.add_argument("--candidacy-only", action="store_true", help="Generate 2011-2016 candidacy tables only")
+    parser.add_argument("--candidacy-only", action="store_true", help="Generate 2020-2025 candidacy tables only")
     parser.add_argument("--division", type=str, help="Run single 2-digit FoR division (e.g. 01)")
     parser.add_argument("--group", type=str, help="Run single 4-digit FoR group (e.g. 0101)")
     parser.add_argument("--divisions", action="store_true", help="Run all 2-digit FoR divisions")
@@ -316,7 +320,7 @@ def main():
 
     paths = load_config()
     settings = load_settings()
-    era_dir = paths.working / "era2018"
+    era_dir = paths.working / "era2026"
     cands_dir = era_dir / "candidacy"
     div_dir = era_dir / "division"
     grp_dir = era_dir / "group"
@@ -346,7 +350,7 @@ def main():
         div_map, div_labels, grp_map, grp_labels = get_for2008_mappings(db, sub_sc)
 
         print("\n==================================================================")
-        print("ERA 2018 Spectral Ranking Pipeline Configuration")
+        print("ERA 2026 Spectral Ranking Pipeline Configuration")
         print("==================================================================")
         print(f"Window         : {ERA_WINDOW} ({ERA_YEAR_MIN}–{ERA_YEAR_MAX}, 6 years)")
         print(f"Tau_U          : {ERA_TAU_U:.4f}/yr  (total = {ERA_TAU_U * 6:.1f} works, ERA LVT)")

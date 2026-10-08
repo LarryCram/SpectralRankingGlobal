@@ -10,7 +10,7 @@ corpus:
   institution_types: [education, nonprofit, government, healthcare, other]
 
 duckdb:
-  memory_limit: "56GB"
+  memory_limit: "36GB"
   preserve_insertion_order: false
 
 katz:

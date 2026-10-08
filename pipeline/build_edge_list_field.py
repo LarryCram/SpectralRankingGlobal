@@ -291,31 +291,52 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     """)
 
     # ── 6. Full edge list: expand pairs to (citer_inst × cited_inst) ─────────
-    db.execute(f"""
-        CREATE OR REPLACE TEMP TABLE _edges_out AS
-        SELECT
-            ci.work_idx          AS citer_work_idx,
-            ci.source_idx        AS citer_source_idx,
-            ci.institution_idx   AS citer_inst_idx,
-            ci.inst_weight,
-            ci.direct_inst_weight,
-            cd.work_idx          AS cited_work_idx,
-            cd.source_idx        AS cited_source_idx,
-            cd.institution_idx   AS cited_inst_idx,
-            cd.inst_weight       AS cited_inst_weight,
-            cd.direct_inst_weight AS direct_cited_inst_weight,
-            p.edge_field_weight,
-            ri.R_i
-        FROM _pairs p
-        JOIN _fi ci ON p.citer_work_idx = ci.work_idx
-        JOIN _fi cd ON p.cited_work_idx = cd.work_idx
-        JOIN _Ri ri ON p.citer_work_idx = ri.citer_work_idx
-    """)
-
     if run.epsilon:
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _edges_out AS
+            SELECT
+                ci.work_idx          AS citer_work_idx,
+                ci.source_idx        AS citer_source_idx,
+                ci.institution_idx   AS citer_inst_idx,
+                ci.inst_weight,
+                ci.direct_inst_weight,
+                cd.work_idx          AS cited_work_idx,
+                cd.source_idx        AS cited_source_idx,
+                cd.institution_idx   AS cited_inst_idx,
+                cd.inst_weight       AS cited_inst_weight,
+                cd.direct_inst_weight AS direct_cited_inst_weight,
+                p.edge_field_weight,
+                ri.R_i
+            FROM _pairs p
+            JOIN _fi ci ON p.citer_work_idx = ci.work_idx
+            JOIN _fi cd ON p.cited_work_idx = cd.work_idx
+            JOIN _Ri ri ON p.citer_work_idx = ri.citer_work_idx
+        """)
         _add_epsilon_edges(db, corpus_refs_path)
-
-    db.execute(f"COPY (SELECT * FROM _edges_out) TO '{out_path}' (FORMAT PARQUET)")
+        db.execute(f"COPY (SELECT * FROM _edges_out) TO '{out_path}' (FORMAT PARQUET)")
+        db.execute("DROP TABLE IF EXISTS _edges_out")
+    else:
+        db.execute(f"""
+            COPY (
+                SELECT
+                    ci.work_idx          AS citer_work_idx,
+                    ci.source_idx        AS citer_source_idx,
+                    ci.institution_idx   AS citer_inst_idx,
+                    ci.inst_weight,
+                    ci.direct_inst_weight,
+                    cd.work_idx          AS cited_work_idx,
+                    cd.source_idx        AS cited_source_idx,
+                    cd.institution_idx   AS cited_inst_idx,
+                    cd.inst_weight       AS cited_inst_weight,
+                    cd.direct_inst_weight AS direct_cited_inst_weight,
+                    p.edge_field_weight,
+                    ri.R_i
+                FROM _pairs p
+                JOIN _fi ci ON p.citer_work_idx = ci.work_idx
+                JOIN _fi cd ON p.cited_work_idx = cd.work_idx
+                JOIN _Ri ri ON p.citer_work_idx = ri.citer_work_idx
+            ) TO '{out_path}' (FORMAT PARQUET)
+        """)
 
     db.execute("DROP TABLE IF EXISTS _cands_s")
     db.execute("DROP TABLE IF EXISTS _whitelist_s")

@@ -26,7 +26,7 @@ _YAML = textwrap.dedent("""\
       work_types: [article, review]
       institution_types: [education, nonprofit, government, healthcare, other]
     duckdb:
-      memory_limit: "56GB"
+      memory_limit: "36GB"
       preserve_insertion_order: false
     katz:
       tol: 1.0e-9
@@ -81,7 +81,7 @@ class TestLoadSettings:
         assert 'healthcare' in gs.institution_types
 
     def test_memory_limit(self, tmp_path):
-        assert load_settings(write_yaml(tmp_path)).memory_limit == '56GB'
+        assert load_settings(write_yaml(tmp_path)).memory_limit == '36GB'
 
     def test_preserve_insertion_order(self, tmp_path):
         assert load_settings(write_yaml(tmp_path)).preserve_insertion_order is False

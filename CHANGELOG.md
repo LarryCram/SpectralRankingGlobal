@@ -4,6 +4,24 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-10-08 — ERA 2026 emulation (2020–2025) + 4-digit FoR groups + Global CWTS Leiden comparative study
+
+- **ERA 2026 Dedicated Runner (`pipeline/run_era2026.py`)**:
+  - Implemented modern ERA 2026 evaluation over the 6-year window `2020_2025` using ANZSRC FoR 2008 (Divisions 01–22 and 110 Groups).
+  - Matches ERA thresholds: $\tau_u = 50/6 \approx 8.333$/yr (50.0 weighted works total, ERA LVT) and $\tau_s = 10.0$/yr.
+  - Successfully executed all 22 Divisions (550 Australian HEP evaluations) and all 110 active 4-digit Groups (1,234 Australian HEP evaluations), producing 1,784 total evaluations in `WORKING/era2026/hep_reports/era2026_au_hep_spectral_rankings.parquet`.
+  - Added skip-existing/resume capability and graceful error handling across batch runs.
+- **Matched Longitudinal Evaluation (2018 vs. 2026)**:
+  - Created `analysis/compare_era2018_era2026.py` producing `era2018_vs_era2026_matched_comparison.csv` across 503 matched division units and 1,018 matched group units.
+  - Documented findings in `ERA2026_EMULATION_REPORT.md`: national mean $v$ shifted from 0.921 to 1.530 (82.0% $\ge 1.0$), with ATN and regional universities crossing world parity.
+- **Global University Benchmark & HASS Indexing Shock Analysis**:
+  - Benchmarked all 1,506 universities across 72 countries from the CWTS Leiden Ranking Open Edition universe (`analysis/compare_all_leiden_countries.py`).
+  - Demonstrated that global parity proportion is conserved at ~27%, while Western OECD powerhouses (UK, US, Nordics, Singapore) experienced upward $v$ shifts due to high prestige retention.
+  - Discovered the root cause of the Australian surge: global HASS volume explosion (+129% globally, +300% to +450% in emerging economies) diluted Australia's publication volume share ($a_u$) while Australia's established English-language citation prestige share ($\pi_u$) held firm, driving $v = A \cdot (\pi_u / a_u)$ upward across HASS divisions.
+  - Documented in `ERA_GLOBAL_COMPARATIVE_STUDY.md`.
+- **Katz Ranker Disconnected Component Handling**:
+  - Updated `pipeline/katz_ranker.py` to identify multiple eigenvalues near 1.0 ($>0.999$) and reliably isolate the giant component via node support rather than absorbing traps.
+
 ## 2026-10-06 — ERA 2018 evaluation emulation + Multidisciplinary Whitelist + FoR 2008 resolution
 
 - **ResearchClassification Integration**: Fast-forward merged branch `oax-for2008` into `main`

@@ -120,16 +120,41 @@ def _eigs_rank(M: csr_matrix, tol: float = 0) -> tuple:
         A = M.T.toarray()
         vals, vecs = np.linalg.eig(A)
         order = np.argsort(-vals.real)
-        lam1  = float(vals[order[0]].real)
-        phi1  = vecs[:, order[0]].real
-        lam2  = float(vals[order[1]].real) if N >= 2 else 0.0
+        near_one = [i for i in order if vals[i].real > 0.999]
+        if len(near_one) > 1:
+            supports = [(np.sum(np.abs(vecs[:, idx].real) > 1e-4), idx) for idx in near_one]
+            supports.sort(key=lambda x: x[0], reverse=True)
+            best_idx = supports[0][1]
+            lam1 = float(vals[best_idx].real)
+            phi1 = vecs[:, best_idx].real
+            trap_indices = {s[1] for s in supports[1:]}
+            remaining = [i for i in order if i != best_idx and i not in trap_indices]
+            lam2 = float(vals[remaining[0]].real) if remaining else float(vals[order[1]].real)
+        else:
+            lam1 = float(vals[order[0]].real)
+            phi1 = vecs[:, order[0]].real
+            lam2 = float(vals[order[1]].real) if N >= 2 else 0.0
     else:
+        k = min(4, N - 2)
         try:
-            vals, vecs = sp_eigs(M.T, k=2, which='LM', tol=tol)
+            vals, vecs = sp_eigs(M.T, k=k, which='LM', tol=tol)
             order = np.argsort(-vals.real)
-            lam1  = float(vals[order[0]].real)
-            phi1  = vecs[:, order[0]].real
-            lam2  = float(vals[order[1]].real)
+            near_one = [i for i in order if vals[i].real > 0.999]
+            if len(near_one) > 1:
+                # Multiple eigenvalues near 1.0 indicate disconnected/absorbing components.
+                # Select the eigenvector corresponding to the giant component (largest node support).
+                supports = [(np.sum(np.abs(vecs[:, idx].real) > 1e-4), idx) for idx in near_one]
+                supports.sort(key=lambda x: x[0], reverse=True)
+                best_idx = supports[0][1]
+                lam1 = float(vals[best_idx].real)
+                phi1 = vecs[:, best_idx].real
+                trap_indices = {s[1] for s in supports[1:]}
+                remaining = [i for i in order if i != best_idx and i not in trap_indices]
+                lam2 = float(vals[remaining[0]].real) if remaining else float(vals[order[1]].real)
+            else:
+                lam1 = float(vals[order[0]].real)
+                phi1 = vecs[:, order[0]].real
+                lam2 = float(vals[order[1]].real)
         except ArpackNoConvergence as exc:
             # Use whatever converged eigenpairs are available
             cv = exc.eigenvalues

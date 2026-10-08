@@ -142,9 +142,9 @@ def build_csr_field(db: duckdb.DuckDBPyConnection,
     beta_clause = ("WHERE NOT (citer_source_idx = cited_source_idx "
                    "AND citer_inst_idx = cited_inst_idx)") if run.beta else ""
 
-    # ── Slim working table with ew pre-computed ───────────────────────────────
+    # ── Slim working view with ew pre-computed ────────────────────────────────
     db.execute(f"""
-        CREATE OR REPLACE TEMP TABLE _el AS
+        CREATE OR REPLACE VIEW _el AS
         SELECT citer_work_idx, citer_source_idx, citer_inst_idx,
                cited_work_idx,  cited_source_idx, cited_inst_idx,
                {iw_col}  AS inst_weight,
@@ -205,7 +205,75 @@ def build_csr_field(db: duckdb.DuckDBPyConnection,
         GROUP BY citer_inst_idx, cited_inst_idx
     """, inst_idx, inst_idx, (n_u, n_u)) if m_II else None
 
-    db.execute("DROP TABLE IF EXISTS _el")
+    db.execute("DROP VIEW IF EXISTS _el; DROP TABLE IF EXISTS _el;")
+
+    is_sentinel_s = (source_ids == SX_IDX) if run.epsilon else None
+    is_sentinel_u = (inst_ids   == IX_IDX) if run.epsilon else None
+
+    # ── Giant Strongly Connected Component (SCC) filter ──────────────────────
+    from collections import Counter
+    from scipy.sparse.csgraph import connected_components
+    from scipy.sparse import bmat as sp_bmat, csr_matrix
+
+    needs_s = bool(m_SS or m_SI or m_IS) and (n_s > 0)
+    needs_u = bool(m_II or m_SI or m_IS) and (n_u > 0)
+
+    if needs_s and needs_u:
+        blk_SS = C_SS if C_SS is not None else csr_matrix((n_s, n_s))
+        blk_SI = C_SI if C_SI is not None else csr_matrix((n_s, n_u))
+        blk_IS = C_IS if C_IS is not None else csr_matrix((n_u, n_s))
+        blk_II = C_II if C_II is not None else csr_matrix((n_u, n_u))
+        C_comb = sp_bmat([[blk_SS, blk_SI], [blk_IS, blk_II]], format='csr')
+
+        n_comp, labels = connected_components(C_comb, directed=True, connection='strong')
+        if n_comp > 1:
+            giant = Counter(labels).most_common(1)[0][0]
+            s_mask = (labels[:n_s] == giant)
+            u_mask = (labels[n_s:] == giant)
+
+            if run.epsilon:
+                if is_sentinel_s is not None:
+                    s_mask |= is_sentinel_s
+                if is_sentinel_u is not None:
+                    u_mask |= is_sentinel_u
+
+            source_ids = source_ids[s_mask]
+            inst_ids   = inst_ids[u_mask]
+            a_s        = a_s[s_mask]
+            a_u        = a_u[u_mask]
+            n_s        = len(source_ids)
+            n_u        = len(inst_ids)
+
+            if C_SS is not None: C_SS = C_SS[s_mask, :][:, s_mask]
+            if C_SI is not None: C_SI = C_SI[s_mask, :][:, u_mask]
+            if C_IS is not None: C_IS = C_IS[u_mask, :][:, s_mask]
+            if C_II is not None: C_II = C_II[u_mask, :][:, u_mask]
+
+    elif needs_s and not needs_u:
+        if C_SS is not None and C_SS.shape[0] > 0:
+            n_comp, labels = connected_components(C_SS, directed=True, connection='strong')
+            if n_comp > 1:
+                giant = Counter(labels).most_common(1)[0][0]
+                s_mask = (labels == giant)
+                if run.epsilon and is_sentinel_s is not None:
+                    s_mask |= is_sentinel_s
+                source_ids = source_ids[s_mask]
+                a_s        = a_s[s_mask]
+                n_s        = len(source_ids)
+                C_SS       = C_SS[s_mask, :][:, s_mask]
+
+    elif needs_u and not needs_s:
+        if C_II is not None and C_II.shape[0] > 0:
+            n_comp, labels = connected_components(C_II, directed=True, connection='strong')
+            if n_comp > 1:
+                giant = Counter(labels).most_common(1)[0][0]
+                u_mask = (labels == giant)
+                if run.epsilon and is_sentinel_u is not None:
+                    u_mask |= is_sentinel_u
+                inst_ids   = inst_ids[u_mask]
+                a_u        = a_u[u_mask]
+                n_u        = len(inst_ids)
+                C_II       = C_II[u_mask, :][:, u_mask]
 
     is_sentinel_s = (source_ids == SX_IDX) if run.epsilon else None
     is_sentinel_u = (inst_ids   == IX_IDX) if run.epsilon else None

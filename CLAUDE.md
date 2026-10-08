@@ -62,6 +62,12 @@ system" section for how staleness is now caught automatically instead of silentl
   τ_s = 10.0/yr, multidisciplinary whitelist (`data/md_journal_whitelist.parquet`, threshold
   ≥1.0 work). Evaluates all 22 FoR 2008 divisions and 110 groups, isolated under
   `WORKING/era2018/` with Australian HEP performance reporting.
+- ✅ ERA 2026 emulation (ANZSRC FoR 2008): `pipeline/run_era2026.py` — modern 6-year window
+  (2020–2025), matching ERA thresholds (τ_u = 50/6, τ_s = 10.0, MD whitelist). Evaluates all
+  22 FoR 2008 divisions (550 Australian evaluations) and all 110 groups (1,234 Australian
+  evaluations), totaling 1,784 evaluations isolated under `WORKING/era2026/`. Includes
+  longitudinal report `ERA2026_EMULATION_REPORT.md` and global comparative study
+  `ERA_GLOBAL_COMPARATIVE_STUDY.md` (1,506 CWTS Leiden universities across 72 countries).
 
 
 ## Rerun order

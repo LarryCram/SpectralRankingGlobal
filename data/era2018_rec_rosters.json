@@ -1,0 +1,216 @@
+{
+  "BB": {
+    "committee_name": "Biological and Biotechnological Sciences",
+    "chair": {
+      "name": "Professor Eleanor Mackie",
+      "affiliation": "The University of Melbourne"
+    },
+    "members": [
+      {"name": "Associate Professor Treena Burgess", "affiliation": "Murdoch University"},
+      {"name": "Professor David Cahill", "affiliation": "Deakin University"},
+      {"name": "Professor Abigail Elizur", "affiliation": "University of the Sunshine Coast"},
+      {"name": "Professor Neal Enright", "affiliation": "Murdoch University"},
+      {"name": "Professor Fritz Geiser", "affiliation": "The University of New England"},
+      {"name": "Professor Bronwyn Gillanders", "affiliation": "The University of Adelaide"},
+      {"name": "Professor Suzanne Hand", "affiliation": "The University of New South Wales"},
+      {"name": "Professor Helen Irving", "affiliation": "La Trobe University"},
+      {"name": "Professor Jonathan Lloyd", "affiliation": "Imperial College London"},
+      {"name": "Professor Holger Meinke", "affiliation": "University of Tasmania"},
+      {"name": "Professor Robert Moore", "affiliation": "RMIT University"},
+      {"name": "Professor Benjamin Oldroyd", "affiliation": "The University of Sydney"},
+      {"name": "Professor Jan Slapeta", "affiliation": "The University of Sydney"},
+      {"name": "Associate Professor Stella Valenzuela", "affiliation": "University of Technology, Sydney"},
+      {"name": "Professor Helen Wallace", "affiliation": "University of the Sunshine Coast"},
+      {"name": "Professor Craig White", "affiliation": "Monash University"}
+    ]
+  },
+  "EC": {
+    "committee_name": "Economics and Commerce",
+    "chair": {
+      "name": "Professor Flavio Menezes",
+      "affiliation": "The University of Queensland"
+    },
+    "members": [
+      {"name": "Professor Johan Bruwer", "affiliation": "University of South Australia"},
+      {"name": "Professor Frederick Foster", "affiliation": "The University of Sydney"},
+      {"name": "Professor Renée Fry-McKibbin", "affiliation": "The Australian National University"},
+      {"name": "Professor Pedro Gomis Porqueras", "affiliation": "Deakin University"},
+      {"name": "Professor Debra Grace", "affiliation": "Griffith University"},
+      {"name": "Professor Mark Harris", "affiliation": "Curtin University"},
+      {"name": "Professor Christine Helliar", "affiliation": "University of South Australia"},
+      {"name": "Dr Jennifer Laing", "affiliation": "La Trobe University"},
+      {"name": "Professor Julie Lee", "affiliation": "The University of Western Australia"},
+      {"name": "Professor Ingrid Nielsen", "affiliation": "Deakin University"},
+      {"name": "Professor Ian Phau", "affiliation": "Curtin University"},
+      {"name": "Professor Prasada Rao", "affiliation": "The University of Queensland"},
+      {"name": "Professor Stephen Taylor", "affiliation": "University of Technology, Sydney"},
+      {"name": "Scientia Professor Ken Trotman", "affiliation": "The University of New South Wales"},
+      {"name": "Professor Terry Walter", "affiliation": "University of Wollongong"}
+    ]
+  },
+  "EE": {
+    "committee_name": "Engineering and Environmental Sciences",
+    "chair": {
+      "name": "Professor Rose Amal",
+      "affiliation": "The University of New South Wales"
+    },
+    "members": [
+      {"name": "Professor Derek Abbott", "affiliation": "The University of Adelaide"},
+      {"name": "Professor Suresh Bhatia", "affiliation": "The University of Queensland"},
+      {"name": "Professor Mark Biggs", "affiliation": "Nottingham Trent University"},
+      {"name": "Professor Michael Ferry", "affiliation": "The University of New South Wales"},
+      {"name": "Dr Pauline Grierson", "affiliation": "The University of Western Australia"},
+      {"name": "Professor Caroline Gross", "affiliation": "The University of New England"},
+      {"name": "Professor Peter Love", "affiliation": "Curtin University"},
+      {"name": "Professor Ralph Mac Nally", "affiliation": "University of Canberra"},
+      {"name": "Professor Megharaj Mallavapu", "affiliation": "The University of Newcastle"},
+      {"name": "Professor Vishnu Pareek", "affiliation": "Curtin University"},
+      {"name": "Associate Professor Bernard Rolfe", "affiliation": "Deakin University"},
+      {"name": "Professor Peter Teasdale", "affiliation": "University of South Australia"},
+      {"name": "Professor Kiril Tenekedjiev", "affiliation": "University of Tasmania"},
+      {"name": "Professor Brian Uy", "affiliation": "The University of Sydney"},
+      {"name": "Professor Xiao-Ling Zhao", "affiliation": "Monash University"},
+      {"name": "Professor John Zhu", "affiliation": "The University of Queensland"}
+    ]
+  },
+  "EHS": {
+    "committee_name": "Education and Human Society",
+    "chair": {
+      "name": "Professor Brenda Cherednichenko",
+      "affiliation": "Deakin University"
+    },
+    "members": [
+      {"name": "Professor James Albright", "affiliation": "The University of Newcastle"},
+      {"name": "Professor Jonathan Barnett", "affiliation": "The University of Melbourne"},
+      {"name": "Professor Niko Besnier", "affiliation": "University of Amsterdam"},
+      {"name": "Professor Kim Beswick", "affiliation": "University of Tasmania"},
+      {"name": "Professor Christine Bigby", "affiliation": "La Trobe University"},
+      {"name": "Associate Professor Gawaian Bodkin-Andrews", "affiliation": "University of Technology, Sydney"},
+      {"name": "Professor Amy Cutter-Mackenzie", "affiliation": "Southern Cross University"},
+      {"name": "Professor Elizabeth Fernandez", "affiliation": "The University of New South Wales"},
+      {"name": "Professor Katharine Gelber", "affiliation": "The University of Queensland"},
+      {"name": "Professor Linda Graham", "affiliation": "Queensland University of Technology"},
+      {"name": "Professor Mark Halsey", "affiliation": "Flinders University"},
+      {"name": "Professor Roberta Julian", "affiliation": "University of Tasmania"},
+      {"name": "Professor Lori Lockyer", "affiliation": "University of Technology, Sydney"},
+      {"name": "Professor Phillip O’Neill", "affiliation": "Western Sydney University"},
+      {"name": "Professor Sharon Pickering", "affiliation": "Monash University"},
+      {"name": "Professor Neil Selwyn", "affiliation": "Monash University"},
+      {"name": "Professor Matthew Tonts", "affiliation": "The University of Western Australia"},
+      {"name": "Associate Professor Raelene Wilding", "affiliation": "La Trobe University"},
+      {"name": "Professor Eileen Scanlon", "affiliation": "The Open University"}
+    ]
+  },
+  "HCA": {
+    "committee_name": "Humanities and Creative Arts",
+    "chair": {
+      "name": "Emeritus Professor Graeme Turner",
+      "affiliation": "The University of Queensland"
+    },
+    "members": [
+      {"name": "Professor Han Baltussen", "affiliation": "The University of Adelaide"},
+      {"name": "Professor Susan Broomhall", "affiliation": "The University of Western Australia"},
+      {"name": "Associate Professor Maryrose Casey", "affiliation": "Monash University"},
+      {"name": "Professor Hilary Charlesworth", "affiliation": "The University of Melbourne"},
+      {"name": "Professor Catharine Coleborne", "affiliation": "The University of Newcastle"},
+      {"name": "Professor Stephen Crain", "affiliation": "Macquarie University"},
+      {"name": "Professor David Cross", "affiliation": "Deakin University"},
+      {"name": "Professor Richard De Dear", "affiliation": "The University of Sydney"},
+      {"name": "Professor Susan Forde", "affiliation": "Griffith University"},
+      {"name": "Professor Ross Grantham", "affiliation": "The University of Queensland"},
+      {"name": "Professor Helena Grehan", "affiliation": "Murdoch University"},
+      {"name": "Distinguished Professor Larissa Hjorth", "affiliation": "RMIT University"},
+      {"name": "Professor Ralph Horne", "affiliation": "RMIT University"},
+      {"name": "Professor Susan Martin", "affiliation": "La Trobe University"},
+      {"name": "Professor Jennifer McMahon", "affiliation": "The University of Adelaide"},
+      {"name": "Professor Martina Möllering", "affiliation": "Macquarie University"},
+      {"name": "Associate Professor Gregory Nolan", "affiliation": "University of Tasmania"},
+      {"name": "Professor John Powers", "affiliation": "Deakin University"},
+      {"name": "Professor Benjamin Richardson", "affiliation": "University of Tasmania"},
+      {"name": "Professor Benjamin Smith", "affiliation": "University of Western Australia"},
+      {"name": "Professor Sean Ulm", "affiliation": "James Cook University"},
+      {"name": "Distinguished Professor Jennifer Webb", "affiliation": "University of Canberra"}
+    ]
+  },
+  "MHS": {
+    "committee_name": "Medical and Health Sciences",
+    "chair": {
+      "name": "Professor Hugh Barrett",
+      "affiliation": "The University of New England"
+    },
+    "members": [
+      {"name": "Winthrop Professor David Badcock", "affiliation": "The University of Western Australia"},
+      {"name": "Professor Amanda Barnier", "affiliation": "Macquarie University"},
+      {"name": "Professor Lindsay Brown", "affiliation": "University of Southern Queensland"},
+      {"name": "Professor Jon Buckley", "affiliation": "University of South Australia"},
+      {"name": "Professor Glen Davis OAM", "affiliation": "The University of Sydney"},
+      {"name": "Professor Marco de Anselmo Peres", "affiliation": "Griffith University"},
+      {"name": "Professor Katherine Denton", "affiliation": "Monash University"},
+      {"name": "Professor Denise Doolan", "affiliation": "James Cook University"},
+      {"name": "Professor Victoria Flood", "affiliation": "The University of Sydney"},
+      {"name": "Emeritus Professor Peter Howe", "affiliation": "The University of Newcastle"},
+      {"name": "Professor Samantha Keogh", "affiliation": "Queensland University of Technology"},
+      {"name": "Professor Susan McDonald", "affiliation": "La Trobe University"},
+      {"name": "Professor Ross McKinnon", "affiliation": "Flinders University"},
+      {"name": "Professor Nigel McMillan", "affiliation": "Griffith University"},
+      {"name": "Professor Gregory Peterson", "affiliation": "University of Tasmania"},
+      {"name": "Professor Jane Phillips", "affiliation": "University of Technology, Sydney"},
+      {"name": "Professor Nicholas Procter", "affiliation": "University of South Australia"},
+      {"name": "Professor Claire Roberts", "affiliation": "The University of Adelaide"},
+      {"name": "Professor James Sharman", "affiliation": "University of Tasmania"},
+      {"name": "Associate Professor Mathew Summers", "affiliation": "University of the Sunshine Coast"},
+      {"name": "Associate Professor Andrew Zele", "affiliation": "Queensland University of Technology"},
+      {"name": "Professor Hans Zoellner", "affiliation": "The University of Sydney"}
+    ]
+  },
+  "MIC": {
+    "committee_name": "Mathematical, Information and Computing Sciences",
+    "chair": {
+      "name": "Professor David Green",
+      "affiliation": "Monash University"
+    },
+    "members": [
+      {"name": "Professor Andrew Bassom", "affiliation": "University of Tasmania"},
+      {"name": "Winthrop Professor Mohammed Bennamoun", "affiliation": "The University of Western Australia"},
+      {"name": "Professor Deborah Bunker", "affiliation": "The University of Sydney"},
+      {"name": "Professor Yi-Ping Phoebe Chen", "affiliation": "La Trobe University"},
+      {"name": "Professor Jin-Song Dong", "affiliation": "Griffith University"},
+      {"name": "Professor Graham Farr", "affiliation": "Monash University"},
+      {"name": "Professor Andrew Francis", "affiliation": "Western Sydney University"},
+      {"name": "Professor Yongsheng Gao", "affiliation": "Griffith University"},
+      {"name": "Professor Annabelle McIver", "affiliation": "Macquarie University"},
+      {"name": "Professor Jacqui Ramagge", "affiliation": "The University of Sydney"},
+      {"name": "Professor Mark Sanderson", "affiliation": "RMIT University"},
+      {"name": "Professor Markus Stumptner", "affiliation": "University of South Australia"},
+      {"name": "Professor Willy Susilo", "affiliation": "University of Wollongong"},
+      {"name": "Dr Kerry Taylor", "affiliation": "The Australian National University"},
+      {"name": "Professor Yong Xiang", "affiliation": "Deakin University"}
+    ]
+  },
+  "PCE": {
+    "committee_name": "Physical, Chemical and Earth Sciences",
+    "chair": {
+      "name": "Professor John O’Connor",
+      "affiliation": "The University of Newcastle"
+    },
+    "members": [
+      {"name": "Professor Neil Barnett", "affiliation": "Deakin University"},
+      {"name": "Professor Michael Bird", "affiliation": "James Cook University"},
+      {"name": "Professor Michael Brunger", "affiliation": "Flinders University"},
+      {"name": "Professor Bradley Carter", "affiliation": "University of Southern Queensland"},
+      {"name": "Professor Alexander Cruden", "affiliation": "Monash University"},
+      {"name": "Professor Kliti Grice", "affiliation": "Curtin University"},
+      {"name": "Professor Mark Humphrey", "affiliation": "The Australian National University"},
+      {"name": "Professor George Koutsantonis", "affiliation": "The University of Western Australia"},
+      {"name": "Professor Claire Lenehan", "affiliation": "Flinders University"},
+      {"name": "Professor Patrick Nunn", "affiliation": "University of the Sunshine Coast"},
+      {"name": "Professor Timothy Ralph", "affiliation": "The University of Queensland"},
+      {"name": "Professor Francois Renard", "affiliation": "University of Oslo, Norway"},
+      {"name": "Professor Louis Rendina", "affiliation": "The University of Sydney"},
+      {"name": "Professor Isaac Santos", "affiliation": "Southern Cross University"},
+      {"name": "Professor Frances Separovic", "affiliation": "The University of Melbourne"},
+      {"name": "Professor Jason Twamley", "affiliation": "Macquarie University"},
+      {"name": "Professor Tiffany Walsh", "affiliation": "Deakin University"}
+    ]
+  }
+}
