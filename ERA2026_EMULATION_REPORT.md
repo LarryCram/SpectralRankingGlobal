@@ -6,10 +6,10 @@
 **Comparison Baseline:** ERA 2018 Emulation (2011–2016, 6 years)  
 **Thresholds:** $\tau_u = 50.0 / 6 \approx 8.333$ works/year (50.0 weighted works total, matching official ERA Low Volume Threshold); $\tau_s = 10.0$ works/year (60.0 weighted works total)  
 **Primary Artifacts:**
-- Unit-level rankings: [`WORKING/era2026/division/rankings_div_{code}_2020_2025_baseline.parquet`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/division)
-- Aggregated Australian HEP report: [`WORKING/era2026/hep_reports/era2026_au_hep_spectral_rankings.parquet`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/hep_reports/era2026_au_hep_spectral_rankings.parquet)
-- Matched longitudinal dataset: [`WORKING/era2026/hep_reports/era2018_vs_era2026_matched_comparison.csv`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/hep_reports/era2018_vs_era2026_matched_comparison.csv)
-- Global Comparative Study (OECD, BRICS & HASS Indexing Shock): [`ERA_GLOBAL_COMPARATIVE_STUDY.md`](file:///home/lc/Projects_Antigravity/SpectralRankingGlobal/ERA_GLOBAL_COMPARATIVE_STUDY.md)
+- Unit-level rankings: `WORKING/era2026/division/rankings_div_{code}_2020_2025_baseline.parquet`
+- Aggregated Australian HEP report: `WORKING/era2026/hep_reports/era2026_au_hep_spectral_rankings.parquet`
+- Matched longitudinal dataset: `WORKING/era2026/hep_reports/era2018_vs_era2026_matched_comparison.csv`
+- Global Comparative Study (OECD, BRICS & HASS Indexing Shock): [`ERA_GLOBAL_COMPARATIVE_STUDY.md`](ERA_GLOBAL_COMPARATIVE_STUDY.md)
 
 ---
 
@@ -178,4 +178,4 @@ The 4-digit group rankings mirror and refine the division-level dynamics:
 2. **Robustness of Bipartite Projection:**
    All 22 divisions and 110 groups exhibited well-conditioned spectral gaps ($\Delta \lambda \ge 0.10 - 0.75$), demonstrating rapid convergence and topological integrity across the updated 2020–2025 graph.
 3. **Comprehensive Coverage:**
-   The ERA 2026 emulation now provides full granularity across both **2-digit Divisions (550 evaluations)** and **4-digit Groups (1,234 evaluations)**, totaling **1,784 evaluations** documented in [`era2026_au_hep_spectral_rankings.parquet`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/hep_reports/era2026_au_hep_spectral_rankings.parquet).
+   The ERA 2026 emulation now provides full granularity across both **2-digit Divisions (550 evaluations)** and **4-digit Groups (1,234 evaluations)**, totaling **1,784 evaluations** documented in `WORKING/era2026/hep_reports/era2026_au_hep_spectral_rankings.parquet`.

@@ -5,11 +5,11 @@
 **Windows:** ERA 2018 Emulation (2011–2016) vs. ERA 2026 Emulation (2020–2025)  
 **Corpora:** OpenAlex / CWTS Leiden Ranking Open Edition (1,506 Curated Global Universities across 72 Countries)  
 **Primary Artifacts:** 
-* [`sources_vs_institutions_comparison.csv`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/sources_vs_institutions_comparison.csv)
-* [`all_leiden_countries_era_comparison.csv`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/all_leiden_countries_era_comparison.csv)
-* [`hass_share_by_year_and_country.csv`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/hass_share_by_year_and_country.csv)
-* [`hass_growth_summary.csv`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/hass_growth_summary.csv)
-* [`era2018_vs_era2026_matched_comparison.csv`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/hep_reports/era2018_vs_era2026_matched_comparison.csv)
+* `sources_vs_institutions_comparison.csv` (in `WORKING/era2026/`)
+* `all_leiden_countries_era_comparison.csv` (in `WORKING/era2026/`)
+* `hass_share_by_year_and_country.csv` (in `WORKING/era2026/`)
+* `hass_growth_summary.csv` (in `WORKING/era2026/`)
+* `era2018_vs_era2026_matched_comparison.csv` (in `WORKING/era2026/hep_reports/`)
 
 ---
 
@@ -76,7 +76,7 @@ graph LR
 
 ### 2.1 The Methodological Challenge: Identifying "Universities"
 
-In Australia, ERA evaluates statutory Higher Education Providers (HEPs) listed in [`HEP_concordances.xlsx`](file:///home/lc/Projects_Antigravity/SpectralRankingGlobal/data/HEP_concordances.xlsx). Internationally, defining "what counts as a university" is complicated by:
+In Australia, ERA evaluates statutory Higher Education Providers (HEPs) listed in [`HEP_concordances.xlsx`](data/HEP_concordances.xlsx). Internationally, defining "what counts as a university" is complicated by:
 * National research agencies (e.g., CNRS in France, Max Planck in Germany, CAS in China, CSIR in India, Fiocruz in Brazil).
 * Separate university hospital networks.
 * Non-research community colleges and theological seminaries.
@@ -270,4 +270,4 @@ graph TD
 
 ---
 
-*Full data files, interactive scripts, and underlying parquet tables are documented in the repository under [`WORKING/era2026/`](file:///home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/) and [`analysis/`](file:///home/lc/Projects_Antigravity/SpectralRankingGlobal/analysis/).*
+*Full data files, interactive scripts, and underlying parquet tables are documented in the repository under `WORKING/era2026/` and [`analysis/`](analysis/).*

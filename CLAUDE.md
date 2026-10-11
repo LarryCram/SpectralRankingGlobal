@@ -18,11 +18,7 @@ rationale.
 Always use `.venv/bin/python` and `.venv/bin/pip`. Never invoke bare `python` or `pip`.
 
 ## Testing
-`.venv/bin/python -m pytest util/tests pipeline/tests analysis/tests
-analysis/test_hcr_inst_oax.py enclaves/tests --import-mode=importlib` (389 tests).
-Plain `pytest` errors on collection — `pipeline/tests/` has no `__init__.py` while the
-other three `tests/` packages do, causing a module-name collision across separately-run
-test directories.
+`.venv/bin/pytest` (391 tests).
 
 ## Machine-specific config
 `config.yaml` (gitignored) — three keys: `PROJECT_ROOT`, `WORKING`, `OPENALEX`.
@@ -91,6 +87,8 @@ auto-skips whatever is already fresh):
 .venv/bin/python enclaves/network_enclave.py
 .venv/bin/python enclaves/researcher_enclaves.py
 .venv/bin/python enclaves/plot_hca_hcr.py
+.venv/bin/python pipeline/run_era2018.py --all
+.venv/bin/python pipeline/run_era2026.py --all
 ```
 Append `--yes`/`-y` to any of them to skip the confirmation prompt on an expensive stale
 rebuild (safe for unattended/background runs). Run `.venv/bin/python

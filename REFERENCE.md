@@ -535,3 +535,27 @@ Emulates the Australian Research Council's Excellence in Research for Australia 
   - `group/`: `rankings_grp_{code}_2011_2016_baseline.parquet` and `_diag.json`
   - `hep_reports/`: `era2018_au_hep_spectral_rankings.parquet` and `.csv` summarizing the 42 Australian HEPs.
 
+## ERA 2026 Emulation & ANZSRC FoR 2008 Evaluation (`pipeline/run_era2026.py`)
+
+Emulates a modern "ERA 2026" evaluation using the spectral ranking bipartite engine:
+- **Census Window**: `2020_2025` (6-year evaluation window: 2020 through 2025).
+- **Classification Standard**: ANZSRC Fields of Research 2008 (FoR 2008), resolved dynamically via
+  `LarryCram/ResearchClassification` (`Resolver.resolve(..., "OAX", "FOR2008")`).
+  - Covers all 22 Two-Digit Divisions (`01`–`22`, yielding 550 Australian evaluations) and all reachable
+    Four-Digit Groups (1,234 Australian evaluations), totaling 1,784 evaluations.
+- **Minimum Volume Thresholds & Alignment**:
+  - `tau_u = 50 / 6` (~8.333/yr): exactly 50.0 weighted works across the 6-year window, directly mirroring
+    the official ERA Low Volume Threshold (LVT = 50 apportioned research outputs). Australian HEPs with
+    fewer than 50 works are flagged as `NA` (Low Volume), matching ARC convention.
+  - `tau_s = 10.0/yr`: 60.0 weighted works across the 6-year window.
+- **Multidisciplinary Source Whitelist**:
+  - Generalist journals in `data/md_journal_whitelist.parquet` qualify under a relaxed threshold:
+    `weighted_works >= 1.0` across the 6-year window.
+  - This dynamically allocates generalist journals to every FoR where they published eligible research.
+- **Data & Output Isolation**:
+  All ERA 2026 data and rankings are isolated under `WORKING/era2026/`:
+  - `candidacy/`: `subfield_source_cands_2020_2025.parquet`, `subfield_inst_cands_2020_2025.parquet`
+  - `division/`: `rankings_div_{code}_2020_2025_baseline.parquet` and `_diag.json`
+  - `group/`: `rankings_grp_{code}_2020_2025_baseline.parquet` and `_diag.json`
+  - `hep_reports/`: `era2026_au_hep_spectral_rankings.parquet` and `.csv` summarizing the Australian HEP evaluations.
+

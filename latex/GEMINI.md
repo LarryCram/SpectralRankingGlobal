@@ -2,7 +2,7 @@
 
 This directory contains the academic manuscripts, bibliography styles, and references for the SpectralRankingGlobal project.
 
-For instructions on setting up and compiling these documents on a Windows workstation (including Zotero and Better BibTeX integration), see [WINDOWS_LATEX_SETUP.md](file:///home/lc/Projects_Antigravity/SpectralRankingGlobal/WINDOWS_LATEX_SETUP.md) in the project root.
+For instructions on setting up and compiling these documents on a Windows workstation (including Zotero and Better BibTeX integration), see [WINDOWS_LATEX_SETUP.md](../WINDOWS_LATEX_SETUP.md) in the project root.
 
 ## Directory Structure
 
