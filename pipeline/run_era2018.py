@@ -61,8 +61,8 @@ ERA_TAU_S = 10.0         # 60 weighted works over 6 years (baseline source thres
 ERA_WHITELIST_TAU = 1.0  # Multidisciplinary journal threshold
 
 
-def get_era_run() -> Run:
-    """Create Run specification matching ERA 2018 evaluation baseline."""
+def get_era_run(epsilon: int = 0, label: str = 'baseline') -> Run:
+    """Create Run specification matching ERA 2018 evaluation baseline or sentinel variant."""
     return Run(
         tc0=ERA_YEAR_MIN,
         tc1=ERA_YEAR_MAX,
@@ -73,10 +73,10 @@ def get_era_run() -> Run:
         rho=0,
         chi=0.5,
         mu_type='',
-        label='baseline',
+        label=label,
         tt0=ERA_YEAR_MIN,
         tt1=ERA_YEAR_MAX,
-        epsilon=0,
+        epsilon=epsilon,
         omega=0,
         beta=0,
         bloc='',
@@ -178,22 +178,24 @@ def run_unit(db: duckdb.DuckDBPyConnection,
              unit_code: str, unit_label: str, unit_level: str,
              members: tuple[int, ...],
              out_dir: Path, tmp_dir: Path,
-             skip_existing: bool = True):
+             skip_existing: bool = True,
+             epsilon: int = 0,
+             label: str = 'baseline'):
     """Execute complete edge-building, ranking, and diagnostics for one FoR unit."""
     prefix = "div" if unit_level == "division" else "grp"
-    out_pq = out_dir / f"rankings_{prefix}_{unit_code}_{ERA_WINDOW}_baseline.parquet"
-    out_diag = out_dir / f"rankings_{prefix}_{unit_code}_{ERA_WINDOW}_baseline_diag.json"
+    out_pq = out_dir / f"rankings_{prefix}_{unit_code}_{ERA_WINDOW}_{label}.parquet"
+    out_diag = out_dir / f"rankings_{prefix}_{unit_code}_{ERA_WINDOW}_{label}_diag.json"
 
     if skip_existing and out_pq.exists() and out_diag.exists():
         print(f"[{unit_level.upper()}] FoR {unit_code} — {unit_label}: already computed ({out_pq.name}), skipping.")
         return
 
-    print(f"\n[{unit_level.upper()}] FoR {unit_code} — {unit_label} ({len(members)} subfields)")
+    print(f"\n[{unit_level.upper()}] FoR {unit_code} — {unit_label} ({len(members)} subfields) [label='{label}', epsilon={epsilon}]")
     dummy_idx = int(unit_code)
-    run = replace(get_era_run(), field_idx=dummy_idx)
+    run = replace(get_era_run(epsilon=epsilon, label=label), field_idx=dummy_idx)
 
     sc_path, ic_path = build_scratch_unit_candidacy(db, subfield_sc, subfield_ic, tmp_dir, unit_code, members)
-    el_path = str(tmp_dir / f"_era_{unit_code}_el.parquet")
+    el_path = str(tmp_dir / f"_era_{unit_code}_{label}_el.parquet")
 
     t0 = time.time()
     n_el = build_edge_list(
@@ -219,6 +221,8 @@ def run_unit(db: duckdb.DuckDBPyConnection,
         "tau_u_abs": ERA_TAU_U * run.window_years,
         "tau_s_abs": ERA_TAU_S * run.window_years,
         "whitelist_tau_abs": ERA_WHITELIST_TAU,
+        "epsilon": epsilon,
+        "label": label,
     })
     out_diag.write_text(json.dumps(diag, indent=2))
     print(f"  Ranked: {len(df):,} units → {out_pq}")
@@ -228,7 +232,7 @@ def run_unit(db: duckdb.DuckDBPyConnection,
         Path(p).unlink(missing_ok=True)
 
 
-def generate_hep_report(era_dir: Path, data_dir: Path):
+def generate_hep_report(era_dir: Path, data_dir: Path, label: str = 'baseline'):
     """Aggregate rankings across all completed FoRs for the 42 Australian HEPs."""
     reports_dir = era_dir / "hep_reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -252,13 +256,13 @@ def generate_hep_report(era_dir: Path, data_dir: Path):
     ]:
         if not level_dir.exists():
             continue
-        for pq in sorted(level_dir.glob(f"rankings_{prefix}_*_{ERA_WINDOW}_baseline.parquet")):
+        for pq in sorted(level_dir.glob(f"rankings_{prefix}_*_{ERA_WINDOW}_{label}.parquet")):
             code = pq.stem.split('_')[2]
             diag_file = pq.with_name(f"{pq.stem}_diag.json")
-            label = ""
+            unit_label = ""
             if diag_file.exists():
                 diag = json.loads(diag_file.read_text())
-                label = diag.get("for_label", "")
+                unit_label = diag.get("for_label", "")
 
             con = duckdb.connect()
             df = con.execute(f"SELECT * FROM '{pq}' WHERE unit_type = 'U'").df()
@@ -276,7 +280,7 @@ def generate_hep_report(era_dir: Path, data_dir: Path):
                 records.append({
                     "for_level": level_name,
                     "for_code": code,
-                    "for_label": label,
+                    "for_label": unit_label,
                     "institution_idx": inst_idx,
                     "hep_short_name": hep_map.get(inst_idx, ""),
                     "v": r['v'],
@@ -292,8 +296,9 @@ def generate_hep_report(era_dir: Path, data_dir: Path):
         return
 
     report_df = pd.DataFrame(records)
-    out_pq = reports_dir / "era2018_au_hep_spectral_rankings.parquet"
-    out_csv = reports_dir / "era2018_au_hep_spectral_rankings.csv"
+    report_tag = "" if label == "baseline" else f"_{label}"
+    out_pq = reports_dir / f"era2018{report_tag}_au_hep_spectral_rankings.parquet"
+    out_csv = reports_dir / f"era2018{report_tag}_au_hep_spectral_rankings.csv"
     report_df.to_parquet(out_pq)
     report_df.to_csv(out_csv, index=False)
     print(f"\nGenerated Australian HEP summary report ({len(report_df):,} records):")
@@ -312,12 +317,17 @@ def main():
     parser.add_argument("--all", action="store_true", help="Run all 2-digit divisions, all 4-digit groups, and generate report")
     parser.add_argument("--force", action="store_true", help="Force recomputation of already existing rankings")
     parser.add_argument("--report", action="store_true", help="Generate Australian HEP report")
+    parser.add_argument("--epsilon", "--sentinel", dest="epsilon", action="store_true",
+                        help="Include exogenous cross-field citations via sentinel model (epsilon=1, label='sentinel')")
     args = parser.parse_args()
 
     paths = load_config()
     settings = load_settings()
-    era_dir = paths.working / "era2018"
-    cands_dir = era_dir / "candidacy"
+
+    epsilon_val = 1 if args.epsilon else 0
+    label = 'sentinel' if args.epsilon else 'baseline'
+    era_dir = paths.working / f"era2018_{label}" if args.epsilon else paths.working / "era2018"
+    cands_dir = paths.working / "era2018" / "candidacy"
     div_dir = era_dir / "division"
     grp_dir = era_dir / "group"
     tmp_dir = era_dir / ".tmp"
@@ -349,6 +359,7 @@ def main():
         print("ERA 2018 Spectral Ranking Pipeline Configuration")
         print("==================================================================")
         print(f"Window         : {ERA_WINDOW} ({ERA_YEAR_MIN}–{ERA_YEAR_MAX}, 6 years)")
+        print(f"Sentinel (eps) : {epsilon_val} (label='{label}')")
         print(f"Tau_U          : {ERA_TAU_U:.4f}/yr  (total = {ERA_TAU_U * 6:.1f} works, ERA LVT)")
         print(f"Tau_S          : {ERA_TAU_S:.1f}/yr  (total = {ERA_TAU_S * 6:.1f} works)")
         print(f"MD Whitelist   : {whitelist_pq} (threshold >= {ERA_WHITELIST_TAU:.1f} work)")
@@ -372,7 +383,7 @@ def main():
                 raise ValueError(f"Division {div_code} not in active divisions: {sorted(div_map.keys())}")
             run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
                      div_code, div_labels[div_code], "division", div_map[div_code], div_dir, tmp_dir,
-                     skip_existing=skip_existing)
+                     skip_existing=skip_existing, epsilon=epsilon_val, label=label)
 
         if args.group:
             grp_code = args.group.zfill(4)
@@ -380,30 +391,30 @@ def main():
                 raise ValueError(f"Group {grp_code} not in active groups: {sorted(grp_map.keys())}")
             run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
                      grp_code, grp_labels[grp_code], "group", grp_map[grp_code], grp_dir, tmp_dir,
-                     skip_existing=skip_existing)
+                     skip_existing=skip_existing, epsilon=epsilon_val, label=label)
 
         if args.divisions or args.all:
-            print(f"Starting run across all {len(div_map)} Divisions ...")
+            print(f"Starting run across all {len(div_map)} Divisions [label='{label}', epsilon={epsilon_val}] ...")
             for div_code in sorted(div_map.keys()):
                 try:
                     run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
                              div_code, div_labels[div_code], "division", div_map[div_code], div_dir, tmp_dir,
-                             skip_existing=skip_existing)
+                             skip_existing=skip_existing, epsilon=epsilon_val, label=label)
                 except Exception as exc:
                     print(f"ERROR processing Division {div_code} ({div_labels.get(div_code, '')}): {exc}")
 
         if args.groups or args.all:
-            print(f"Starting run across all {len(grp_map)} Groups ...")
+            print(f"Starting run across all {len(grp_map)} Groups [label='{label}', epsilon={epsilon_val}] ...")
             for grp_code in sorted(grp_map.keys()):
                 try:
                     run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
                              grp_code, grp_labels[grp_code], "group", grp_map[grp_code], grp_dir, tmp_dir,
-                             skip_existing=skip_existing)
+                             skip_existing=skip_existing, epsilon=epsilon_val, label=label)
                 except Exception as exc:
                     print(f"ERROR processing Group {grp_code} ({grp_labels.get(grp_code, '')}): {exc}")
 
         if args.report or args.all:
-            generate_hep_report(era_dir, data_dir)
+            generate_hep_report(era_dir, data_dir, label=label)
 
 
 if __name__ == '__main__':

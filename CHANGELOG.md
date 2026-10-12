@@ -4,6 +4,23 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-10-12 — ERA 2018 Sentinel Model (ε=1) Emulation & Comparative Facet Visualizations
+
+- **ERA 2018 Sentinel Model Integration (`pipeline/run_era2018.py`)**:
+  - Extended runner with `--epsilon` / `--sentinel` CLI flags enabling exogenous cross-field citations via the sentinel citation model ($\varepsilon = 1$).
+  - Results are isolated in `WORKING/era2018_sentinel/` (`division/`, `group/`, `hep_reports/`, `plots/`), maintaining clean separation from the baseline dataset (`WORKING/era2018/`).
+  - Executed all 22 ANZSRC FoR 2008 Divisions and 102 active 4-digit Groups with the sentinel-augmented edge list.
+  - Generated Australian HEP Sentinel Performance Report (1,589 evaluations across 42 Australian HEPs) in `WORKING/era2018_sentinel/hep_reports/era2018_sentinel_au_hep_spectral_rankings.parquet` and `.csv`.
+- **Comparative Visualization Tool (`analysis/plot_era2018_sentinel_comparison.py`)**:
+  - Implemented dual-panel publication-ready facet plotting comparing Baseline ($\varepsilon = 0$) and Sentinel ($\varepsilon = 1$) performance per 2-digit ANZSRC division.
+  - Shared $x$-axis coordinates anchored to baseline institutional ranks ($x = \text{rank}_{2\text{d}}^{\text{baseline}}$), enabling direct vertical visual inspection of rank and log-spectral shifts.
+  - Added directional displacement vectors ($\uparrow$ green / $\downarrow$ red) with delta annotations ($\Delta \text{rank}$ and new rank).
+  - Designed collision-free adaptive staggering algorithm with legend-avoidance logic for dense Australian HEP labeling.
+  - Rendered 300 DPI PNG and vector PDF charts for all 22 divisions and a national cross-divisional summary dashboard (`era2018_all_divisions_sentinel_comparison.png` / `.pdf`).
+- **Generic Facet Plotter Extension (`analysis/plot_era2018_generic.py`)**:
+  - Added `--model {baseline, sentinel}` CLI argument to render full hierarchical facets (Division + 4-digit Groups) for either model.
+  - Linked `--sentinel` flag to invoke comparative analysis seamlessly via CLI.
+
 ## 2026-10-08 — ERA 2026 emulation (2020–2025) + 4-digit FoR groups + Global CWTS Leiden comparative study
 
 - **ERA 2026 Dedicated Runner (`pipeline/run_era2026.py`)**:

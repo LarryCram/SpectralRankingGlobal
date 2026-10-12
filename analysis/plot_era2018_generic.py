@@ -91,7 +91,7 @@ def load_hep_mappings(data_dir: Path) -> tuple[dict[int, str], dict[int, str]]:
     return id_to_hep, id_to_name
 
 
-def find_division_panels(era_dir: Path, div_code: str) -> list[tuple[str, str, Path, str]]:
+def find_division_panels(era_dir: Path, div_code: str, label: str = 'baseline') -> list[tuple[str, str, Path, str]]:
     """
     Find the 2-digit division ranking file and all matching 4-digit group files.
     Returns list of (for_code, level_type, parquet_path, label).
@@ -100,7 +100,7 @@ def find_division_panels(era_dir: Path, div_code: str) -> list[tuple[str, str, P
     panels = []
 
     # 1. Division parquet
-    div_pq = era_dir / "division" / f"rankings_div_{div_code}_{ERA_WINDOW}_baseline.parquet"
+    div_pq = era_dir / "division" / f"rankings_div_{div_code}_{ERA_WINDOW}_{label}.parquet"
     if not div_pq.exists():
         return []
 
@@ -117,7 +117,7 @@ def find_division_panels(era_dir: Path, div_code: str) -> list[tuple[str, str, P
     # 2. Matching 4-digit group parquets
     grp_dir = era_dir / "group"
     if grp_dir.exists():
-        grp_pqs = sorted(grp_dir.glob(f"rankings_grp_{div_code}*_{ERA_WINDOW}_baseline.parquet"))
+        grp_pqs = sorted(grp_dir.glob(f"rankings_grp_{div_code}*_{ERA_WINDOW}_{label}.parquet"))
         for pq in grp_pqs:
             grp_code = pq.stem.split('_')[2]
             diag_file = pq.with_name(f"{pq.stem}_diag.json")
@@ -234,7 +234,8 @@ def plot_division_facet(div_code: str,
                         global_df: pd.DataFrame,
                         au_df: pd.DataFrame,
                         out_dir: Path,
-                        max_x: Optional[int] = None):
+                        max_x: Optional[int] = None,
+                        run_label: str = 'baseline'):
     """Render and save the vertical facet plot for a 2-digit division and its groups."""
     out_dir.mkdir(parents=True, exist_ok=True)
     div_code = div_code.zfill(2)
@@ -242,8 +243,9 @@ def plot_division_facet(div_code: str,
     div_title = panels[0][3]  # e.g. FoR 02: Physical Sciences
     clean_slug = div_title.replace("FoR ", "").replace(":", "").replace(" ", "_").replace("&", "and").lower()
 
-    out_png = out_dir / f"era2018_div{div_code}_facet.png"
-    out_pdf = out_dir / f"era2018_div{div_code}_facet.pdf"
+    suffix = f"_{run_label}" if run_label != 'baseline' else ""
+    out_png = out_dir / f"era2018_div{div_code}{suffix}_facet.png"
+    out_pdf = out_dir / f"era2018_div{div_code}{suffix}_facet.pdf"
 
     sns.set_theme(style="whitegrid", font="sans-serif")
 
@@ -379,21 +381,22 @@ def plot_division(div_code: str,
                   era_map: dict[tuple[str, str], str],
                   id_to_hep: dict[int, str],
                   id_to_name: dict[int, str],
-                  max_x_override: Optional[int] = None) -> bool:
+                  max_x_override: Optional[int] = None,
+                  run_label: str = 'baseline') -> bool:
     """Plot facet for a single division if data is available."""
     div_code = div_code.zfill(2)
-    panels = find_division_panels(era_dir, div_code)
+    panels = find_division_panels(era_dir, div_code, label=run_label)
     if not panels:
         print(f"No ranking data found for Division {div_code} in {era_dir / 'division'}")
         return False
 
-    print(f"\nProcessing Division {div_code}: found {len(panels)} panels (1 division, {len(panels) - 1} groups)")
+    print(f"\nProcessing Division {div_code}: found {len(panels)} panels (1 division, {len(panels) - 1} groups) [model='{run_label}']")
     global_df, au_df, rec_max_x = build_facet_dataset(panels, id_to_hep, id_to_name, era_map)
     max_x = max_x_override if max_x_override else rec_max_x
 
     n_au = len(au_df['unit_idx'].unique()) if (not au_df.empty and 'unit_idx' in au_df.columns) else 0
     print(f"  AU HEPs found: {n_au} unique institutions. Max rank x = {max_x}")
-    plot_division_facet(div_code, panels, global_df, au_df, plots_dir, max_x=max_x)
+    plot_division_facet(div_code, panels, global_df, au_df, plots_dir, max_x=max_x, run_label=run_label)
     return True
 
 
@@ -402,10 +405,20 @@ def main():
     parser.add_argument("--division", type=str, help="2-digit FoR division to plot (e.g., 01, 02)")
     parser.add_argument("--all", action="store_true", help="Plot all completed 2-digit divisions")
     parser.add_argument("--max-x", type=int, default=None, help="Override maximum x-axis rank")
+    parser.add_argument("--model", choices=['baseline', 'sentinel'], default='baseline',
+                        help="Choose ranking dataset model (baseline: ε=0, sentinel: ε=1)")
+    parser.add_argument("--sentinel", action="store_true",
+                        help="Plot 2-digit comparative facet contrasting baseline (ε=0) and sentinel (ε=1) models")
     args = parser.parse_args()
 
+    if args.sentinel:
+        from analysis.plot_era2018_sentinel_comparison import run_comparison
+        run_comparison(division=args.division, all_divisions=args.all, max_x=args.max_x)
+        return
+
     paths = load_config()
-    era_dir = paths.working / "era2018"
+    run_label = args.model
+    era_dir = paths.working / f"era2018_{run_label}" if run_label != 'baseline' else paths.working / "era2018"
     data_dir = paths.data
     plots_dir = era_dir / "plots"
 
@@ -413,16 +426,18 @@ def main():
     id_to_hep, id_to_name = load_hep_mappings(data_dir)
 
     if args.division:
-        plot_division(args.division, era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name, max_x_override=args.max_x)
+        plot_division(args.division, era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name,
+                      max_x_override=args.max_x, run_label=run_label)
     elif args.all:
-        div_pqs = sorted((era_dir / "division").glob(f"rankings_div_*_{ERA_WINDOW}_baseline.parquet"))
+        div_pqs = sorted((era_dir / "division").glob(f"rankings_div_*_{ERA_WINDOW}_{run_label}.parquet"))
         if not div_pqs:
             print("No completed division rankings found in", era_dir / "division")
             return
-        print(f"Found {len(div_pqs)} completed divisions to plot.")
+        print(f"Found {len(div_pqs)} completed divisions to plot for model '{run_label}'.")
         for pq in div_pqs:
             code = pq.stem.split('_')[2]
-            plot_division(code, era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name, max_x_override=args.max_x)
+            plot_division(code, era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name,
+                          max_x_override=args.max_x, run_label=run_label)
     else:
         parser.print_help()
 
