@@ -4,6 +4,15 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-10-15 — ERA 2018 Facet Plots Alignment to Baseline with Sentinel (*) Overlay
+
+- **ERA 2018 Generic Facet Plotter (`analysis/plot_era2018_generic.py`)**:
+  - Aligned hierarchical division and group facet plots to the baseline ($\varepsilon = 0$, sentinel off) spectral rankings as the primary coordinate space ($x = \text{rank}_{2\text{d}}^{\text{baseline}}$), matching official ARC ERA ratings (ERA 5, 4, 3, 2, 1, NA) where baseline rankings show superior replication.
+  - Plotted each Australian institution's with-sentinel ($\varepsilon = 1$) score as an asterisk (`*`) on the same vertical drop line at $(x = \text{rank}_{2\text{d}}^{\text{baseline}}, y = \log_{10}(v_{\text{sent}}))$, allowing immediate visual inspection of how exogenous citations shift institutional prestige relative to the baseline.
+  - Retained quarter-turn CCW (90°) rotated text callouts anchored to baseline positions.
+  - Regenerated publication-quality PNG (300 DPI) and vector PDF facet figures for all 22 divisions under `WORKING/era2018/plots/`.
+  - Cleaned up redundant legacy plot series (`*_sentinel_comparison.*` and `*_sentinel_facet.*`) from `WORKING/era2018_sentinel/plots/`.
+
 ## 2026-10-12 — ERA 2018 Sentinel Model (ε=1) Emulation & Comparative Facet Visualizations
 
 - **ERA 2018 Sentinel Model Integration (`pipeline/run_era2018.py`)**:

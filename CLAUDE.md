@@ -61,8 +61,8 @@ system" section for how staleness is now caught automatically instead of silentl
 - ✅ ERA 2018 Sentinel model (ANZSRC FoR 2008): `pipeline/run_era2018.py --sentinel --all` —
   evaluates all 22 divisions and 102 groups incorporating exogenous citations via the sentinel
   node (ε=1), isolated under `WORKING/era2018_sentinel/` with complete Australian HEP reporting.
-  Visualized via `analysis/plot_era2018_sentinel_comparison.py` (dual-panel before/after plots
-  aligned on baseline ranks) and `analysis/plot_era2018_generic.py --model sentinel`.
+  Visualized via `analysis/plot_era2018_generic.py` (hierarchical division + group facets on baseline
+  coordinates with `*` overlay for with-sentinel score) saved to `WORKING/era2018/plots/`.
 - ✅ ERA 2026 emulation (ANZSRC FoR 2008): `pipeline/run_era2026.py` — modern 6-year window
   (2020–2025), matching ERA thresholds (τ_u = 50/6, τ_s = 10.0, MD whitelist). Evaluates all
   22 FoR 2008 divisions (550 Australian evaluations) and all 110 groups (1,234 Australian

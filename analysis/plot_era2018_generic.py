@@ -136,11 +136,12 @@ def find_division_panels(era_dir: Path, div_code: str, label: str = 'baseline') 
 def build_facet_dataset(panels: list[tuple[str, str, Path, str]],
                         id_to_hep: dict[int, str],
                         id_to_name: dict[int, str],
-                        era_map: dict[tuple[str, str], str]) -> tuple[pd.DataFrame, pd.DataFrame, int]:
-    """Assemble global and Australian HEP dataset aligned on common 2-digit ranks."""
+                        era_map: dict[tuple[str, str], str],
+                        sent_era_dir: Optional[Path] = None) -> tuple[pd.DataFrame, pd.DataFrame, int]:
+    """Assemble global and Australian HEP dataset aligned on common baseline 2-digit ranks."""
     con = duckdb.connect()
 
-    # The first panel is the 2-digit division
+    # The first panel is the 2-digit division (baseline)
     div_code, _, div_pq, _ = panels[0]
     df_div = con.execute(f"""
         SELECT unit_idx, rank_v AS rank_2d, v AS v_2d
@@ -159,6 +160,22 @@ def build_facet_dataset(panels: list[tuple[str, str, Path, str]],
             WHERE unit_type = 'U'
             ORDER BY rank_v ASC
         """).df()
+
+        # If sentinel directory provided, load with-sentinel scores for this panel
+        sent_map = {}
+        if sent_era_dir is not None:
+            if level_type == 'division':
+                sent_pq = sent_era_dir / "division" / f"rankings_div_{code}_{ERA_WINDOW}_sentinel.parquet"
+            else:
+                sent_pq = sent_era_dir / "group" / f"rankings_grp_{code}_{ERA_WINDOW}_sentinel.parquet"
+
+            if sent_pq.exists():
+                df_sent = con.execute(f"""
+                    SELECT unit_idx, v AS v_sent, rank_v AS rank_sent
+                    FROM '{sent_pq}'
+                    WHERE unit_type = 'U'
+                """).df()
+                sent_map = dict(zip(df_sent['unit_idx'], zip(df_sent['v_sent'], df_sent['rank_sent'])))
 
         for _, r in df.iterrows():
             uid = int(r['unit_idx'])
@@ -190,6 +207,16 @@ def build_facet_dataset(panels: list[tuple[str, str, Path, str]],
             else:
                 era_cat = 'Global Institutions'
 
+            if uid in sent_map:
+                v_s, r_s = sent_map[uid]
+                v_sent = float(v_s)
+                log_v_sent = float(np.log10(v_sent)) if v_sent > 0 else -3.0
+                rank_sent = int(r_s)
+            else:
+                v_sent = np.nan
+                log_v_sent = np.nan
+                rank_sent = np.nan
+
             rec = {
                 'for_code': code,
                 'for_label': label,
@@ -198,6 +225,9 @@ def build_facet_dataset(panels: list[tuple[str, str, Path, str]],
                 'rank_2d': int(rank_2d),
                 'v': v_val,
                 'log_v': log_v,
+                'v_sent': v_sent,
+                'log_v_sent': log_v_sent,
+                'rank_sent': rank_sent,
                 'pi': float(r['pi']),
                 'a_p': float(r['a_p']) if pd.notna(r['a_p']) else 0.0,
                 'is_au': is_au,
@@ -213,14 +243,13 @@ def build_facet_dataset(panels: list[tuple[str, str, Path, str]],
     global_df = pd.DataFrame(all_global_records)
     cols = global_df.columns if not global_df.empty else [
         'for_code', 'for_label', 'unit_idx', 'rank_grp', 'rank_2d', 'v', 'log_v',
-        'pi', 'a_p', 'is_au', 'hep_code', 'hep_name', 'official_era', 'era_category'
+        'v_sent', 'log_v_sent', 'rank_sent', 'pi', 'a_p', 'is_au', 'hep_code', 'hep_name', 'official_era', 'era_category'
     ]
     au_df = pd.DataFrame(all_au_records, columns=cols) if all_au_records else pd.DataFrame(columns=cols)
 
     # Determine recommended max_x based on Australian HEPs
     if not au_df.empty:
         max_au_rank = int(au_df['rank_2d'].max())
-        # Round up to nearest 100 with padding
         calc_max = int(np.ceil((max_au_rank + 60) / 100.0) * 100)
         recommended_max_x = max(calc_max, 200)
     else:
@@ -239,13 +268,7 @@ def plot_division_facet(div_code: str,
     """Render and save the vertical facet plot for a 2-digit division and its groups."""
     out_dir.mkdir(parents=True, exist_ok=True)
     div_code = div_code.zfill(2)
-
     div_title = panels[0][3]  # e.g. FoR 02: Physical Sciences
-    clean_slug = div_title.replace("FoR ", "").replace(":", "").replace(" ", "_").replace("&", "and").lower()
-
-    suffix = f"_{run_label}" if run_label != 'baseline' else ""
-    out_png = out_dir / f"era2018_div{div_code}{suffix}_facet.png"
-    out_pdf = out_dir / f"era2018_div{div_code}{suffix}_facet.pdf"
 
     sns.set_theme(style="whitegrid", font="sans-serif")
 
@@ -276,17 +299,18 @@ def plot_division_facet(div_code: str,
             ax.axvline(rx, color='#cbd5e1', linestyle=':', linewidth=0.85, alpha=0.7, zorder=1)
 
         # 2. Global distribution baseline
+        dist_label = f"Global institutions ($N = {len(g_sub):,}$, window)"
         if level_type == 'division':
             ax.plot(
                 g_vis['rank_2d'], g_vis['log_v'],
                 color='#94a3b8', linewidth=1.8, alpha=0.85, zorder=2,
-                label=f'Global institutions ($N = {len(g_sub):,}$, window)'
+                label=dist_label
             )
         else:
             ax.scatter(
                 g_vis['rank_2d'], g_vis['log_v'],
                 color='#94a3b8', s=16, alpha=0.45, zorder=2,
-                label=f'Global institutions ($N = {len(g_sub):,}$, window)'
+                label=dist_label
             )
 
         # 3. Reference parity line at log(v) = 0
@@ -295,7 +319,22 @@ def plot_division_facet(div_code: str,
             label=r'World Parity ($\log_{10}(v) = 0$)'
         )
 
-        # 4. Australian HEPs by ERA rating hue
+        # 4a. Australian HEPs with Sentinel on (ε=1): asterisk '*' along the institution's vertical drop line
+        sent_pts = a_vis[a_vis['log_v_sent'].notna()]
+        if not sent_pts.empty:
+            for cat, color in ERA_PALETTE.items():
+                cat_sent = sent_pts[sent_pts['era_category'] == cat]
+                if not cat_sent.empty:
+                    ax.scatter(
+                        cat_sent['rank_2d'], cat_sent['log_v_sent'],
+                        marker='*', s=140,
+                        color=color, edgecolor='#0f172a', linewidth=0.6,
+                        alpha=0.92, zorder=4
+                    )
+            # Add proxy handle for legend
+            ax.scatter([], [], marker='*', color='#475569', s=130, label=r'* Sentinel on ($\varepsilon=1$)')
+
+        # 4b. Australian HEPs by ERA rating hue (Baseline, ε=0, main plot)
         for cat, color in ERA_PALETTE.items():
             cat_pts = a_vis[a_vis['era_category'] == cat]
             if not cat_pts.empty:
@@ -307,7 +346,7 @@ def plot_division_facet(div_code: str,
                     label=f'{cat} ($n={len(cat_pts)}$)'
                 )
 
-        # 5. Label Australian HEPs with quarter-turn CCW (90 deg)
+        # 5. Label Australian HEPs with quarter-turn CCW (90 deg) at baseline position
         y_staggers = [+0.26, -0.26, +0.48, -0.48]
         for i, (_, r) in enumerate(a_vis.iterrows()):
             hep = r['hep_code']
@@ -362,9 +401,11 @@ def plot_division_facet(div_code: str,
     axes[-1].set_xlabel(f"Ordinal Global Rank in FoR {div_code} Division ($x = \\text{{rank}}_{{{div_code}}}$, common scale $\\rightarrow$)",
                         fontsize=11, fontweight='bold', color='#0f172a')
 
-    plt.suptitle(f"ERA 2018 Emulation: {div_title} Disciplines (Census Window 2011–2016)\nCommon Vertical Alignment ($x = \\text{{rank}}_{{{div_code}}}$) Across Facets with Official ARC Outcomes",
+    plt.suptitle(f"ERA 2018 Emulation: {div_title} Disciplines (Census Window 2011–2016)\nCommon Vertical Alignment ($x = \\text{{rank}}_{{{div_code}}}$) Across Facets with Official ARC Outcomes (* indicates Sentinel On)",
                  fontsize=13.5, fontweight='bold', y=0.995, color='#0f172a')
 
+    out_png = out_dir / f"era2018_div{div_code}_facet.png"
+    out_pdf = out_dir / f"era2018_div{div_code}_facet.pdf"
     plt.savefig(out_png, dpi=300, bbox_inches='tight')
     plt.savefig(out_pdf, bbox_inches='tight')
     plt.close()
@@ -376,6 +417,7 @@ def plot_division_facet(div_code: str,
 
 def plot_division(div_code: str,
                   era_dir: Path,
+                  sent_era_dir: Optional[Path],
                   data_dir: Path,
                   plots_dir: Path,
                   era_map: dict[tuple[str, str], str],
@@ -391,7 +433,7 @@ def plot_division(div_code: str,
         return False
 
     print(f"\nProcessing Division {div_code}: found {len(panels)} panels (1 division, {len(panels) - 1} groups) [model='{run_label}']")
-    global_df, au_df, rec_max_x = build_facet_dataset(panels, id_to_hep, id_to_name, era_map)
+    global_df, au_df, rec_max_x = build_facet_dataset(panels, id_to_hep, id_to_name, era_map, sent_era_dir=sent_era_dir)
     max_x = max_x_override if max_x_override else rec_max_x
 
     n_au = len(au_df['unit_idx'].unique()) if (not au_df.empty and 'unit_idx' in au_df.columns) else 0
@@ -406,7 +448,7 @@ def main():
     parser.add_argument("--all", action="store_true", help="Plot all completed 2-digit divisions")
     parser.add_argument("--max-x", type=int, default=None, help="Override maximum x-axis rank")
     parser.add_argument("--model", choices=['baseline', 'sentinel'], default='baseline',
-                        help="Choose ranking dataset model (baseline: ε=0, sentinel: ε=1)")
+                        help="Choose ranking dataset model (default: baseline ε=0)")
     parser.add_argument("--sentinel", action="store_true",
                         help="Plot 2-digit comparative facet contrasting baseline (ε=0) and sentinel (ε=1) models")
     args = parser.parse_args()
@@ -419,14 +461,15 @@ def main():
     paths = load_config()
     run_label = args.model
     era_dir = paths.working / f"era2018_{run_label}" if run_label != 'baseline' else paths.working / "era2018"
+    sent_era_dir = paths.working / "era2018_sentinel" if run_label == 'baseline' else None
     data_dir = paths.data
-    plots_dir = era_dir / "plots"
+    plots_dir = paths.working / "era2018" / "plots"
 
     era_map = load_era_official_outcomes()
     id_to_hep, id_to_name = load_hep_mappings(data_dir)
 
     if args.division:
-        plot_division(args.division, era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name,
+        plot_division(args.division, era_dir, sent_era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name,
                       max_x_override=args.max_x, run_label=run_label)
     elif args.all:
         div_pqs = sorted((era_dir / "division").glob(f"rankings_div_*_{ERA_WINDOW}_{run_label}.parquet"))
@@ -436,7 +479,7 @@ def main():
         print(f"Found {len(div_pqs)} completed divisions to plot for model '{run_label}'.")
         for pq in div_pqs:
             code = pq.stem.split('_')[2]
-            plot_division(code, era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name,
+            plot_division(code, era_dir, sent_era_dir, data_dir, plots_dir, era_map, id_to_hep, id_to_name,
                           max_x_override=args.max_x, run_label=run_label)
     else:
         parser.print_help()
@@ -444,3 +487,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
