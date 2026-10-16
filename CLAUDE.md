@@ -69,6 +69,12 @@ system" section for how staleness is now caught automatically instead of silentl
   evaluations), totaling 1,784 evaluations isolated under `WORKING/era2026/`. Includes
   longitudinal report `ERA2026_EMULATION_REPORT.md` and global comparative study
   `ERA_GLOBAL_COMPARATIVE_STUDY.md` (1,506 CWTS Leiden universities across 72 countries).
+- ✅ ERA Committee Spectral & Enclave Evaluation: `analysis/find_committee_v.py` —
+  evaluates 160 members across the 8 ERA 2018 RECs and the ERA EI Advisory Committee
+  (157/160 resolved to OpenAlex author records), calculating individual spectral source ($v_s$),
+  institutional ($\bar{v}_u$), work ($v_{\text{work}}$), and citer ($\langle v \rangle$) prestige, alongside
+  HCW quadrant ($HCW^{++}, HCW^{+-}, HCW^{-+}, HCW^{--}$) and NMF enclave topic memberships.
+  Saved to `WORKING/era_committee_v_profiles.parquet` (and `.csv`) and `WORKING/era_committee_works_v.parquet`.
 
 
 ## Rerun order

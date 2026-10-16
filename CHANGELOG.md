@@ -4,6 +4,22 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-10-16 — ERA Committee Spectral & Enclave Evaluation (find_committee_v.py)
+
+- **ERA Committee Spectral & Enclave Evaluation (`analysis/find_committee_v.py`)**:
+  - Ingested 160 committee members across the 8 ERA 2018 Research Evaluation Committees (150 chairs/members from `data/era2018_rec_rosters.json`) and the national ERA EI Advisory Committee (10 members from the 2020–2021 ARC review report).
+  - Resolved 157 / 160 (98.1%) committee members to OpenAlex author records using name normalization (`util.name_util`) and institutional concordance matching (`data/HEP_concordances.xlsx`).
+  - Extracted 34,089 author-work pairs (spanning 84,332 work-field records in `flat_works`).
+  - Attached spectral $v$-values: journal source prestige ($v_s$), author institutional prestige ($\bar{v}_u$), blended work prestige ($v_{\text{work}}$), citer prestige ($\langle v \rangle = \text{mean\_citer\_v}$), citer quality ratio ($n_{\text{citer\_hi}} / (n_{\text{citer\_hi}} + n_{\text{citer\_lo}})$), and enclave quadrant classification ($HCW^{++}, HCW^{+-}, HCW^{-+}, HCW^{--}$) with NMF topic names.
+  - Aggregated member-level summary profiles to `WORKING/era_committee_v_profiles.parquet` (and `.csv`) and work-level details to `WORKING/era_committee_works_v.parquet`.
+  - Confirmed committee members have mean work prestige well above global parity ($\langle\langle v_{\text{work}} \rangle\rangle \approx 1.5 - 2.6$) and virtually zero echo chamber participation (only 4 works out of 84k in $HCW^{--}$, in Engineering), supporting the moral suasion hypothesis from `ERA2018_COMMITTEE_REPRESENTATION_AND_ERA_BIAS.md`.
+- **ERA 2018 Generic Facet Plotter Refinements (`analysis/plot_era2018_generic.py`)**:
+  - Added horizontal top-panel legend displaying ERA 5 to ERA NA rating symbols and color swatches above the top facet.
+  - Simplified suptitle to clean `FoR {div_code} {div_name}` and x-axis label to `Ordinal Global Rank (Division {div_code} {div_name})`.
+  - Added minor tick locators along the y-axis and adjusted facet title position to clear the $\log_{10}(v) = -2$ threshold line.
+- **LaTeX Manuscript Update (`latex/NewERA/sections/01_introduction.tex`)**:
+  - Revised introduction opening to frame national evaluations around the cycle of peer review and scholarly publication reference lists as peer evaluation.
+
 ## 2026-10-15 — ERA 2018 Facet Plots Alignment to Baseline with Sentinel (*) Overlay
 
 - **ERA 2018 Generic Facet Plotter (`analysis/plot_era2018_generic.py`)**:

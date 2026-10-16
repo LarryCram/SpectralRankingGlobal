@@ -109,7 +109,7 @@ def find_division_panels(era_dir: Path, div_code: str, label: str = 'baseline') 
     if div_diag.exists():
         try:
             diag = json.loads(div_diag.read_text())
-            div_label = f"FoR {div_code}: {diag.get('for_label', '')}"
+            div_label = f"FoR {div_code}: {diag.get('for_label', '').title()}"
         except Exception:
             pass
     panels.append((div_code, 'division', div_pq, div_label))
@@ -258,6 +258,10 @@ def build_facet_dataset(panels: list[tuple[str, str, Path, str]],
     return global_df, au_df, recommended_max_x
 
 
+import matplotlib.lines as mlines
+from matplotlib.legend import Legend
+
+
 def plot_division_facet(div_code: str,
                         panels: list[tuple[str, str, Path, str]],
                         global_df: pd.DataFrame,
@@ -268,12 +272,17 @@ def plot_division_facet(div_code: str,
     """Render and save the vertical facet plot for a 2-digit division and its groups."""
     out_dir.mkdir(parents=True, exist_ok=True)
     div_code = div_code.zfill(2)
-    div_title = panels[0][3]  # e.g. FoR 02: Physical Sciences
+
+    raw_name = panels[0][3]
+    if ':' in raw_name:
+        div_name = raw_name.split(':', 1)[-1].strip().title()
+    else:
+        div_name = raw_name.replace(f"FoR {div_code}", "").strip().title()
 
     sns.set_theme(style="whitegrid", font="sans-serif")
 
     n_panels = len(panels)
-    fig_height = max(4.0, 2.5 * n_panels)
+    fig_height = max(4.5, 2.7 * n_panels)
 
     fig, axes = plt.subplots(
         nrows=n_panels, ncols=1, figsize=(14, fig_height),
@@ -282,6 +291,10 @@ def plot_division_facet(div_code: str,
     )
     if n_panels == 1:
         axes = [axes]
+
+    top_margin_frac = 1.0 - (0.95 / fig_height)
+    bottom_margin_frac = 0.50 / fig_height
+    fig.subplots_adjust(top=top_margin_frac, bottom=bottom_margin_frac)
 
     # Australian HEP ranks to draw vertical drop lines for
     visible_au = au_df[(au_df['rank_2d'] <= max_x) & (au_df['rank_2d'] >= 1)]
@@ -299,7 +312,7 @@ def plot_division_facet(div_code: str,
             ax.axvline(rx, color='#cbd5e1', linestyle=':', linewidth=0.85, alpha=0.7, zorder=1)
 
         # 2. Global distribution baseline
-        dist_label = f"Global institutions ($N = {len(g_sub):,}$, window)"
+        dist_label = f"Global institutions ($N = {len(g_sub):,}$)"
         if level_type == 'division':
             ax.plot(
                 g_vis['rank_2d'], g_vis['log_v'],
@@ -319,7 +332,7 @@ def plot_division_facet(div_code: str,
             label=r'World Parity ($\log_{10}(v) = 0$)'
         )
 
-        # 4a. Australian HEPs with Sentinel on (ε=1): asterisk '*' along the institution's vertical drop line
+        # 4a. Australian HEPs with Sentinel on (ε=1): asterisk '*' along the institution's vertical drop line (explained in caption)
         sent_pts = a_vis[a_vis['log_v_sent'].notna()]
         if not sent_pts.empty:
             for cat, color in ERA_PALETTE.items():
@@ -331,8 +344,6 @@ def plot_division_facet(div_code: str,
                         color=color, edgecolor='#0f172a', linewidth=0.6,
                         alpha=0.92, zorder=4
                     )
-            # Add proxy handle for legend
-            ax.scatter([], [], marker='*', color='#475569', s=130, label=r'* Sentinel on ($\varepsilon=1$)')
 
         # 4b. Australian HEPs by ERA rating hue (Baseline, ε=0, main plot)
         for cat, color in ERA_PALETTE.items():
@@ -342,12 +353,11 @@ def plot_division_facet(div_code: str,
                 ax.scatter(
                     cat_pts['rank_2d'], cat_pts['log_v'],
                     color=color, marker=marker, s=95,
-                    edgecolor='white', linewidth=1.4, zorder=5,
-                    label=f'{cat} ($n={len(cat_pts)}$)'
+                    edgecolor='white', linewidth=1.4, zorder=5
                 )
 
         # 5. Label Australian HEPs with quarter-turn CCW (90 deg) at baseline position
-        y_staggers = [+0.26, -0.26, +0.48, -0.48]
+        y_staggers = [+0.22, -0.22, +0.40, -0.40]
         for i, (_, r) in enumerate(a_vis.iterrows()):
             hep = r['hep_code']
             x = r['rank_2d']
@@ -368,20 +378,22 @@ def plot_division_facet(div_code: str,
                 bbox=dict(boxstyle="round,pad=0.18", facecolor='white', edgecolor='#cbd5e1', alpha=0.92, lw=0.6)
             )
 
-        ax.set_ylim(-2.2, 1.1)
+        ax.set_ylim(-2.2, 1.2)
         ax.set_yticks([1.0, 0.0, -1.0, -2.0])
         ax.set_yticklabels(['1', '0', '-1', '-2'])
-        ax.tick_params(axis='y', labelrotation=90, labelsize=9.5)
+        ax.yaxis.set_minor_locator(ticker.FixedLocator([-1.5, -0.5, 0.5, 1.5]))
+        ax.tick_params(axis='y', which='major', left=True, labelrotation=90, labelsize=9.5)
+        ax.tick_params(axis='y', which='minor', left=True, length=3.5, color='#475569')
 
         ax.set_xlim(0, max_x * 1.02)
         step = 50 if max_x <= 350 else 100
         ax.xaxis.set_major_locator(ticker.MultipleLocator(step))
         ax.xaxis.set_minor_locator(ticker.MultipleLocator(step // 4))
 
-        # Facet title (not bold font) placed inside the plot with lower edge at log(v) = -2
+        # Facet title placed inside the plot raised to clear log(v) = -2 line
         trans_inner = mtransforms.blended_transform_factory(ax.transAxes, ax.transData)
         ax.text(
-            0.012, -2.0,
+            0.012, -1.90,
             f"{label} (AU Retained in Window: {len(a_vis)}/{len(a_sub)})",
             transform=trans_inner,
             fontsize=10.5, fontweight='normal', color='#0f172a',
@@ -390,19 +402,72 @@ def plot_division_facet(div_code: str,
         )
         ax.set_ylabel("log(v)", fontsize=11, fontweight='bold', color='#0f172a')
 
-        handles, leg_labels = ax.get_legend_handles_labels()
-        by_label = dict(zip(leg_labels, handles))
-        ax.legend(
-            by_label.values(), by_label.keys(),
+        # Figure legend: just the 2 top rows (Global institutions and World Parity)
+        dist_handle = (
+            mlines.Line2D([], [], color='#94a3b8', linewidth=1.8, alpha=0.85, label=dist_label)
+            if level_type == 'division'
+            else mlines.Line2D([], [], color='none', marker='o', markerfacecolor='#94a3b8',
+                               markeredgecolor='none', alpha=0.45, markersize=5, label=dist_label)
+        )
+        parity_handle = mlines.Line2D(
+            [], [], color='#0f172a', linestyle='--', linewidth=2.0, alpha=0.95,
+            label=r'World Parity ($\log_{10}(v) = 0$)'
+        )
+        leg = ax.legend(
+            [dist_handle, parity_handle],
+            [dist_handle.get_label(), parity_handle.get_label()],
             loc='upper right', frameon=True, framealpha=0.92,
             facecolor='white', edgecolor='#cbd5e1', fontsize=8
         )
+        ax.add_artist(leg)
 
-    axes[-1].set_xlabel(f"Ordinal Global Rank in FoR {div_code} Division ($x = \\text{{rank}}_{{{div_code}}}$, common scale $\\rightarrow$)",
+    # Single line string just above and outside the top of the top facet:
+    # 'x ERA 5, y ERA 4, z ERA 3, w ERA 2, v ERA 1 and u ERA NA' with relevant symbols
+    top_handles = [
+        mlines.Line2D([], [], color='none', marker=ERA_MARKERS['ERA 5 (Well above world standard)'],
+                      markerfacecolor=ERA_PALETTE['ERA 5 (Well above world standard)'],
+                      markeredgecolor='white', markeredgewidth=1.2, markersize=8.5),
+        mlines.Line2D([], [], color='none', marker=ERA_MARKERS['ERA 4 (Above world standard)'],
+                      markerfacecolor=ERA_PALETTE['ERA 4 (Above world standard)'],
+                      markeredgecolor='white', markeredgewidth=1.2, markersize=7.5),
+        mlines.Line2D([], [], color='none', marker=ERA_MARKERS['ERA 3 (At world standard)'],
+                      markerfacecolor=ERA_PALETTE['ERA 3 (At world standard)'],
+                      markeredgecolor='white', markeredgewidth=1.2, markersize=8.0),
+        mlines.Line2D([], [], color='none', marker=ERA_MARKERS['ERA 2 (Below world standard)'],
+                      markerfacecolor=ERA_PALETTE['ERA 2 (Below world standard)'],
+                      markeredgecolor='white', markeredgewidth=1.2, markersize=8.0),
+        mlines.Line2D([], [], color='none', marker=ERA_MARKERS['ERA 1 (Well below world standard)'],
+                      markerfacecolor=ERA_PALETTE['ERA 1 (Well below world standard)'],
+                      markeredgecolor='white', markeredgewidth=1.2, markersize=8.0),
+        mlines.Line2D([], [], color='none', marker=ERA_MARKERS['ERA NA (Unassessed in official ERA)'],
+                      markerfacecolor=ERA_PALETTE['ERA NA (Unassessed in official ERA)'],
+                      markeredgecolor='white', markeredgewidth=1.2, markersize=7.5),
+    ]
+    top_labels = ['ERA 5', 'ERA 4', 'ERA 3', 'ERA 2', 'ERA 1', 'ERA NA']
+
+    top_legend = Legend(
+        axes[0],
+        top_handles,
+        top_labels,
+        loc='lower center',
+        bbox_to_anchor=(0.5, 1.04),
+        bbox_transform=axes[0].transAxes,
+        ncol=6,
+        frameon=False,
+        fontsize=9.5,
+        handletextpad=0.25,
+        columnspacing=1.0
+    )
+    axes[0].add_artist(top_legend)
+
+    # X-axis label: "Ordinal Global Rank (Division XX Name)" and nothing else
+    axes[-1].set_xlabel(f"Ordinal Global Rank (Division {div_code} {div_name})",
                         fontsize=11, fontweight='bold', color='#0f172a')
 
-    plt.suptitle(f"ERA 2018 Emulation: {div_title} Disciplines (Census Window 2011–2016)\nCommon Vertical Alignment ($x = \\text{{rank}}_{{{div_code}}}$) Across Facets with Official ARC Outcomes (* indicates Sentinel On)",
-                 fontsize=13.5, fontweight='bold', y=0.995, color='#0f172a')
+    # Title: "FoR XX Name" and nothing more
+    title_y = 1.0 - (0.20 / fig_height)
+    plt.suptitle(f"FoR {div_code} {div_name}",
+                 fontsize=14.0, fontweight='bold', y=title_y, color='#0f172a')
 
     out_png = out_dir / f"era2018_div{div_code}_facet.png"
     out_pdf = out_dir / f"era2018_div{div_code}_facet.pdf"

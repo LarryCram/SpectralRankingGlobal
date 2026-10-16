@@ -66,6 +66,7 @@ SpectralRankingGlobal/
   analysis/
     plot_era2018_generic.py    #   ✅ ERA 2018 hierarchical division + group facet plotter
     plot_era2018_sentinel_comparison.py # ✅ ERA 2018 dual-panel baseline vs sentinel comparative plots
+    find_committee_v.py        #   ✅ ERA REC & Advisory Committee spectral v and enclave profiling
     leiden_facets.py           #   ✅ 2×5 log(v) vs rank, multi-label overlay
     leiden_bloc_facets.py      #   ✅ baseline vs one comparison per PDF (7 PDFs)
     hep_heatmap.py             #   ✅ AU HEP influence heatmap across 26 fields
@@ -154,6 +155,8 @@ WORKING/
   hcw_authors.parquet                      hca_extract.py stage 4
   hcw_authorships.parquet                  hca_extract.py stage 5
   hca_crossfield_{window}_{label}.parquet  cross-field paper+cite scores
+  era_committee_v_profiles.parquet         find_committee_v.py (member-level v-scores & enclaves)
+  era_committee_works_v.parquet            find_committee_v.py (work-level v-scores & quadrants)
 ```
 Stage E4 + E5 outputs are MD files in `enclaves/reports/`:
 ```

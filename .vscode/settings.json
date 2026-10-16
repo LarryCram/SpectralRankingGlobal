@@ -1,5 +1,12 @@
 {
     "duckdb.defaultDatabase": "memory",
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
-    "ltex.enabled": false
+    "ltex.enabled": false,
+    "[latex]": {
+        "editor.inlineSuggest.enabled": false,
+        "editor.suggest.snippetsPreventQuickSuggestions": false
+    },
+    "[tex]": {
+        "editor.inlineSuggest.enabled": false
+    }
 }
