@@ -53,6 +53,7 @@ field-level weight  = SUM(field_weight WHERE field_idx  = X) per (work, institut
 leiden-level weight = SUM(field_weight WHERE leiden_idx = L) per (work, institution).
 """
 
+import glob
 import sys
 import time
 from pathlib import Path
@@ -166,31 +167,46 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
         GROUP BY a.work_idx, a.institution_idx
     """)
 
-    db.execute(f"""
-        CREATE OR REPLACE TEMP TABLE _topic_meta AS
-        SELECT topic_idx,
-               CAST(REGEXP_REPLACE(subfield.id, 'https://openalex.org/subfields/', '') AS BIGINT) AS subfield_idx,
-               subfield.display_name AS subfield_name,
-               CAST(REGEXP_REPLACE(field.id, 'https://openalex.org/fields/', '') AS BIGINT) AS field_idx
-        FROM '{topics_meta_path}'
-    """)
+    # Detect whether topics_path is already flattened (e.g. Oct26) or nested struct array (legacy)
+    sample_topic = sorted(glob.glob(topics_path))
+    sample_file = sample_topic[0] if sample_topic else topics_path
+    topic_cols = set(db.execute(f"DESCRIBE SELECT * FROM '{sample_file}' LIMIT 0").df()['column_name'])
 
-    db.execute(f"""
-        CREATE OR REPLACE TEMP TABLE _top AS
-        WITH flat AS (
-            SELECT work_idx, t.topic_idx AS topic_idx, CAST(t.score AS DOUBLE) AS score
-            FROM (
-                SELECT work_idx, UNNEST(topics) AS t
-                FROM '{topics_path}'
-                WHERE work_idx IN (SELECT work_idx FROM _fw)
-            ) sub
-        )
-        SELECT f.work_idx, m.subfield_idx, m.subfield_name, m.field_idx,
-               SUM(f.score) AS subfield_score
-        FROM flat f
-        JOIN _topic_meta m ON f.topic_idx = m.topic_idx
-        GROUP BY f.work_idx, m.subfield_idx, m.subfield_name, m.field_idx
-    """)
+    if 'subfield_idx' in topic_cols and 'score' in topic_cols:
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _top AS
+            SELECT work_idx, subfield_idx, subfield_name, field_idx,
+                   SUM(CAST(score AS DOUBLE)) AS subfield_score
+            FROM '{topics_path}'
+            WHERE work_idx IN (SELECT work_idx FROM _fw)
+            GROUP BY work_idx, subfield_idx, subfield_name, field_idx
+        """)
+    else:
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _topic_meta AS
+            SELECT topic_idx,
+                   CAST(REGEXP_REPLACE(subfield.id, 'https://openalex.org/subfields/', '') AS BIGINT) AS subfield_idx,
+                   subfield.display_name AS subfield_name,
+                   CAST(REGEXP_REPLACE(field.id, 'https://openalex.org/fields/', '') AS BIGINT) AS field_idx
+            FROM '{topics_meta_path}'
+        """)
+
+        db.execute(f"""
+            CREATE OR REPLACE TEMP TABLE _top AS
+            WITH flat AS (
+                SELECT work_idx, t.topic_idx AS topic_idx, CAST(t.score AS DOUBLE) AS score
+                FROM (
+                    SELECT work_idx, UNNEST(topics) AS t
+                    FROM '{topics_path}'
+                    WHERE work_idx IN (SELECT work_idx FROM _fw)
+                ) sub
+            )
+            SELECT f.work_idx, m.subfield_idx, m.subfield_name, m.field_idx,
+                   SUM(f.score) AS subfield_score
+            FROM flat f
+            JOIN _topic_meta m ON f.topic_idx = m.topic_idx
+            GROUP BY f.work_idx, m.subfield_idx, m.subfield_name, m.field_idx
+        """)
 
     # ── pass 3: join small tables and write output ────────────────────────────
 
@@ -269,17 +285,31 @@ def build_corpus_references(db: duckdb.DuckDBPyConnection,
 
     Returns row count.
     """
-    db.execute(f"""
-        COPY (
-            SELECT citer_idx, cited_idx
-            FROM (
-                SELECT citer_idx, UNNEST(cited_list) AS cited_idx
+    sample_refs = sorted(glob.glob(refs_glob))
+    sample_file = sample_refs[0] if sample_refs else refs_glob
+    ref_cols = set(db.execute(f"DESCRIBE SELECT * FROM '{sample_file}' LIMIT 0").df()['column_name'])
+
+    if 'cited_idx' in ref_cols:
+        db.execute(f"""
+            COPY (
+                SELECT citer_idx, cited_idx
                 FROM '{refs_glob}'
                 WHERE citer_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
-            ) sub
-            WHERE cited_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
-        ) TO '{out_path}' (FORMAT PARQUET)
-    """)
+                  AND cited_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
+            ) TO '{out_path}' (FORMAT PARQUET)
+        """)
+    else:
+        db.execute(f"""
+            COPY (
+                SELECT citer_idx, cited_idx
+                FROM (
+                    SELECT citer_idx, UNNEST(cited_list) AS cited_idx
+                    FROM '{refs_glob}'
+                    WHERE citer_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
+                ) sub
+                WHERE cited_idx IN (SELECT DISTINCT work_idx FROM '{fw_path}')
+            ) TO '{out_path}' (FORMAT PARQUET)
+        """)
     return db.execute(f"SELECT COUNT(*) FROM '{out_path}'").fetchone()[0]
 
 
@@ -293,18 +323,28 @@ def main():
     paths    = load_config()
     settings = load_settings()
 
-    works_path        = f"{paths.openalex}/works/*.parquet"
+    subfolder = 'xpac' if getattr(paths, 'xpac', False) else 'compact'
+    part_dir = paths.openalex / subfolder
+    if not (part_dir / 'works').exists():
+        raise FileNotFoundError(
+            f"Compacted parquet directory not found at: {part_dir / 'works'}\n"
+            f"Expected partitioned tables under {subfolder}/."
+        )
+
+    works_path        = f"{part_dir}/works/*.parquet"
     sources_path      = f"{paths.openalex}/sources.parquet"
-    authorships_path  = f"{paths.openalex}/authorships/*.parquet"
+    authorships_path  = f"{part_dir}/authorships/*.parquet"
     institutions_path = f"{paths.openalex}/institutions.parquet"
-    topics_path       = f"{paths.openalex}/work_topics/*.parquet"
+    topics_path       = f"{part_dir}/work_topics/*.parquet"
     topics_meta_path  = f"{paths.openalex}/topics.parquet"
-    refs_glob         = f"{paths.openalex}/references/*.parquet"
+    refs_glob         = f"{part_dir}/references/*.parquet"
     fw_path  = str(paths.working / f"flat_works_{settings.year_min}_{settings.year_max}.parquet")
     cr_path  = str(paths.working / f"corpus_references_{settings.year_min}_{settings.year_max}.parquet")
 
     fw_inputs = [works_path, sources_path, authorships_path, institutions_path,
                  topics_path, topics_meta_path]
+
+    (paths.working / '.tmp').mkdir(parents=True, exist_ok=True)
 
     with duckdb.connect() as db:
         db.execute(f"SET temp_directory = '{paths.working}/.tmp'")

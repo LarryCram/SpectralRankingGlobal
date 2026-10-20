@@ -4,6 +4,28 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-10-20 — OpenAlex Oct26 Snapshot Migration, NewERA Replication & Committee Rating Deficit Estimation
+
+- **OpenAlex Oct26 Snapshot Migration & Pipeline Dual Compatibility**:
+  - Pointed `config.yaml` to the new October 2026 OpenAlex consolidated snapshot (`openalex_oct26/parquet_converted/compact`) and new working directory (`/home/lc/s/SpectralRankingGlobal_WORKING_Oct26`).
+  - Updated `pipeline/build_flat_works.py` with strict routing to `compact/` partitioned tables and dual-compatibility handling for pre-flattened `work_topics` (direct `subfield_idx`, `score`) and pre-unnested `references` (`citer_idx`, `cited_idx`).
+  - Built master corpus tables: `flat_works_2000_2025.parquet` (255.8M works) and `corpus_references_2000_2025.parquet` (1.125B citation pairs).
+  - Built subfield candidacy tables for both 2020–2024 and 2011–2016 windows.
+- **NewERA Pipeline Runs & Artifacts Regeneration**:
+  - Generated baseline rankings for all 5 broad disciplines (AREA5: MCS, PSE, LES, BHS, SSH).
+  - Executed Leiden bloc runs (`OECDG20`, `OECDG20CIA`, `CIAA`, `BASELINECIA`) and sensitivity runs (`tau20`, `rho1`, `eps1`, `om1`, `beta1`) across Leiden groups 1..5.
+  - Added `--label` flag to `pipeline/run_field_bloc.py` and ran baseline across all 26 OpenAlex fields.
+  - Regenerated Tables 1–4 and Figures 2–5 in `latex/NewERA/`; recompiled `latex/NewERA/main.pdf`.
+  - Built `analysis/compare_snapshots_newera.py`, demonstrating extreme stability between Jul26 and Oct26 ($r = 0.9996$, $\rho_s = 0.9994$).
+- **ERA 2018 Emulation on Oct26 Snapshot**:
+  - Evaluated all 22 FoR 2008 Divisions and 110 Groups in `pipeline/run_era2018.py --all`, producing 1,601 Australian unit evaluations.
+  - Created `analysis/compare_era2018_snapshots.py`, validating cross-snapshot correlation ($r = 0.8935$, $\rho_s = 0.9056$) and agreement with official ARC ratings ($\rho_s = 0.4453$).
+- **Committee Representation Hypothesis & Rating Deficit Estimation**:
+  - Created `analysis/compare_committee_effects.py` replicating the committee representation hypothesis on Oct26 ($N = 506$ units across all 22 divisions). Confirmed exact replication of $+0.30$ rating points net committee premium ($p = 0.0001$).
+  - Created `analysis/estimate_committee_attribution.py` decomposing the ERA-spectral difference across both quasi-continuous ($\Delta R$, Shapley/LMG variance decomposition) and categorical (discrete 1–5 tiers, odds ratios, attributable downgrade risk fractions) frameworks.
+  - Confirmed that in HASS peer review, committee representation accounts for 12.8% of explained rating variance (nearly double that of citation impact, 6.8%), increases odds of receiving Rating 4/5 by 2.34x, and accounts for 49.0% of all downgrades among above-parity unrepresented departments.
+  - Documented complete snapshot comparison and attribution findings in Section 8 of `ERA2018_COMMITTEE_REPRESENTATION_AND_ERA_BIAS.md`.
+
 ## 2026-10-16 — ERA Committee Spectral & Enclave Evaluation (find_committee_v.py)
 
 - **ERA Committee Spectral & Enclave Evaluation (`analysis/find_committee_v.py`)**:

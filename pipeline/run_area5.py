@@ -111,8 +111,8 @@ def main():
         db.execute(f"SET memory_limit = '{settings.memory_limit}'")
         db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
 
-        for code in sorted(AREA5_IDX, key=lambda c: AREA5_IDX[c]):
-            area5_idx = AREA5_IDX[code]
+        for code in sorted(AREA_IDX, key=lambda c: AREA_IDX[c]):
+            area5_idx = AREA_IDX[code]
             members = groups.get(code, ())
             print(f"\n=== AREA5 {code} ({labels[code]}) — idx {area5_idx}, "
                   f"{len(members)} member field(s) {members} ===")

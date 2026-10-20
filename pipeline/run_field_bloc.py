@@ -36,6 +36,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--yes', '-y', action='store_true',
                          help='Rebuild stale outputs without prompting')
+    parser.add_argument('--label', choices=[b[0] for b in BLOC_RUNS], default=None,
+                        help='Run only a single bloc label (e.g. baseline)')
     args = parser.parse_args()
 
     paths    = load_config()
@@ -58,7 +60,9 @@ def main():
     sc_path  = base_run.sc_path(working)
     ic_path  = base_run.ic_path(working)
 
-    for file_label, bloc_key in BLOC_RUNS:
+    selected_blocs = [b for b in BLOC_RUNS if b[0] == args.label] if args.label else BLOC_RUNS
+
+    for file_label, bloc_key in selected_blocs:
         bloc_codes = blocs[bloc_key]
 
         print(f"\n{'='*72}")

@@ -27,6 +27,7 @@ class Paths:
     openalex:     Path
     data:         Path
     parquet:      Path
+    xpac:         bool = False
 
 
 def load_config(config_path: Path = _CONFIG_PATH) -> Paths:
@@ -40,6 +41,7 @@ def load_config(config_path: Path = _CONFIG_PATH) -> Paths:
         openalex     = Path(cfg['OPENALEX']),
         data         = project_root / 'data',
         parquet      = working / 'parquet',
+        xpac         = bool(cfg.get('XPAC', False)),
     )
 
 
