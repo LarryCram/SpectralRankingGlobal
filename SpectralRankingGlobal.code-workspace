@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"duckdb.defaultDatabase": "memory"
+		"duckdb.defaultDatabase": "memory",
+		"latex-workshop.bibtex.maxFileSize": 50
 	}
 }

@@ -8,5 +8,6 @@
     },
     "[tex]": {
         "editor.inlineSuggest.enabled": false
-    }
+    },
+    "latex-workshop.bibtex.maxFileSize": 50
 }

@@ -4,6 +4,19 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-10-21 — LaTeX NewERA Introduction Expansion, csquotes Integration & IDE BibTeX Indexing
+
+- **LaTeX NewERA Manuscript Updates (`latex/NewERA/`)**:
+  - Expanded `sections/01_introduction.tex` with theoretical and literature context examining critiques of peer review and bibliometrics:
+    - Incorporated peer review partiality and sociality framework (\cite{leeBiasPeerReview2013}).
+    - Added Matthew Effect foundational citations (\citep{mertonMatthewEffectScience1968,mertonMatthewEffectScience1988}).
+    - Synthesized major international assessment manifestos and declarations (DORA, Leiden Manifesto, CoARA, The Metric Tide) and Abramo's (2024) analysis distinguishing research quality (peer review) from scholarly impact (scientometrics).
+  - Integrated `csquotes` package into `main.tex` and utilized `\enquote{...}` for context-adaptive quotations throughout the introduction.
+  - Added `% !TeX root = ../main.tex` root magic comment to `sections/01_introduction.tex` for reliable multi-file IDE project navigation.
+  - Recompiled `main.pdf` (17 pages) with full Natbib/BibTeX citation resolution and zero undefined warnings.
+- **IDE & Workspace BibTeX Configuration**:
+  - Increased `latex-workshop.bibtex.maxFileSize` to 50 MB in `.vscode/settings.json`, `SpectralRankingGlobal.code-workspace`, and user settings, enabling IDE auto-complete indexing for the full 8.6 MB (6,959-entry) master Zotero bibliography (`MyLibrary.bib`).
+
 ## 2026-10-20 — OpenAlex Oct26 Snapshot Migration, NewERA Replication & Committee Rating Deficit Estimation
 
 - **OpenAlex Oct26 Snapshot Migration & Pipeline Dual Compatibility**:
