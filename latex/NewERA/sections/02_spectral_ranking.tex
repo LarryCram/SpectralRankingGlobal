@@ -85,11 +85,11 @@ Raw citation matrices are row-normalized to obtain row-stochastic transition ope
 \end{equation}
 where $D_S$ and $D_I$ are diagonal degree matrices whose entries are row sums of $C_{SI}$ and $C_{IS}$ (with zero/dangling rows handled through uniform prior redistribution).
 
-Rather than solving a block-coupled $2 \times 2$ system directly, we utilize the classic Breiger one-mode dual projection \citep{breiger1974duality}. The round-trip operator for sources, $M_S$, and institutions, $M_I$, are defined as:
+Rather than solving a block-coupled $2 \times 2$ system directly, we utilize the classic Breiger one-mode dual projection \citep{breigerDualityPersonsGroups1974}. The round-trip operator for sources, $M_S$, and institutions, $M_I$, are defined as:
 \begin{equation}
     M_S = H_{SI} H_{IS} \in \mathbb{R}^{N_S \times N_S}, \quad M_I = H_{IS} H_{SI} \in \mathbb{R}^{N_U \times N_U}
 \end{equation}
-$M_S$ represents a two-step citation walk: from a citing source to a cited institution, and then from that institution to the sources it cites. In network terms, this captures the mutual reinforcement principle pioneered by \citet{katz1953new}, \citet{bonacich1987power}, and \citet{kleinberg1999authoritative}, extended here to a bipartite scholarly setting related to invariant citation flows \citep{page1999pagerank, bergstrom2008eigenfactor}. $M_S$ is row-stochastic and, for connected citation graphs, primitive with spectral radius $\lambda_1 = 1.0$.
+$M_S$ represents a two-step citation walk: from a citing source to a cited institution, and then from that institution to the sources it cites. In network terms, this captures the mutual reinforcement principle pioneered by \citet{katzNewStatusIndex1953}, \citet{bonacichPowerCentralityFamily1987}, and \citet{kleinberg1999authoritative}, extended here to a bipartite scholarly setting related to invariant citation flows \citep{pagePagerankCitationRanking1998, bergstromEigenfactorMetrics2008}. $M_S$ is row-stochastic and, for connected citation graphs, primitive with spectral radius $\lambda_1 = 1.0$.
 
 \subsection{Eigensolve and Normalized Prestige Intensity \texorpdfstring{($v$)}{(v)}}
 
@@ -99,7 +99,7 @@ The dominant Perron eigenvector $\pi_S$ satisfying $\pi_S = M_S^T \pi_S$ (normal
 \end{equation}
 The spectral gap, $1 - |\lambda_2|$, serves as a diagnostic of graph connectivity and community mixing. Across all fields in our data, $|\lambda_2| \le 0.67$, ensuring rapid geometric convergence and well-separated principal prestige dimensions.
 
-Raw prestige $\pi$ scales with publication volume: an institution that publishes 1,000 papers naturally accumulates more total prestige than one publishing 50 papers \citep{docampo2014internal}. To obtain a \textbf{size-independent research quality intensity}, following \citet{docampo2025screening}, we divide prestige by the institution's weighted publication output ($w_I$) and scale by entity count:
+Raw prestige $\pi$ scales with publication volume: an institution that publishes 1,000 papers naturally accumulates more total prestige than one publishing 50 papers \citep{docampoInternalDynamicsShanghai2014}. To obtain a \textbf{size-independent research quality intensity}, following \citet{safonScreeningArticlesCitation2025}, we divide prestige by the institution's weighted publication output ($w_I$) and scale by entity count:
 \begin{equation}
     v_S(s) = \frac{\pi_S(s)}{w_S(s)} \cdot N_S, \quad v_I(i) = \frac{\pi_I(i)}{w_I(i)} \cdot N_U
 \end{equation}

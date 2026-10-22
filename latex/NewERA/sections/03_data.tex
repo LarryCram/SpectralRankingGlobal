@@ -5,7 +5,7 @@
 
 \subsection{OpenAlex Snapshot and Corpus Filtering}
 
-The empirical foundation for this study is built from a global snapshot of OpenAlex citation metadata \citep{priem2022openalex} encompassing all scholarly works published between 2000 and 2025, with our primary national research evaluation focusing on the five-year census window \textbf{2020--2024}. 
+The empirical foundation for this study is built from a global snapshot of OpenAlex citation metadata \citep{priemOpenAlexFullyopenIndex2022} encompassing all scholarly works published between 2000 and 2025, with our primary national research evaluation focusing on the five-year census window \textbf{2020--2024}. 
 
 To construct an authoritative corpus, we extract a master relational table, \texttt{flat\_works}, containing approximately 261.4 million records structured at the $( \text{work} \times \text{institution} \times \text{subfield} )$ level. The following rigorous quality filters are applied:
 \begin{itemize}
@@ -29,7 +29,7 @@ Because thresholds are defined in weighted works per year, the qualification cri
 
 A central innovation of this framework is establishing a direct, audited mapping between OpenAlex's global topic hierarchy and the Australian and New Zealand Standard Research Classification \citep[ANZSRC 2020;][]{anzsrc2020}. 
 
-Rather than adopting the four-domain model of OpenAlex (which submerges computer science and mathematics into the physical sciences) or relying on the proprietary five-superfield model of the CWTS Leiden Ranking \citep{waltman2012new} (which places veterinary science into human biomedical health), we establish a unified \textbf{5 Broad Research Areas (AREA5)} framework. This taxonomy is explicitly grounded in the 23 two-digit divisions of ANZSRC FOR 2020 and linked directly to OpenAlex's 26 fields, as documented in Table~\ref{tab:area5_concordance}.
+Rather than adopting the four-domain model of OpenAlex (which submerges computer science and mathematics into the physical sciences) or relying on the proprietary five-superfield model of the CWTS Leiden Ranking \citep{waltmanNewMethodologyConstructing2012} (which places veterinary science into human biomedical health), we establish a unified \textbf{5 Broad Research Areas (AREA5)} framework. This taxonomy is explicitly grounded in the 23 two-digit divisions of ANZSRC FOR 2020 and linked directly to OpenAlex's 26 fields, as documented in Table~\ref{tab:area5_concordance}.
 
 \input{tables/tab1_area5_concordance}
 
