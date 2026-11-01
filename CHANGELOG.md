@@ -4,6 +4,15 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-11-01 — LaTeX NewERA Introduction Revisions (external TeXstudio edits)
+
+- **`latex/NewERA/sections/01_introduction.tex`** (edited outside the IDE; commits `d59b76f`, `799e1cb`, `b4e6be3`, following `4e8cb12` and `70913b4`):
+  - Citations migrated to the master Zotero `MyLibrary.bib`; local `references.bib` removed.
+  - Streamlined introduction; added Universities Accord (2024) and Docampo (2026) references.
+  - Reframed bibliometric critiques around Abramo's (2024) quality-vs-impact distinction.
+  - Positioned DORA, Leiden Manifesto, CoARA and *The Metric Tide* as responses to indicator critiques that treat peer review as the gold standard; contrasted with Traag & Waltman (2019) and Pride & Knoth (2018) institutional-level reanalyses.
+  - Tightened the TEQSA vs. ERA-discontinuation (Sheil 2023 / Accord) paragraph.
+
 ## 2026-10-21 — LaTeX NewERA Introduction Expansion, csquotes Integration & IDE BibTeX Indexing
 
 - **LaTeX NewERA Manuscript Updates (`latex/NewERA/`)**:
