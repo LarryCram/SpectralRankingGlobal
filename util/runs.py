@@ -68,6 +68,7 @@ class GlobalSettings:
     field_first:              int
     field_last:               int
     blocs:                    dict   = field(default_factory=dict)  # bloc_name → tuple of ISO-3166-1-alpha-2 codes
+    threads:                  int    = 8
 
     @property
     def all_fields(self) -> range:

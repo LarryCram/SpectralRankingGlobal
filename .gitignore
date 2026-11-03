@@ -2,6 +2,7 @@ config.yaml
 __pycache__/
 *.pyc
 .venv/
+.tmp/
 *.egg-info/
 .DS_Store
 .env

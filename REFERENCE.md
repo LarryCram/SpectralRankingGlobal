@@ -35,11 +35,23 @@ No explicit set config is needed for topic sets; only runs need a config file.
 - `label`: string encoded in all output filenames (e.g. `baseline`, `tau20`, `OECDG20CIA`)
 - `bloc`: key into `GlobalSettings.blocs`; `''` = all countries
 
+## Work types included
+`('article', 'review', 'book', 'book-chapter', 'dissertation', 'letter', 'preprint', 'report', 'conference-paper')`
+9 types specified in `settings.yaml`. Excludes: `reference-entry` (low citation signal), `dataset`, `editorial`, `erratum`, `paratext`, `retracted`.
+
 ## Institution types included
 `('education', 'nonprofit', 'government', 'healthcare', 'other')`
 Excludes: company, funder, archive. Healthcare was added to capture clinical
 research institutions (MSK, Mayo, Kaiser, Ragon, etc.) which OA classifies
 separately from education/nonprofit.
+
+## DuckDB resource & connection insulation
+Pipeline DuckDB executions (`build_flat_works.py`, `build_field_candidacy.py`, `run_leiden_bloc.py`,
+`run_leiden_sensitivity.py`) follow insulation best practices:
+- **Fresh connection per stage**: Avoids sharing connections across massive queries; closes connection and frees jemalloc memory immediately when a stage completes.
+- **NVMe temp directory**: Sets `temp_directory` to `paths.project_root / '.tmp'` (local NVMe SSD) rather than `paths.working / '.tmp'` (mounted via FUSE user-space, e.g. `/media/s-drive`), preventing kernel dirty-page writeback deadlocks during disk spills.
+- **Capped memory and threads**: Managed globally via `settings.yaml` (`memory_limit: 28GB`, `threads: 8`).
+- **Eager table drop**: Drops intermediate temp tables (`_valid_inst`, `_topic_meta`) immediately after their dependents are built.
 
 ## Folder structure
 ```

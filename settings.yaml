@@ -6,11 +6,12 @@ corpus:
   year_min: 2000
   year_max: 2025
   source_types:      [journal, conference, "book series"]
-  work_types:        [article, review, book, "book-chapter", dissertation, letter, preprint, report]
+  work_types:        [article, review, book, "book-chapter", dissertation, letter, preprint, report, "conference-paper"]
   institution_types: [education, nonprofit, government, healthcare, other]
 
 duckdb:
-  memory_limit: "36GB"
+  memory_limit: "28GB"
+  threads: 8
   preserve_insertion_order: false
 
 katz:

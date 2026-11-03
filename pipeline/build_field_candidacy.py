@@ -101,6 +101,18 @@ def build_subfield_candidacy(db: duckdb.DuckDBPyConnection,
     return build_candidacy(db, fw_path, window, out_src, out_inst, 'subfield_idx')
 
 
+def _make_db(settings, tmp_dir: Path) -> duckdb.DuckDBPyConnection:
+    """Create a fresh, isolated DuckDB connection with memory and thread limits."""
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    db = duckdb.connect()
+    db.execute(f"SET temp_directory = '{tmp_dir}'")
+    db.execute(f"SET memory_limit = '{settings.memory_limit}'")
+    db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
+    threads = getattr(settings, 'threads', 8)
+    db.execute(f"SET threads = {threads}")
+    return db
+
+
 def main():
     import argparse
     import time
@@ -114,41 +126,38 @@ def main():
     runs     = load_runs()
     window   = runs[0].window
     fw       = str(paths.working / f'flat_works_{settings.year_min}_{settings.year_max}.parquet')
+    tmp_dir  = paths.project_root / '.tmp'
 
-    with duckdb.connect() as db:
-        db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
-        db.execute(f"SET memory_limit = '{settings.memory_limit}'")
-        db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
+    for label, build_fn, out_s_name, out_u_name in [
+        ('field',    build_field_candidacy,    f'field_source_cands_{window}.parquet',
+                                                f'field_inst_cands_{window}.parquet'),
+        ('leiden',   build_leiden_candidacy,   f'leiden_source_cands_{window}.parquet',
+                                                f'leiden_inst_cands_{window}.parquet'),
+        ('subfield', build_subfield_candidacy, f'subfield_source_cands_{window}.parquet',
+                                                f'subfield_inst_cands_{window}.parquet'),
+    ]:
+        out_s = str(paths.working / out_s_name)
+        out_u = str(paths.working / out_u_name)
 
-        for label, build_fn, out_s_name, out_u_name in [
-            ('field',    build_field_candidacy,    f'field_source_cands_{window}.parquet',
-                                                    f'field_inst_cands_{window}.parquet'),
-            ('leiden',   build_leiden_candidacy,   f'leiden_source_cands_{window}.parquet',
-                                                    f'leiden_inst_cands_{window}.parquet'),
-            ('subfield', build_subfield_candidacy, f'subfield_source_cands_{window}.parquet',
-                                                    f'subfield_inst_cands_{window}.parquet'),
-        ]:
-            out_s = str(paths.working / out_s_name)
-            out_u = str(paths.working / out_u_name)
+        # build_fn always (re)writes both outputs together, so a rebuild
+        # is needed if either one is stale.
+        rebuild_s = guard.ensure_fresh(out_s, fw, script=__file__, auto_yes=args.yes,
+                                       label=f'{label} source candidacy')
+        rebuild_u = guard.ensure_fresh(out_u, fw, script=__file__, auto_yes=args.yes,
+                                       label=f'{label} inst candidacy')
+        if not (rebuild_s or rebuild_u):
+            continue
 
-            # build_fn always (re)writes both outputs together, so a rebuild
-            # is needed if either one is stale.
-            rebuild_s = guard.ensure_fresh(out_s, fw, script=__file__, auto_yes=args.yes,
-                                           label=f'{label} source candidacy')
-            rebuild_u = guard.ensure_fresh(out_u, fw, script=__file__, auto_yes=args.yes,
-                                           label=f'{label} inst candidacy')
-            if not (rebuild_s or rebuild_u):
-                continue
-
-            print(f"Building {label} candidacy for window {window} ...")
-            t0 = time.time()
+        print(f"Building {label} candidacy for window {window} ...")
+        t0 = time.time()
+        with _make_db(settings, tmp_dir) as db:
             n_s, n_u = build_fn(db, fw, window, out_s, out_u)
-            elapsed = time.time() - t0
-            guard.record_build(out_s, fw, script=__file__, build_seconds=elapsed)
-            guard.record_build(out_u, fw, script=__file__, build_seconds=elapsed)
-            print(f"  Source rows   : {n_s:>10,}  →  {out_s}")
-            print(f"  Inst rows     : {n_u:>10,}  →  {out_u}")
-            print(f"  Elapsed: {elapsed:.1f}s")
+        elapsed = time.time() - t0
+        guard.record_build(out_s, fw, script=__file__, build_seconds=elapsed)
+        guard.record_build(out_u, fw, script=__file__, build_seconds=elapsed)
+        print(f"  Source rows   : {n_s:>10,}  →  {out_s}")
+        print(f"  Inst rows     : {n_u:>10,}  →  {out_u}")
+        print(f"  Elapsed: {elapsed:.1f}s")
 
 
 if __name__ == '__main__':

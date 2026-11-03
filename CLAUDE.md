@@ -33,7 +33,7 @@ system" section for how staleness is now caught automatically instead of silentl
 
 - ✅ Stage 1a/1b: `build_flat_works.py` — flat_works/corpus_references, recoded schema
   (title, cited_by_count, authors_count, institutions_distinct_count carried verbatim;
-  title dedup + authors_count<=29 filter; work_types broadened to 8 types)
+  title dedup + authors_count<=29 filter; work_types broadened to 9 types including conference-paper)
 - ✅ Stage 2: `build_field_candidacy.py` — all 6 candidacy parquets
 - ✅ Stage 3+4: `run_field_bloc.py` / `run_leiden_bloc.py` — baseline + all 4 blocs
   (OECDG20, OECDG20CIA, CIAA, BASELINECIA), 26 OA fields + 5 Leiden groups each

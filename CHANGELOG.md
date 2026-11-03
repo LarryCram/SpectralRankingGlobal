@@ -4,6 +4,20 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-11-03 — DuckDB Insulation, FUSE Temp Spill Removal & Conference Papers Work Type
+
+- **DuckDB Connection & Resource Insulation (`pipeline/build_flat_works.py`, `pipeline/build_field_candidacy.py`)**:
+  - Investigated OS freeze and reboot during `flat_works` build with the expanded corpus filters.
+  - Identified root causes: long-lived shared `duckdb.connect()` connection across sequential stages, unconstrained thread count defaulting to all 24 hardware threads, and temp spilling (`temp_directory`) directed to `{paths.working}/.tmp` located on `/media/s-drive` (`fuseblk` user-space FUSE mount), which caused Linux kernel page writeback deadlocks under memory pressure.
+  - **Connection isolation**: Refactored `build_flat_works.py` and `build_field_candidacy.py` with an isolated connection helper (`_make_db()`). `build_flat_works` and `build_corpus_references` now run under separate, dedicated DuckDB connections, releasing memory and jemalloc arenas immediately upon completion.
+  - **Local NVMe temp directory**: Redirected DuckDB's `temp_directory` to `paths.project_root / '.tmp'` on the native NVMe SSD (`/dev/nvme1n1p5`, ext4 with 225 GB free space), completely eliminating FUSE user-space writeback stalls. Added `.tmp/` to `.gitignore`.
+  - **Eager table cleanup**: Dropped `_valid_inst` and `_topic_meta` temp tables immediately after dependent tables are built rather than holding them in memory through the final export.
+  - **Thread and memory capping**: Set `memory_limit: "28GB"` and `threads: 8` in `settings.yaml`, leaving over 34 GB of system RAM headroom for OS buffers and GUI session. Wired `threads` into `GlobalSettings` (`util/runs.py`) and `load_settings()` (`util/load_config.py`).
+  - **Cleanup of crash artifacts**: Deleted 13 GB of orphaned `.tmp` spill files from the FUSE drive and removed corrupted partial `flat_works_2000_2025.parquet` (which lacked magic bytes).
+- **Corpus Configuration Update (`settings.yaml`, `pipeline/build_flat_works.py`)**:
+  - Added `"conference-paper"` to `corpus.work_types` in `settings.yaml` (now 9 work types) to capture proceedings reclassified in the Oct26 OpenAlex snapshot.
+  - Synchronized docstring in `pipeline/build_flat_works.py`.
+
 ## 2026-11-01 — LaTeX NewERA Introduction Revisions (external TeXstudio edits)
 
 - **`latex/NewERA/sections/01_introduction.tex`** (edited outside the IDE; commits `d59b76f`, `799e1cb`, `b4e6be3`, following `4e8cb12` and `70913b4`):

@@ -7,7 +7,8 @@ read from it rather than re-scanning raw OA works.
 
 Filters applied:
   - publication_year 2000–2025
-  - type in ('article', 'review')
+  - type in settings.yaml work_types ('article', 'review', 'book', 'book-chapter',
+    'dissertation', 'letter', 'preprint', 'report', 'conference-paper')
   - is_paratext = false, is_retracted = false
   - source type in ('journal', 'conference', 'book series')
   - institution type in ('education', 'nonprofit', 'government', 'healthcare', 'other')
@@ -167,6 +168,9 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
         GROUP BY a.work_idx, a.institution_idx
     """)
 
+    # Early cleanup: _valid_inst is no longer needed after _iw is built
+    db.execute("DROP TABLE IF EXISTS _valid_inst")
+
     # Detect whether topics_path is already flattened (e.g. Oct26) or nested struct array (legacy)
     sample_topic = sorted(glob.glob(topics_path))
     sample_file = sample_topic[0] if sample_topic else topics_path
@@ -207,6 +211,7 @@ def build_flat_works(db: duckdb.DuckDBPyConnection,
             JOIN _topic_meta m ON f.topic_idx = m.topic_idx
             GROUP BY f.work_idx, m.subfield_idx, m.subfield_name, m.field_idx
         """)
+        db.execute("DROP TABLE IF EXISTS _topic_meta")
 
     # ── pass 3: join small tables and write output ────────────────────────────
 
@@ -313,6 +318,18 @@ def build_corpus_references(db: duckdb.DuckDBPyConnection,
     return db.execute(f"SELECT COUNT(*) FROM '{out_path}'").fetchone()[0]
 
 
+def _make_db(settings, tmp_dir: Path) -> duckdb.DuckDBPyConnection:
+    """Create a fresh, isolated DuckDB connection with memory and thread limits."""
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    db = duckdb.connect()
+    db.execute(f"SET temp_directory = '{tmp_dir}'")
+    db.execute(f"SET memory_limit = '{settings.memory_limit}'")
+    db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
+    threads = getattr(settings, 'threads', 8)
+    db.execute(f"SET threads = {threads}")
+    return db
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -344,42 +361,42 @@ def main():
     fw_inputs = [works_path, sources_path, authorships_path, institutions_path,
                  topics_path, topics_meta_path]
 
-    (paths.working / '.tmp').mkdir(parents=True, exist_ok=True)
+    # Insulate temp directory on fast local NVMe to avoid FUSE lockups
+    tmp_dir = paths.project_root / '.tmp'
 
-    with duckdb.connect() as db:
-        db.execute(f"SET temp_directory = '{paths.working}/.tmp'")
-        db.execute(f"SET memory_limit = '{settings.memory_limit}'")
-        db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
-
-        if guard.ensure_fresh(fw_path, *fw_inputs, script=__file__,
-                              auto_yes=args.yes, label='flat_works'):
-            print(f"Building flat works table ({settings.year_min}–{settings.year_max}) ...")
-            t0 = time.time()
+    if guard.ensure_fresh(fw_path, *fw_inputs, script=__file__,
+                          auto_yes=args.yes, label='flat_works'):
+        print(f"Building flat works table ({settings.year_min}–{settings.year_max}) ...")
+        t0 = time.time()
+        with _make_db(settings, tmp_dir) as db:
             n = build_flat_works(
                 db, works_path, sources_path, authorships_path,
                 institutions_path, topics_path, topics_meta_path, fw_path,
                 settings.year_min, settings.year_max,
                 settings.source_types, settings.work_types, settings.institution_types,
             )
-            guard.record_build(fw_path, *fw_inputs, script=__file__,
-                               build_seconds=time.time() - t0)
-            print(f"Wrote {n:,} rows → {fw_path}")
-        else:
+        guard.record_build(fw_path, *fw_inputs, script=__file__,
+                           build_seconds=time.time() - t0)
+        print(f"Wrote {n:,} rows → {fw_path}")
+    else:
+        with _make_db(settings, tmp_dir) as db:
             n = db.execute(f"SELECT COUNT(*) FROM '{fw_path}'").fetchone()[0]
-            print(f"flat_works: {n:,} rows  ({fw_path})")
+        print(f"flat_works: {n:,} rows  ({fw_path})")
 
-        cr_inputs = [fw_path, refs_glob]
-        if guard.ensure_fresh(cr_path, *cr_inputs, script=__file__,
-                              auto_yes=args.yes, label='corpus_references'):
-            print(f"\nBuilding corpus references ...")
-            t0 = time.time()
+    cr_inputs = [fw_path, refs_glob]
+    if guard.ensure_fresh(cr_path, *cr_inputs, script=__file__,
+                          auto_yes=args.yes, label='corpus_references'):
+        print(f"\nBuilding corpus references ...")
+        t0 = time.time()
+        with _make_db(settings, tmp_dir) as db:
             nr = build_corpus_references(db, fw_path, refs_glob, cr_path)
-            guard.record_build(cr_path, *cr_inputs, script=__file__,
-                               build_seconds=time.time() - t0)
-            print(f"Wrote {nr:,} rows in {time.time()-t0:.0f}s → {cr_path}")
-        else:
+        guard.record_build(cr_path, *cr_inputs, script=__file__,
+                           build_seconds=time.time() - t0)
+        print(f"Wrote {nr:,} rows in {time.time()-t0:.0f}s → {cr_path}")
+    else:
+        with _make_db(settings, tmp_dir) as db:
             nr = db.execute(f"SELECT COUNT(*) FROM '{cr_path}'").fetchone()[0]
-            print(f"corpus_references: {nr:,} rows  ({cr_path})")
+        print(f"corpus_references: {nr:,} rows  ({cr_path})")
 
 
 if __name__ == "__main__":
