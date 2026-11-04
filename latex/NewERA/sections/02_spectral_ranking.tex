@@ -1,116 +1,57 @@
+% !TeX root = ../main.tex
 % ---------------------------------------------------------------
-\section{Bipartite Spectral Ranking Methodology}
+\section{Mathematical Framework: Joint Spectral Ranking}
 \label{sec:spectral_ranking}
 % ---------------------------------------------------------------
 
-\subsection{Bipartite Network Formulation}
+We apply the recirculating spectral ranking model of \citet{docampodomingoRecirculatingCardinalSpectral2026} to selected works published by a set of countries $C \in \mathfrak{C}$, classified by research field $F \in \mathfrak{F}$. We distinguish two time intervals: the target window $t_t = [t_0^t, t_1^t]$, which specifies the publication years of the selected works $\mathfrak{W}^t$, and the census window $t_c = [t_0^c, t_1^c]$, which specifies the publication years of the referencing works $\mathfrak{W}^c$ whose reference lists are examined. 
 
-Traditional bibliometrics model citation graphs as unipartite networks—either direct journal-to-journal citation matrices or direct institution-to-institution citation exchanges. However, scientific communication fundamentally operates as a bipartite interaction between two distinct types of entities:
-\begin{itemize}
-    \item \textbf{Publishing Channels / Sources ($\mathcal{S}$)}: Peer-reviewed journals, book series, and selective conference proceedings ($|\mathcal{S}| = N_S$).
-    \item \textbf{Research Institutions ($\mathcal{I}$)}: Universities, hospitals, and public research agencies ($|\mathcal{I}| = N_U$).
-\end{itemize}
+Unlike \citet{docampodomingoRecirculatingCardinalSpectral2026}, sources are not pre-selected from field-specific journal registries; instead, both sources and institutions enter field $F$ solely by publishing a minimum volume of field-weighted works within the window.  The works $w \in \mathfrak{W}^t$ with weight $f_{wF}$ in field $F$ select candidate sources $\mathfrak{S}'$ and, through author affiliations, candidate institutions $\mathfrak{I}'$. Then sources and institutions whose accumulated field-weighted works meet annual thresholds $\tau_S$ and $\tau_I$ are retained in the surviving sets $\mathfrak{S} \subseteq \mathfrak{S}'$ ($|\mathfrak{S}| = N_S$) and $\mathfrak{I} \subseteq \mathfrak{I}'$ ($|\mathfrak{I}| = N_I$). This work-level classification accommodates multidisciplinary journals directly, allowing any journal to participate in each field where its field-weighted output reaches $\tau_S$ without requiring journal-level disciplinary assignment. Works with source works-count below $\tau_S$, or institutional affiliation-count under $\tau_I$, are removed from the corpus, leaving $N_w$ retained works $\mathfrak{W}$. From the reference lists of census works $\mathfrak{W}^c$ to the retained target works $\mathfrak{W}^t$, we form the filtered reference set $\mathfrak{R} = \{r(i, j) : w_i \in \mathfrak{W}^c,\, w_j \in \mathfrak{W}^t\}$, where work $w_i$ references work $w_j$ and $w_j$ is cited by $w_i$ \citep{woutersCitationCulture1999}. Some referencing works lie outside $F$, or give references to works outside $F$. The referencing practices of exogenous works can be ignored ($\varepsilon = 0$) or modelled by a single fictitious sentinel work for field $F$ that gives and received references from the exogenous works  ($\varepsilon = 1$).   
 
-Articles are authored by researchers affiliated with institutions $\mathcal{I}$ and published in sources $\mathcal{S}$. When article $A$ (published in source $s \in \mathcal{S}$ with author affiliations $i \in \mathcal{I}$) cites article $B$ (published in source $s' \in \mathcal{S}$ with author affiliations $i' \in \mathcal{I}$), this citation generates two complementary cross-entity links:
-\begin{enumerate}
-    \item A citation link from citing source $s$ to cited institution $i'$.
-    \item A citation link from citing institution $i$ to cited source $s'$.
-\end{enumerate}
-
-\begin{figure}[htbp]
-\centering
-\resizebox{0.92\textwidth}{!}{%
-\begin{tikzpicture}[
-    node distance=2.8cm and 3.5cm,
-    entity/.style={rectangle, rounded corners=6pt, draw=blue!70!black, fill=blue!8, very thick, minimum width=3.2cm, minimum height=1.4cm, align=center, font=\bfseries},
-    process/.style={rectangle, draw=gray!70, fill=gray!10, rounded corners=3pt, minimum width=2.6cm, minimum height=1.0cm, align=center, font=\small},
-    arrow/.style={-{Stealth[scale=1.1]}, thick, draw=blue!80!black},
-    darrow/.style={-{Stealth[scale=1.1]}, thick, dashed, draw=red!70!black}
-]
-
-% Entities
-\node[entity] (sources) {Publishing Sources\\$\mathcal{S}$ (Journals, Conferences)};
-\node[entity, right=of sources] (insts) {Research Institutions\\$\mathcal{I}$ (Universities, Institutes)};
-
-% Cross citation transitions
-\draw[arrow] ([yshift=6pt]sources.east) -- node[above, font=\small] {$H_{SI}$ (Citing Source $\to$ Cited Inst)} ([yshift=6pt]insts.west);
-\draw[arrow] ([yshift=-6pt]insts.west) -- node[below, font=\small] {$H_{IS}$ (Citing Inst $\to$ Cited Source)} ([yshift=-6pt]sources.east);
-
-% Breiger Projection loops
-\draw[darrow] (sources.north) .. controls +(up:1.4cm) and +(left:1.4cm) .. node[above left, font=\footnotesize] {One-mode $M_S = H_{SI} H_{IS}$} (sources.west);
-\draw[darrow] (insts.north) .. controls +(up:1.4cm) and +(right:1.4cm) .. node[above right, font=\footnotesize] {One-mode $M_I = H_{IS} H_{SI}$} (insts.east);
-
-% Resulting metrics below
-\node[process, below=1.2cm of sources] (vs) {Source Intensity $v_S$\\$\bar{v}_S = 1.0$};
-\node[process, below=1.2cm of insts] (vi) {Institutional Intensity $v_I$\\$\bar{v}_I = 1.0$};
-
-\draw[-{Stealth}] (sources.south) -- (vs);
-\draw[-{Stealth}] (insts.south) -- (vi);
-
-% Synthesis
-\node[process, fill=green!10, draw=green!60!black, below=2.6cm of $(sources)!0.5!(insts)$] (vwork) {Work-Level Influence\\$v_{\text{work}} = \frac{1}{2}\left(v_S + \bar{v}_I\right)$};
-
-\draw[-{Stealth}, thick] (vs.south) |- (vwork.west);
-\draw[-{Stealth}, thick] (vi.south) |- (vwork.east);
-
-\end{tikzpicture}%
-}
-\caption{Conceptual architecture of the bipartite source/institution spectral ranking model. Mutual reinforcement between publishing sources $\mathcal{S}$ and research institutions $\mathcal{I}$ yields one-mode Breiger projections ($M_S, M_I$), from which size-independent prestige intensities ($v_S, v_I$) and work-level status ($v_{\text{work}}$) are derived.}
-\label{fig:bipartite_schematic}
-\end{figure}
-
-Let $C_{SI}$ be the raw $N_S \times N_U$ cross-citation matrix where element $c_{s, i'}$ records the aggregate volume of citations from source $s$ to institution $i'$. Conversely, let $C_{IS}$ be the $N_U \times N_S$ cross-citation matrix where element $c_{i, s'}$ records the volume of citations from institution $i$ to source $s'$.
-
-\subsection{Fractional Weighting and Cross-Disciplinary Conservation}
-
-To prevent distortion from hyper-authored papers and multi-institution consortia, fractional weighting is applied at both the institution and disciplinary levels:
-\begin{enumerate}
-    \item \textbf{Author-Fractional Institutional Weight ($w_{\text{inst}}$)}: For an article with $n_a$ authors, where author $k$ has $n_{i,k}$ institutional affiliations, the institutional weight assigned to institution $j$ is:
-    \begin{equation}
-        w_{\text{inst}}(j) = \sum_{k=1}^{n_a} \frac{\mathbb{I}(j \in \text{Affil}_k)}{n_a \cdot n_{i,k}}, \quad \sum_{j \in \mathcal{I}} w_{\text{inst}}(j) = 1
-    \end{equation}
-    Papers with consortium authorship exceeding 29 authors are excluded to avoid massive particle-physics or genomics consortium distortions.
-    \item \textbf{Disciplinary Field Weight ($w_{\text{field}}$)}: When an article is assigned multiple topics across disciplines, the weight for field $X$ is normalized by the total topic confidence scores:
-    \begin{equation}
-        w_{\text{field}}(X) = \frac{\sum_{t \in X} \text{score}(t)}{\sum_{t} \text{score}(t)}, \quad \sum_{X} w_{\text{field}}(X) = 1
-    \end{equation}
-    An edge between citer $A$ and cited work $B$ in field $X$ receives weight $e_{AB} = \frac{1}{2}(w_{\text{field}}(A, X) + w_{\text{field}}(B, X))$, preserving total citation mass globally.
-\end{enumerate}
-
-\subsection{Row Normalization and Breiger Projection}
-
-Raw citation matrices are row-normalized to obtain row-stochastic transition operators $H_{SI}$ and $H_{IS}$:
+Each reference $r(i, j) \in \mathfrak{R}$ is weighted by field relevance, reference-list length, and institutional authorship share. First, the reference carries the mean field weight of the referencing and referenced works, $f_{ij,F} = \frac{1}{2}(f_{iF} + f_{jF})$. Second, let $R_i = \sum_{j : (i,j) \in \mathfrak{R}} f_{ij,F}$ be the field-weighted within-corpus reference count of work $w_i$, and $\bar{R} = \sum_{i} R_i / N_w$ be its mean over $\mathfrak{W}$. Under fractional reference counting ($\rho = 0$), each reference from $w_i$ is weighted by $\rho_i = \bar{R} / R_i$, ensuring that every work's filtered reference list counts equally \citep{zittModifyingJournalImpact2008}. Third, while each work links to a unique source in $\mathfrak{S}$, its credit across institutions in $\mathfrak{I}$ is fractionated by author-fractional counting \citep{waltmanFieldnormalizedCitationImpact2015}:
 \begin{equation}
-    H_{SI} = D_{S}^{-1} C_{SI}, \quad H_{IS} = D_{I}^{-1} C_{IS}
+    \omega_{ix} = \sum_{\ell :\, x \in \mathcal{I}_{i\ell}} \frac{1}{a_i\, x_{i\ell}},
+    \label{eq:inst_weight}
 \end{equation}
-where $D_S$ and $D_I$ are diagonal degree matrices whose entries are row sums of $C_{SI}$ and $C_{IS}$ (with zero/dangling rows handled through uniform prior redistribution).
+where $\mathcal{I}_{i\ell}$ is the set of institutions of author $\ell$ of work $w_i$, $x_{i\ell} = |\mathcal{I}_{i\ell}|$ is its cardinality, and $a_i$ is the author count of $w_i$. Authorships without an institution are excluded, and institution pruning at $\tau_I$ precedes fractional counting.
 
-Rather than solving a block-coupled $2 \times 2$ system directly, we utilize the classic Breiger one-mode dual projection \citep{breigerDualityPersonsGroups1974}. The round-trip operator for sources, $M_S$, and institutions, $M_I$, are defined as:
+With works and references defined in this way, we construct the indexed set of units $\mathfrak{P} = \mathfrak{S} \cup \mathfrak{I}$ with $N = N_S + N_I$ elements \citep{pinskiCitationInfluenceJournal1976}, ordered so that sources occupy indices $1, \dots, N_S$ and institutions occupy indices $N_S + 1, \dots, N$. For each work $w_i$, we define the source membership one-hot vector $\mathbf{b}_S(i) \in \mathbb{R}^{N_S}$ with $[\mathbf{b}_S(i)]_x = \mathbf{1}[w_i \in x]$ and the institution weight vector $\mathbf{b}_I(i) \in \mathbb{R}^{N_I}$ with $[\mathbf{b}_I(i)]_y = \omega_{iy}$ from (\ref{eq:inst_weight}). Adopting the bipartite block mask $\mathbf{m} = (m_{SS}, m_{SI}, m_{IS}, m_{II}) = (0110)$ with unit balance $\chi = 0.5$ \citep{docampodomingoRecirculatingCardinalSpectral2026}, references over $\mathfrak{R}$ link sources and institutions across two block matrices accumulated via rank-1 outer products:
 \begin{equation}
-    M_S = H_{SI} H_{IS} \in \mathbb{R}^{N_S \times N_S}, \quad M_I = H_{IS} H_{SI} \in \mathbb{R}^{N_U \times N_U}
+    \mathbf{C}_{SI} = \sum_{(i,j) \in \mathfrak{R}} f_{ij,F}\, \rho_i\, \mathbf{b}_S(i)\, \mathbf{b}_I(j)^\top, \qquad
+    \mathbf{C}_{IS} = \sum_{(i,j) \in \mathfrak{R}} f_{ij,F}\, \rho_i\, \mathbf{b}_I(i)\, \mathbf{b}_S(j)^\top.
+    \label{eq:c_blocks}
 \end{equation}
-$M_S$ represents a two-step citation walk: from a citing source to a cited institution, and then from that institution to the sources it cites. In network terms, this captures the mutual reinforcement principle pioneered by \citet{katzNewStatusIndex1953}, \citet{bonacichPowerCentralityFamily1987}, and \citet{kleinberg1999authoritative}, extended here to a bipartite scholarly setting related to invariant citation flows \citep{pagePagerankCitationRanking1998, bergstromEigenfactorMetrics2008}. $M_S$ is row-stochastic and, for connected citation graphs, primitive with spectral radius $\lambda_1 = 1.0$.
+Here $\mathbf{b}_X(i)$ projects the referencing side over units of type $X$ and $\mathbf{b}_Y(j)$ projects the referenced side over units of type $Y$, so rows index references given and columns index citations received. Let $r_p = \sum_q C_{pq}$ be the row sum of fractionated references given by unit $p$ and $\mathbf{D}_r = \mathrm{diag}(r_p)$ the corresponding diagonal matrix. Row-normalising the partitioned reference matrix $\mathbf{C}$ gives the transition matrix
+\begin{equation}
+    \mathbf{H} = \mathbf{D}_r^{-1} \mathbf{C} = \begin{pmatrix} \mathbf{0} & \mathbf{H}_{SI} \\ \mathbf{H}_{IS} & \mathbf{0} \end{pmatrix},
+    \label{eq:h_bipartite}
+\end{equation}
+where $\mathbf{H}_{SI}$ connects sources to institutions and $\mathbf{H}_{IS}$ connects institutions to sources, removing differences in reference intensity across units when $\rho = 0$.
 
-\subsection{Eigensolve and Normalized Prestige Intensity \texorpdfstring{($v$)}{(v)}}
+Because every path in $\mathbf{H}$ alternates $S \to I \to S \to \cdots$, $\mathbf{H}$ is periodic with period 2 and thus imprimitive. Squaring $\mathbf{H}$ collapses two-step paths onto separate unit types \citep{breigerDualityPersonsGroups1974}, yielding the one-mode operators
+\begin{equation}
+    \mathbf{H}^2 = \begin{pmatrix} \mathbf{M}_S & \mathbf{0} \\ \mathbf{0} & \mathbf{M}_I \end{pmatrix}, \qquad
+    \mathbf{M}_S = \mathbf{H}_{SI}\mathbf{H}_{IS}, \qquad
+    \mathbf{M}_I = \mathbf{H}_{IS}\mathbf{H}_{SI}.
+    \label{eq:breiger}
+\end{equation}
+In the baseline unattenuated regime ($\alpha = 1$, $\boldsymbol{\mu} = \mathbf{0}$, corresponding to the $\alpha \to 1$ limit of the Katz--Hubbell resolvent; \citealp{katzNewStatusIndex1953, hubbellInputoutputApproachClique1965, vignaSpectralRanking2016}), the source ranking vector $\boldsymbol{\pi}_S$ satisfies the Perron--Frobenius equation
+\begin{equation}
+    (\mathbf{I} - \mathbf{M}_S^\top)\boldsymbol{\pi}_S = \mathbf{0}, \qquad \mathbf{1}^\top\boldsymbol{\pi}_S = 1, \qquad \boldsymbol{\pi}_S \ge \mathbf{0},
+    \label{eq:pf_sources}
+\end{equation}
+and the institution ranking vector follows directly as the matrix--vector product
+\begin{equation}
+    \boldsymbol{\pi}_I = \mathbf{H}_{SI}^\top \boldsymbol{\pi}_S, \qquad \mathbf{1}^\top\boldsymbol{\pi}_I = 1.
+    \label{eq:pf_insts}
+\end{equation}
+When $\mathbf{M}_S$ is primitive, $\boldsymbol{\pi}_S$ and $\boldsymbol{\pi}_I$ are unique by the Perron--Frobenius theorem. As \citet{gellerCitationInfluenceMethodology1978} showed, $\boldsymbol{\pi}$ is the stationary distribution of the Markov chain and coincides with the influence weight of \citet{pinskiCitationInfluenceJournal1976} scaled by the reference-count proportion $r_p / \sum_q r_q$.
 
-The dominant Perron eigenvector $\pi_S$ satisfying $\pi_S = M_S^T \pi_S$ (normalized such that $\sum_{s} \pi_S(s) = 1$) yields the global prestige vector over publishing sources. The institutional prestige vector $\pi_I$ is obtained directly via:
+From the ranking probability $\pi_p$ of unit $p$, the size-independent influence $v_p$ is computed as \citep{palacios-huertaMeasurementIntellectualInfluence2004}
 \begin{equation}
-    \pi_I = H_{SI}^T \pi_S, \quad \sum_{i} \pi_I(i) = 1
+    \mathbf{v} = A\, \mathbf{A}^{-1} \boldsymbol{\pi}, \qquad \mathbf{A} = \mathrm{diag}(a_p), \qquad A = \mathbf{a}^\top \mathbf{1} = \sum_p a_p,
+    \label{eq:influence_v}
 \end{equation}
-The spectral gap, $1 - |\lambda_2|$, serves as a diagnostic of graph connectivity and community mixing. Across all fields in our data, $|\lambda_2| \le 0.67$, ensuring rapid geometric convergence and well-separated principal prestige dimensions.
+that is, $v_p = (A / a_p) \pi_p$, where $a_p = \sum_{w_i \in p} f_{iF}\, \omega_{ip}$ (with $\omega_{ip} = 1$ for $p \in \mathfrak{S}$) is the field-weighted work count of unit $p$ and $A$ is the total weighted work count of the unit set. The scalar $A$ normalises $\mathbf{v}$ so that its $a_p$-weighted mean equals one: $\mathbf{a}^\top \mathbf{v} / A = \mathbf{1}^\top \boldsymbol{\pi} = 1$. This normalisation provides interpretable cardinal values \citep{stevensTheoryScalesMeasurement1946}: a unit with $v_p = 1$ has the corpus-average influence, and $v_p = 2$ indicates twice the corpus-average influence, corresponding to influence per publication \citep{pinskiCitationInfluenceJournal1976} and the article influence score \citep{bergstromEigenfactorMetrics2008}. \citet{palacios-huertaMeasurementIntellectualInfluence2004} show that $\mathbf{v}$ is uniquely characterised by invariance axioms, although \citet{serranoMeasurementIntellectualInfluence2004} provides an impossibility result via an additional axiom that breaks uniqueness.
 
-Raw prestige $\pi$ scales with publication volume: an institution that publishes 1,000 papers naturally accumulates more total prestige than one publishing 50 papers \citep{docampoInternalDynamicsShanghai2014}. To obtain a \textbf{size-independent research quality intensity}, following \citet{safonScreeningArticlesCitation2025}, we divide prestige by the institution's weighted publication output ($w_I$) and scale by entity count:
-\begin{equation}
-    v_S(s) = \frac{\pi_S(s)}{w_S(s)} \cdot N_S, \quad v_I(i) = \frac{\pi_I(i)}{w_I(i)} \cdot N_U
-\end{equation}
-By construction, the weighted mean across all qualifying entities is exactly unity:
-\begin{equation}
-    \bar{v}_S = \frac{1}{N_S} \sum_{s \in \mathcal{S}} v_S(s) \cdot w_S(s) = 1.0, \quad \bar{v}_I = \frac{1}{N_U} \sum_{i \in \mathcal{I}} v_I(i) \cdot w_I(i) = 1.0
-\end{equation}
-Values of $v > 1.0$ indicate performance above the global baseline; values $v < 1.0$ denote performance below the global mean.
-
-Finally, each published article inherits a dual status reflecting both its publication venue and its authorial institutional pedigree:
-\begin{equation}
-    v_{\text{work}} = \frac{1}{2}\left( v_S + \frac{1}{|\mathcal{I}_{\text{work}}|} \sum_{i \in \mathcal{I}_{\text{work}}} v_I(i) \right)
-\end{equation}
-This formulation provides a size-independent, field-normalized, and tamper-resistant assessment metric suitable for national evaluation.
+Each field realisation produces a unit--unit reference network with one giant strongly connected component (SCC) and occasionally small disconnected components. We retain the giant SCC, drop disconnected components, and iteratively remove any units whose row sum (dangling nodes) or column sum (unreferenced nodes) on the SCC is zero until $\mathbf{H}$ is strictly row-stochastic. In our implementation, $\mathbf{H}_{SI}$ and $\mathbf{H}_{IS}$ are sparse matrices constructed from the filtered and weighted edge list $\mathcal{E}$ accumulated over $\mathfrak{R}$ in compressed sparse row (CSR) format. The dominant eigenpair of $\mathbf{M}_S^\top$ is computed with \texttt{scipy.sparse.linalg.eigs}, which also returns the next eigenvalues to verify primitivity (a unique eigenvalue of modulus $\lambda_1 = 1$ and spectral gap $1 - |\lambda_2| > 0$), after which the influence scaling (\ref{eq:influence_v}) is applied to $\boldsymbol{\pi}_S$ and $\boldsymbol{\pi}_I$.
