@@ -516,6 +516,8 @@ def main():
                         help="Choose ranking dataset model (default: baseline ε=0)")
     parser.add_argument("--sentinel", action="store_true",
                         help="Plot 2-digit comparative facet contrasting baseline (ε=0) and sentinel (ε=1) models")
+    parser.add_argument("--working", type=Path, default=None,
+                        help="WORKING dir to read rankings from and write plots to (default: config.yaml)")
     args = parser.parse_args()
 
     if args.sentinel:
@@ -524,11 +526,12 @@ def main():
         return
 
     paths = load_config()
+    working = args.working or paths.working
     run_label = args.model
-    era_dir = paths.working / f"era2018_{run_label}" if run_label != 'baseline' else paths.working / "era2018"
-    sent_era_dir = paths.working / "era2018_sentinel" if run_label == 'baseline' else None
+    era_dir = working / f"era2018_{run_label}" if run_label != 'baseline' else working / "era2018"
+    sent_era_dir = working / "era2018_sentinel" if run_label == 'baseline' else None
     data_dir = paths.data
-    plots_dir = paths.working / "era2018" / "plots"
+    plots_dir = working / "era2018" / "plots"
 
     era_map = load_era_official_outcomes()
     id_to_hep, id_to_name = load_hep_mappings(data_dir)
