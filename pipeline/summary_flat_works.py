@@ -19,6 +19,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, FIELD_NAMES
+from util.areas import AREA_MNEMONICS, area_case_sql
 
 YEAR_LO = 2000
 YEAR_HI = 2025
@@ -107,22 +108,22 @@ def _print_unit_rank_table(db, fw: str, unit: str) -> None:
 
 
 def _print_country_report(db, fw: str) -> None:
-    section("Country report — distinct works per Leiden group (top 10 + bottom 10 by total)")
+    section("Country report — distinct works per AREA5 area (top 10 + bottom 10 by total)")
 
     db.execute(f"""
         CREATE OR REPLACE TEMP TABLE _cw AS
-        SELECT DISTINCT work_idx, leiden_idx, country_code
+        SELECT DISTINCT work_idx, {area_case_sql()} AS area_idx, country_code
         FROM '{fw}'
         WHERE country_code IS NOT NULL
     """)
 
     raw = db.sql("""
         SELECT country_code,
-               COUNT(DISTINCT CASE WHEN leiden_idx = 1 THEN work_idx END) AS l1,
-               COUNT(DISTINCT CASE WHEN leiden_idx = 2 THEN work_idx END) AS l2,
-               COUNT(DISTINCT CASE WHEN leiden_idx = 3 THEN work_idx END) AS l3,
-               COUNT(DISTINCT CASE WHEN leiden_idx = 4 THEN work_idx END) AS l4,
-               COUNT(DISTINCT CASE WHEN leiden_idx = 5 THEN work_idx END) AS l5,
+               COUNT(DISTINCT CASE WHEN area_idx = 1 THEN work_idx END) AS a1,
+               COUNT(DISTINCT CASE WHEN area_idx = 2 THEN work_idx END) AS a2,
+               COUNT(DISTINCT CASE WHEN area_idx = 3 THEN work_idx END) AS a3,
+               COUNT(DISTINCT CASE WHEN area_idx = 4 THEN work_idx END) AS a4,
+               COUNT(DISTINCT CASE WHEN area_idx = 5 THEN work_idx END) AS a5,
                COUNT(DISTINCT work_idx)                                    AS total
         FROM _cw
         GROUP BY country_code
@@ -130,11 +131,11 @@ def _print_country_report(db, fw: str) -> None:
     """).df()
 
     field_totals = db.sql("""
-        SELECT leiden_idx, COUNT(DISTINCT work_idx) AS field_total
+        SELECT area_idx, COUNT(DISTINCT work_idx) AS field_total
         FROM _cw
-        GROUP BY leiden_idx
-        ORDER BY leiden_idx
-    """).df().set_index('leiden_idx')['field_total'].to_dict()
+        GROUP BY area_idx
+        ORDER BY area_idx
+    """).df().set_index('area_idx')['field_total'].to_dict()
 
     grand_total = db.sql(
         "SELECT COUNT(DISTINCT work_idx) AS n FROM _cw"
@@ -142,13 +143,7 @@ def _print_country_report(db, fw: str) -> None:
 
     db.execute("DROP TABLE IF EXISTS _cw")
 
-    leiden_cols = {
-        'l1': ('Maths&CS',   1),
-        'l2': ('Phys&Eng',   2),
-        'l3': ('Life&Earth', 3),
-        'l4': ('Biomed',     4),
-        'l5': ('Soc&Hum',   5),
-    }
+    area_cols = {f'a{aid}': (AREA_MNEMONICS[aid], aid) for aid in range(1, 6)}
 
     def fmt(count, denom):
         pct = 100.0 * count / denom if denom else 0
@@ -156,8 +151,8 @@ def _print_country_report(db, fw: str) -> None:
 
     out = pd.DataFrame()
     out['country'] = raw['country_code']
-    for col, (label, lid) in leiden_cols.items():
-        ft = field_totals.get(lid, 1)
+    for col, (label, aid) in area_cols.items():
+        ft = field_totals.get(aid, 1)
         out[label] = raw[col].apply(lambda c: fmt(c, ft))
     out['total'] = raw['total'].apply(lambda c: fmt(c, grand_total))
 

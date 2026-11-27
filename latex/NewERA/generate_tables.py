@@ -54,7 +54,7 @@ def main():
     # ──────────────────────────────────────────────────────────────────────────
     rows2 = []
     for a in AREAS:
-        diag_path = paths.working / f"area5/rankings_{a.id}_2020_2024_baseline_diag.json"
+        diag_path = paths.working / f"rankings_{a.id}_2020_2024_baseline_diag.json"
         with open(diag_path) as f:
             d = json.load(f)
         s_count = f"{d.get('n_s_ranked', 0):,d}"
@@ -91,7 +91,7 @@ def main():
 
     hep_scores = {}
     for a in AREAS:
-        pq = str(paths.working / f"area5/rankings_{a.id}_2020_2024_baseline.parquet")
+        pq = str(paths.working / f"rankings_{a.id}_2020_2024_baseline.parquet")
         u_df = con.execute(f"SELECT unit_idx, v FROM '{pq}' WHERE unit_type = 'U'").df()
         m = keys.merge(u_df, left_on='inst_id', right_on='unit_idx', how='left')
         hep_scores[a.code] = m.set_index('HEP')['v']
@@ -136,7 +136,7 @@ def main():
     print("Generated tab3_hep_summary.tex")
 
     # ──────────────────────────────────────────────────────────────────────────
-    # Table 4: Sensitivity & Geopolitical Robustness Correlations (Leiden / AREA)
+    # Table 4: Sensitivity & Geopolitical Robustness Correlations (AREA5)
     # ──────────────────────────────────────────────────────────────────────────
     # Compute Spearman rank correlations for institutions between baseline and variants across Area 1..5
     variants = [

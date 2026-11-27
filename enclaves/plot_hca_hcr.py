@@ -8,8 +8,8 @@ Right panel: x = log10(mean_inst_v of HCW), y = log10(mean_citer_v)
 mean_citer_v = mean MAX-source-v of retained works that cite the HCW (all fields).
 Reference lines at log(v) = 0 (v = 1).  Count of (field, work) pairs shown per quadrant.
 
-Produces one PDF per CWTS Leiden group (5 files), each coloured by OA field within
-the group.  Also produces one combined PDF coloured by Leiden group.
+Produces one PDF per AREA5 area (5 files), each coloured by OA field within
+the area.  Also produces one combined PDF coloured by AREA5 area.
 
 Overlay: matched-HCR-authored HCW (hollow black circles) plus <v> (pool mean,
 filled circle) and <<v>> (per-person mean, diamond) markers, from
@@ -37,10 +37,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, FIELD_NAMES, guard
 
 from util.areas import (
-    LEIDEN_GROUP as _LEIDEN_GROUP,
-    LEIDEN_LABEL as _LEIDEN_LABEL,
-    LEIDEN_SLUG as _LEIDEN_SLUG,
-    LEIDEN_COLOUR as _LEIDEN_COLOUR,
+    FIELD_TO_AREA_ID as _AREA_OF_FIELD,
+    AREA_SHORT_NAMES as _AREA_LABEL,
+    AREA_SLUGS as _AREA_SLUG,
+    AREA_COLORS as _AREA_COLOUR,
 )
 
 
@@ -77,7 +77,7 @@ _FIELD_SHORT = {
 def load_hcr_works(working: Path, window: str, label: str) -> pd.DataFrame | None:
     """One row per (author_idx, work_idx, field_idx) for matched-HCR-authored HCW.
 
-    Columns: author_idx, work_idx, field_idx, leiden_group,
+    Columns: author_idx, work_idx, field_idx, area_group,
              source_v, mean_inst_v, mean_citer_v.
     Returns None if any upstream file is missing.
     """
@@ -108,7 +108,7 @@ def load_hcr_works(working: Path, window: str, label: str) -> pd.DataFrame | Non
     hcw = hcw[hcw['work_idx'].isin(set(auth['work_idx']))]
 
     out = hcw.merge(auth, on='work_idx', how='inner')
-    out['leiden_group'] = out['field_idx'].map(_LEIDEN_GROUP)
+    out['area_group'] = out['field_idx'].map(_AREA_OF_FIELD)
     return out
 
 
@@ -207,25 +207,25 @@ def _save_fig(fig: plt.Figure, axes, out_path: Path, n: int,
 
 def plot_combined(df: pd.DataFrame, out_path: Path,
                   hcr_works: pd.DataFrame | None = None) -> None:
-    """Single plot, all fields, coloured by Leiden group."""
+    """Single plot, all fields, coloured by AREA5 area."""
     sub = df.dropna(subset=['source_v', 'mean_inst_v', 'mean_citer_v']).copy()
     sub = sub[(sub['source_v'] > 0) & (sub['mean_inst_v'] > 0) & (sub['mean_citer_v'] > 0)]
-    sub['leiden_group'] = sub['field_idx'].map(_LEIDEN_GROUP)
+    sub['area_group'] = sub['field_idx'].map(_AREA_OF_FIELD)
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
-    _draw_panels(sub, axes, 'leiden_group', _LEIDEN_COLOUR, _LEIDEN_LABEL)
+    _draw_panels(sub, axes, 'area_group', _AREA_COLOUR, _AREA_LABEL)
     if hcr_works is not None:
         for ax, x_col in zip(axes, ['source_v', 'mean_inst_v']):
             _draw_hcr_overlay(ax, hcr_works, x_col)
     fig.suptitle('HCW: source/institution v vs mean citing source v — all fields',
                  fontsize=10)
-    _save_fig(fig, axes, out_path, len(sub), legend_title='Leiden group')
+    _save_fig(fig, axes, out_path, len(sub), legend_title='AREA5 area')
 
 
-def plot_leiden_group(df: pd.DataFrame, g: int, out_path: Path,
+def plot_area_group(df: pd.DataFrame, g: int, out_path: Path,
                       hcr_works: pd.DataFrame | None = None) -> None:
-    """One plot for a single Leiden group, coloured by OA field."""
-    fields_in_group = sorted(k for k, v in _LEIDEN_GROUP.items() if v == g)
+    """One plot for a single AREA5 area, coloured by OA field."""
+    fields_in_group = sorted(k for k, v in _AREA_OF_FIELD.items() if v == g)
     sub = df[df['field_idx'].isin(fields_in_group)].copy()
     sub = sub.dropna(subset=['source_v', 'mean_inst_v', 'mean_citer_v'])
     sub = sub[(sub['source_v'] > 0) & (sub['mean_inst_v'] > 0) & (sub['mean_citer_v'] > 0)]
@@ -238,10 +238,10 @@ def plot_leiden_group(df: pd.DataFrame, g: int, out_path: Path,
     fig, axes = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     _draw_panels(sub, axes, 'field_idx', colour_map, label_map)
     if hcr_works is not None:
-        hcr_sub = hcr_works[hcr_works['leiden_group'] == g]
+        hcr_sub = hcr_works[hcr_works['area_group'] == g]
         for ax, x_col in zip(axes, ['source_v', 'mean_inst_v']):
             _draw_hcr_overlay(ax, hcr_sub, x_col)
-    fig.suptitle(f'HCW: {_LEIDEN_LABEL[g]}', fontsize=10)
+    fig.suptitle(f'HCW: {_AREA_LABEL[g]}', fontsize=10)
     _save_fig(fig, axes, out_path, len(sub), legend_title='OA field')
 
 
@@ -270,7 +270,7 @@ def main() -> None:
     ]
     inputs = [str(hcw_path)] + [str(p) for p in hcr_inputs if p.exists()]
     out_paths = [out_dir / f'enclave_citer_v_{tag}_all.pdf'] + [
-        out_dir / f'enclave_citer_v_{tag}_{_LEIDEN_SLUG[g]}.pdf' for g in range(1, 6)
+        out_dir / f'enclave_citer_v_{tag}_{_AREA_SLUG[g]}.pdf' for g in range(1, 6)
     ]
     # All 6 plots are always regenerated together from the same inputs, so a
     # single representative freshness check covers the batch.
@@ -291,7 +291,7 @@ def main() -> None:
     print('Plotting...')
     plot_combined(df, out_paths[0], hcr_works=hcr_works)
     for g, out_path in zip(range(1, 6), out_paths[1:]):
-        plot_leiden_group(df, g, out_path, hcr_works=hcr_works)
+        plot_area_group(df, g, out_path, hcr_works=hcr_works)
 
     for out_path in out_paths:
         guard.record_build(out_path, *inputs, script=__file__)

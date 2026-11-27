@@ -4,6 +4,31 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-11-28 — CWTS Leiden groups retired; AREA5 is the broad-area level
+
+- **Why**: the Leiden 5-group scheme was outdated; AREA5 (`util/areas.py`, ANZSRC-grounded)
+  differs only in moving Veterinary (34) from Biomedical/Health to Life & Earth.
+- **Shared code made area-generic**: `Run.is_leiden` → `is_area`, `all_leiden_fields` →
+  `all_area_fields`; candidacy `leiden_*_cands` → `area_*_cands`, re-aggregated from the field
+  candidacy tables (`build_area_candidacy`, exact); `build_edge_list` filters areas by
+  `field_idx IN AREA_GROUPS[a]`. `LEIDEN_*` aliases removed from `util/areas.py`; new
+  `util.areas.area_case_sql()`.
+- **Runners**: `run_leiden_bloc.py` → `run_area_bloc.py` (baseline + 4 blocs, also replaces the
+  baseline-only `run_area5.py`, removed); `run_leiden_sensitivity.py` → `run_area_sensitivity.py`.
+  Outputs keep the `rankings_{1..5}_{window}_{label}` names, so readers switch automatically once
+  rebuilt. Existing `rankings_{1..5}` files in jul26/Oct26 are still Leiden until rerun.
+- **Readers**: `hep_heatmap.py`/`country_heatmap.py` `--mode leiden` → `--mode area`;
+  `impact_facets.py` outputs `area_*`; `plot_hca_hcr.py` groups by AREA5; NewERA
+  `generate_tables.py` reads `rankings_{1..5}` instead of `area5/`; `summary_flat_works.py` and
+  `compute_hass_share_by_year_and_country.py` use AREA5 fields. `check_leiden_and_for.py` and
+  `compare_hass_definitions.py` (one-off Leiden-vs-FoR diagnostics) moved to `ZARCHIVE/`.
+  `compare_all_leiden_countries.py`/`compare_international_universities.py` are about the CWTS
+  Leiden *Ranking* university list, not the groups, and are unchanged; so is
+  `compare_snapshots_newera.py` (reads the historical `area5/` directories).
+- **Kept**: `flat_works.leiden_idx`/`leiden_name` (no rebuild); their tests remain.
+- Tests: `test_leiden_edge_list.py` → `test_area_edge_list.py` (adds a check that the legacy
+  column is ignored); area candidacy and Vet-in-area-3 tests added. 417 pass.
+
 ## 2026-11-28 — Researchers subproject; Oct26 baseline rankings refreshed
 
 - **Oct26 refresh (minimal chain)**: Oct26 `flat_works` had been rebuilt on 2026-11-03 (conference

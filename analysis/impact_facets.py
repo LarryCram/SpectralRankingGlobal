@@ -1,14 +1,14 @@
 """
-impact_facets.py — Leiden group spectral ranking comparison plots.
+impact_facets.py — AREA5 area spectral ranking comparison plots.
 
 Produces two PDFs per comparison:
 
-  leiden_{cmp}_ordinal.pdf    — x=baseline rank, y=log₁₀(v)
+  area_{cmp}_ordinal.pdf    — x=baseline rank, y=log₁₀(v)
                                  baseline as black line, comparison as colour scatter
-  leiden_{cmp}_influence.pdf  — x=log₁₀(v_baseline), y=log₁₀(v_comparison)
+  area_{cmp}_influence.pdf  — x=log₁₀(v_baseline), y=log₁₀(v_comparison)
                                  scatter of jointly-retained units; diagonal y=x = no change
 
-Both PDFs: 2 rows × 5 columns (Sources upper / Institutions lower × Leiden groups 1–5).
+Both PDFs: 2 rows × 5 columns (Sources upper / Institutions lower × AREA5 areas 1–5).
 
 Usage:
   .venv/bin/python analysis/impact_facets.py                          # vs OECDG20CIA (default)
@@ -33,7 +33,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config
 from util.areas import AREA_MULTILINE_NAMES
 
-LEIDEN_NAMES = AREA_MULTILINE_NAMES
 
 
 CMP_STYLE = {
@@ -76,7 +75,7 @@ def load_rankings(working: Path, lid: int, window: str, label: str):
 
 def _panel_title(row: int, col: int, lid: int) -> str:
     """Column header with row unit-type label in the leftmost column."""
-    name = LEIDEN_NAMES[lid]
+    name = AREA_MULTILINE_NAMES[lid]
     if row == 0:
         return ('Sources\n' + name) if col == 0 else name
     else:
@@ -179,7 +178,7 @@ def _make_figure(
 ) -> None:
     fig, axes = plt.subplots(2, 5, figsize=figsize, sharex=sharex, sharey=True,
                              gridspec_kw={'hspace': 0.38, 'wspace': 0.08})
-    for col, lid in enumerate(LEIDEN_NAMES):
+    for col, lid in enumerate(AREA_MULTILINE_NAMES):
         base_df, _ = load_rankings(working, lid, window, 'baseline')
         cmp_df, _  = load_rankings(working, lid, window, cmp_label) if cmp_label != 'baseline' else (None, {})
         if base_df is None:
@@ -246,12 +245,12 @@ def main():
         cmp_disp, cmp_color = CMP_STYLE.get(cmp, (cmp, '#2ca25f'))
         make_ordinal(
             paths.working, args.window, cmp, cmp_disp, cmp_color,
-            out_dir / f'leiden_{cmp}_ordinal.pdf',
+            out_dir / f'area_{cmp}_ordinal.pdf',
         )
         if cmp != 'baseline':
             make_influence(
                 paths.working, args.window, cmp, cmp_disp, cmp_color,
-                out_dir / f'leiden_{cmp}_influence.pdf',
+                out_dir / f'area_{cmp}_influence.pdf',
             )
 
 

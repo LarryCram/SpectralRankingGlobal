@@ -2,7 +2,7 @@
 country_heatmap.py — Heatmap of top-N institution influence scores for a country.
 
 Rows    : top N institutions in the country by distinct work count in the window
-Columns : Leiden groups (1–5) or OA fields (11–36)
+Columns : AREA5 areas (1–5) or OA fields (11–36)
 Values  : influence score v from spectral rankings
 Ordering: rows by increasing row-sum, columns by increasing column-sum
 Colour  : blue (low) → white (mean v=1) → orange (high); gray = NA
@@ -10,7 +10,7 @@ Colour  : blue (low) → white (mean v=1) → orange (high); gray = NA
 Also prints a mnemonic → full name mapping table.
 
 Usage:
-  .venv/bin/python analysis/country_heatmap.py                           # AU, leiden, top 30
+  .venv/bin/python analysis/country_heatmap.py                           # AU, area, top 30
   .venv/bin/python analysis/country_heatmap.py --country IN
   .venv/bin/python analysis/country_heatmap.py --country AU --mode fields
   .venv/bin/python analysis/country_heatmap.py --country AU --n 50 --label OECDG20CIA
@@ -35,16 +35,15 @@ from util import load_config, load_settings
 from util.runs import FIELD_NAMES
 from util.areas import AREA_MNEMONICS
 
-_LEIDEN_COL_NAMES = AREA_MNEMONICS
 
 
 _COL_NAMES = {
-    'leiden': _LEIDEN_COL_NAMES,
+    'area': AREA_MNEMONICS,
     'fields': FIELD_NAMES,
 }
 
 _FID_RANGE = {
-    'leiden': range(1, 6),
+    'area': range(1, 6),
     'fields': range(11, 37),
 }
 
@@ -221,7 +220,7 @@ def main() -> None:
     parser.add_argument('--n',       type=int, default=40)
     parser.add_argument('--window',  default='2020_2024')
     parser.add_argument('--label',   default='baseline')
-    parser.add_argument('--mode',    default='leiden', choices=['leiden', 'fields'])
+    parser.add_argument('--mode',    default='area', choices=['area', 'fields'])
     parser.add_argument('--out',     default=None)
     args = parser.parse_args()
 
@@ -265,10 +264,10 @@ def main() -> None:
     n_ranked = len(pivot)
     n_total  = len(inst_idx_list)
     if n_ranked < n_total:
-        print(f"\nNote: {n_total - n_ranked} institution(s) absent from all Leiden rankings "
+        print(f"\nNote: {n_total - n_ranked} institution(s) absent from all AREA5 rankings "
               f"(below τ threshold in every field) — shown as gray rows if included.")
 
-    mode_str = 'Leiden group' if args.mode == 'leiden' else 'OA field'
+    mode_str = 'AREA5 area' if args.mode == 'area' else 'OA field'
     title    = f"{args.country} top-{args.n} institutions by {mode_str}  [{args.label}]"
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)

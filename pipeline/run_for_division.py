@@ -1,7 +1,7 @@
 """
 run_for_division.py — spectral ranking at the ANZSRC FOR2020 division level.
 
-Standalone and decoupled from Run's field_idx-range dispatch (is_leiden/is_subfield)
+Standalone and decoupled from Run's field_idx-range dispatch (is_area/is_subfield)
 by design — see data/oax_subfield_to_for2020.csv (built by util/build_for_mapping.py)
 for the subfield_idx -> for_division_code grouping (resolved at subfield precision,
 the higher-fidelity/fully-audited tier — see REFERENCE.md). Only 16-22 of FOR2020's

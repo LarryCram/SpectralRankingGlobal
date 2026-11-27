@@ -12,7 +12,8 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from util.runs import Run, GlobalSettings, VALID_M, LEIDEN_GROUPS, LEIDEN_NAMES
+from util.runs import Run, GlobalSettings, VALID_M
+from util.areas import AREA_GROUPS, AREA_NAMES
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -96,13 +97,13 @@ class TestPathMethods:
         assert r1.sc_path('/w') == r2.sc_path('/w')
         assert r1.ic_path('/w') == r2.ic_path('/w')
 
-    def test_leiden_sc_path(self):
+    def test_area_sc_path(self):
         r = replace(make(), field_idx=1)
-        assert r.sc_path('/w') == '/w/leiden_source_cands_2020_2024.parquet'
+        assert r.sc_path('/w') == '/w/area_source_cands_2020_2024.parquet'
 
-    def test_leiden_ic_path(self):
+    def test_area_ic_path(self):
         r = replace(make(), field_idx=3)
-        assert r.ic_path('/w') == '/w/leiden_inst_cands_2020_2024.parquet'
+        assert r.ic_path('/w') == '/w/area_inst_cands_2020_2024.parquet'
 
     def test_subfield_sc_path(self):
         r = replace(make(), field_idx=1700)
@@ -135,20 +136,20 @@ class TestPathMethods:
         assert r1.rankings_path('/w') != r2.rankings_path('/w')
 
 
-# ─── is_leiden / is_subfield ──────────────────────────────────────────────────
+# ─── is_area / is_subfield ──────────────────────────────────────────────────
 
 class TestRunLevelProperties:
 
-    def test_is_leiden_true_for_1_to_5(self):
+    def test_is_area_true_for_1_to_5(self):
         for i in range(1, 6):
-            assert replace(make(), field_idx=i).is_leiden
+            assert replace(make(), field_idx=i).is_area
 
-    def test_is_leiden_false_for_oa_field(self):
+    def test_is_area_false_for_oa_field(self):
         for i in [11, 17, 26, 36]:
-            assert not replace(make(), field_idx=i).is_leiden
+            assert not replace(make(), field_idx=i).is_area
 
-    def test_is_leiden_false_for_zero(self):
-        assert not make().is_leiden  # default field_idx=0
+    def test_is_area_false_for_zero(self):
+        assert not make().is_area  # default field_idx=0
 
     def test_is_subfield_true_for_large_idx(self):
         for i in [1100, 1700, 2746, 3616]:
@@ -158,47 +159,51 @@ class TestRunLevelProperties:
         for i in [11, 17, 36]:
             assert not replace(make(), field_idx=i).is_subfield
 
-    def test_is_subfield_false_for_leiden(self):
+    def test_is_subfield_false_for_area(self):
         for i in range(1, 6):
             assert not replace(make(), field_idx=i).is_subfield
 
-    def test_is_leiden_and_is_subfield_mutually_exclusive(self):
+    def test_is_area_and_is_subfield_mutually_exclusive(self):
         for i in range(1, 6):
             r = replace(make(), field_idx=i)
-            assert not (r.is_leiden and r.is_subfield)
+            assert not (r.is_area and r.is_subfield)
         for i in [11, 17, 1100, 1700]:
             r = replace(make(), field_idx=i)
-            assert not (r.is_leiden and r.is_subfield)
+            assert not (r.is_area and r.is_subfield)
 
 
-# ─── LEIDEN_GROUPS / LEIDEN_NAMES ─────────────────────────────────────────────
+# ─── AREA_GROUPS / AREA_NAMES ─────────────────────────────────────────────
 
-class TestLeidenConstants:
+class TestAreaConstants:
 
-    def test_leiden_groups_has_five_entries(self):
-        assert len(LEIDEN_GROUPS) == 5
+    def test_area_groups_has_five_entries(self):
+        assert len(AREA_GROUPS) == 5
 
-    def test_leiden_names_has_five_entries(self):
-        assert len(LEIDEN_NAMES) == 5
+    def test_area_names_has_five_entries(self):
+        assert len(AREA_NAMES) == 5
 
-    def test_leiden_groups_covers_all_26_oa_fields(self):
-        all_fields = {f for fields in LEIDEN_GROUPS.values() for f in fields}
+    def test_area_groups_covers_all_26_oa_fields(self):
+        all_fields = {f for fields in AREA_GROUPS.values() for f in fields}
         assert all_fields == set(range(11, 37))
 
-    def test_leiden_groups_no_overlap(self):
+    def test_area_groups_no_overlap(self):
         from itertools import combinations
-        groups = list(LEIDEN_GROUPS.values())
+        groups = list(AREA_GROUPS.values())
         for a, b in combinations(groups, 2):
-            assert not set(a) & set(b), f"Overlap between leiden groups: {set(a) & set(b)}"
+            assert not set(a) & set(b), f"Overlap between areas: {set(a) & set(b)}"
 
-    def test_leiden_names_keys_match_groups(self):
-        assert set(LEIDEN_GROUPS) == set(LEIDEN_NAMES)
+    def test_area_names_keys_match_groups(self):
+        assert set(AREA_GROUPS) == set(AREA_NAMES)
 
-    def test_cs_field_in_leiden_1(self):
-        assert 17 in LEIDEN_GROUPS[1]
+    def test_cs_field_in_area_1(self):
+        assert 17 in AREA_GROUPS[1]
 
-    def test_medicine_in_leiden_4(self):
-        assert 27 in LEIDEN_GROUPS[4]
+    def test_medicine_in_area_4(self):
+        assert 27 in AREA_GROUPS[4]
+
+    def test_veterinary_in_area_3_not_4(self):
+        """The one field AREA5 moves relative to the retired CWTS Leiden groups."""
+        assert 34 in AREA_GROUPS[3] and 34 not in AREA_GROUPS[4]
 
     def test_areas_single_source_of_truth(self):
         from util.areas import AREAS, ALL_AREAS, FOR_DIV_TO_AREA_ID, FIELD_TO_AREA_ID
@@ -316,9 +321,9 @@ class TestGlobalSettings:
         gs = GlobalSettings(**{**_GS_ARGS, 'field_first': 17, 'field_last': 17})
         assert list(gs.all_fields) == [17]
 
-    def test_all_leiden_fields_is_1_to_5(self):
+    def test_all_area_fields_is_1_to_5(self):
         gs = GlobalSettings(**_GS_ARGS)
-        assert list(gs.all_leiden_fields) == [1, 2, 3, 4, 5]
+        assert list(gs.all_area_fields) == [1, 2, 3, 4, 5]
 
     def test_frozen(self):
         gs = GlobalSettings(**_GS_ARGS)

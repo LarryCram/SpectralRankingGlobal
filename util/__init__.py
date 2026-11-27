@@ -12,8 +12,6 @@ from .areas import (
     FIELD_TO_AREA_CODE,
     FOR_DIV_TO_AREA_ID,
     FOR_DIV_TO_AREA_CODE,
-    LEIDEN_GROUPS,
-    LEIDEN_NAMES,
 )
 from .runs import Run, GlobalSettings, VALID_M, FIELD_NAMES, BLOC_RUNS, CIA, CIAA, AU
 
@@ -24,6 +22,6 @@ __all__ = [
     'AREA_MNEMONICS', 'AREA_CODES', 'AREA_IDX',
     'FIELD_TO_AREA_ID', 'FIELD_TO_AREA_CODE',
     'FOR_DIV_TO_AREA_ID', 'FOR_DIV_TO_AREA_CODE',
-    'FIELD_NAMES', 'LEIDEN_NAMES', 'LEIDEN_GROUPS', 'BLOC_RUNS',
+    'FIELD_NAMES', 'BLOC_RUNS',
     'CIA', 'CIAA', 'AU',
 ]

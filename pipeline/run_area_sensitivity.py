@@ -1,5 +1,7 @@
 """
-run_leiden_sensitivity.py — One-at-a-time parameter sensitivity for Leiden groups.
+run_area_sensitivity.py — One-at-a-time parameter sensitivity for the AREA5 broad areas.
+
+Replaces run_leiden_sensitivity.py (CWTS Leiden groups retired 2026-11-28).
 
 Baseline (already computed): τ=10, ρ=0, ε=0, ω=0, β=0  label='baseline'
 
@@ -11,10 +13,10 @@ Variants:
   beta1  β=1             symlink to baseline edge list
 
 m stays at (0,1,1,0) bipartite throughout.
-Labels encode parameter values for downstream plotting in leiden_facets.py.
+Labels encode parameter values for downstream plotting.
 
 Usage:
-  .venv/bin/python pipeline/run_leiden_sensitivity.py
+  .venv/bin/python pipeline/run_area_sensitivity.py
 """
 
 import sys
@@ -85,29 +87,29 @@ def main():
         overrides = {k: val for k, val in v.items() if k not in ('label', 'needs_el')}
         needs_el = v['needs_el']
 
-        # sc/ic paths come from a leiden run (field_idx=1 triggers is_leiden)
-        leiden_base = replace(base_run, field_idx=1)
-        sc_path = leiden_base.sc_path(working_s)
-        ic_path = leiden_base.ic_path(working_s)
+        # sc/ic paths come from an area run (field_idx=1 triggers is_area)
+        area_base = replace(base_run, field_idx=1)
+        sc_path = area_base.sc_path(working_s)
+        ic_path = area_base.ic_path(working_s)
 
         print(f"\n{'='*72}")
         print(f"Variant: {label}  {overrides}  needs_el={needs_el}")
         print(f"{'='*72}")
         t_var = time.time()
 
-        for lid in settings.all_leiden_fields:
-            run = replace(base_run, field_idx=lid, label=label, **overrides)
-            baseline_run = replace(base_run, field_idx=lid, label='baseline')
+        for aid in settings.all_area_fields:
+            run = replace(base_run, field_idx=aid, label=label, **overrides)
+            baseline_run = replace(base_run, field_idx=aid, label='baseline')
 
             el_path  = Path(run.el_path(working_s))
             rk_path  = run.rankings_path(working_s)
             baseline_el = Path(baseline_run.el_path(working_s))
 
-            print(f"\n--- leiden {lid} ---")
+            print(f"\n--- area {aid} ---")
             t_field = time.time()
 
-            # Fresh connection per leiden group — prevents memory accumulation
-            # across large edge list builds (leiden 3/4 are 5–9 GB).
+            # Fresh connection per area — prevents memory accumulation
+            # across large edge list builds (areas 3/4 are 5–9 GB).
             with _db() as db:
                 if needs_el:
                     el_inputs = [fw_path, cr_path, sc_path, ic_path]

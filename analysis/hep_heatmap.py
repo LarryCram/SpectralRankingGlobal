@@ -2,7 +2,7 @@
 hep_heatmap.py — Heatmap of Australian HEP influence scores.
 
 Rows    : HEPs (abbreviation codes from HEP_concordances Keys sheet)
-Columns : OA fields (field_idx 11–36) or Leiden groups (field_idx 1–5)
+Columns : OA fields (field_idx 11–36) or AREA5 areas (field_idx 1–5)
 Values  : influence score v from spectral rankings (not ordinal rank)
 Ordering: rows by increasing row-sum, columns by increasing column-sum
           → highest-ranked HEPs / most-active fields cluster bottom-right
@@ -10,9 +10,9 @@ Colour  : blue (low) → white (mean v=1) → orange (high); gray = NA
 
 Usage:
   .venv/bin/python analysis/hep_heatmap.py                          # 26 OA fields, baseline
-  .venv/bin/python analysis/hep_heatmap.py --mode leiden            # 5 Leiden groups, baseline
+  .venv/bin/python analysis/hep_heatmap.py --mode area              # 5 AREA5 areas, baseline
   .venv/bin/python analysis/hep_heatmap.py --label OECDG20CIA       # OA fields, OECDG20CIA bloc
-  .venv/bin/python analysis/hep_heatmap.py --mode leiden --label OECDG20CIA
+  .venv/bin/python analysis/hep_heatmap.py --mode area --label OECDG20CIA
 """
 
 import sys
@@ -31,7 +31,6 @@ from util import load_config
 from util.runs import FIELD_NAMES
 from util.areas import AREA_SHORT_NAMES
 
-LEIDEN_NAMES = AREA_SHORT_NAMES
 
 
 
@@ -40,9 +39,9 @@ def build_pivot(working: Path, keys: pd.DataFrame, window: str,
     keys = keys.copy()
     keys['inst_id'] = keys['institution_idx'].str.lstrip('I').astype('int64')
 
-    if mode == 'leiden':
+    if mode == 'area':
         fid_range = range(1, 6)
-        col_name  = lambda fid: LEIDEN_NAMES[fid]
+        col_name  = lambda fid: AREA_SHORT_NAMES[fid]
     else:
         fid_range = range(11, 37)
         col_name  = lambda fid: f"{fid} {FIELD_NAMES[fid].split()[0]}"
@@ -140,8 +139,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--window', default='2020_2024')
     parser.add_argument('--label',  default='baseline')
-    parser.add_argument('--mode',   default='fields', choices=['fields', 'leiden'],
-                        help='fields = 26 OA fields; leiden = 5 Leiden groups')
+    parser.add_argument('--mode',   default='fields', choices=['fields', 'area'],
+                        help='fields = 26 OA fields; area = 5 AREA5 areas')
     parser.add_argument('--out',    default=None,
                         help='output path; default: analysis/hep_heatmap_{mode}_{label}.pdf')
     args = parser.parse_args()
@@ -156,7 +155,7 @@ def main() -> None:
     print(f"Pivot: {pivot.shape}  ({pivot.index.nunique()} HEPs × {len(pivot.columns)} cols)")
     print(pivot.sum(axis=1, min_count=1).sort_values().to_string())
 
-    mode_str  = 'Leiden group' if args.mode == 'leiden' else 'OA field'
+    mode_str  = 'AREA5 area' if args.mode == 'area' else 'OA field'
     label_str = args.label
     title     = f'Australian HEP influence scores by {mode_str}  [{label_str}]'
 

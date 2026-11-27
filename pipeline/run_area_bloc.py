@@ -1,7 +1,8 @@
 """
-run_leiden_bloc.py — Leiden rankings filtered to country blocs.
+run_area_bloc.py — AREA5 broad-area rankings (util/areas.py), baseline and country blocs.
 
-Runs stages 3+4 for leiden_idx 1–5 for each entry in BLOC_RUNS:
+Runs stages 3+4 for AREA5 areas 1–5 (field_idx = area id; each area is the union of
+its member OA fields) for each entry in BLOC_RUNS:
   baseline    : all countries — no filter
   OECDG20     : OECD ∪ G20 (46 countries)
   OECDG20CIA  : OECDG20 − CIA  (43 countries)
@@ -15,11 +16,14 @@ bloc).  Candidacy parquets are global and shared with the baseline run.
 BASELINE-CIA codes are derived at runtime by querying flat_works for all
 distinct country_codes, then subtracting CIA = {CN, IN, US}.
 
-A fresh DuckDB connection is used per leiden group to prevent memory
-accumulation across the large leiden 3/4 edge list builds.
+A fresh DuckDB connection is used per area to prevent memory accumulation across
+the large area 3/4 edge list builds.
+
+Outputs: WORKING/rankings_{area}_{window}_{label}.parquet (+ _diag.json, el_ edge lists).
+Replaces run_leiden_bloc.py and run_area5.py (CWTS Leiden groups retired 2026-11-28).
 
 Usage:
-  .venv/bin/python pipeline/run_leiden_bloc.py
+  .venv/bin/python pipeline/run_area_bloc.py
 """
 
 import sys
@@ -34,6 +38,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
 from util import load_config, load_settings, load_runs, load_world, BLOC_RUNS, CIA, guard
+from util.areas import AREA_CODES, AREA_GROUPS, AREA_NAMES
 from build_edge_list_field import build_edge_list
 from run_rankings import rank_field
 
@@ -71,9 +76,9 @@ def main():
         db.execute(f"SET preserve_insertion_order = {str(settings.preserve_insertion_order).lower()}")
         return db
 
-    leiden_base = replace(base_run, field_idx=1)
-    sc_path = leiden_base.sc_path(working_s)
-    ic_path = leiden_base.ic_path(working_s)
+    area_base = replace(base_run, field_idx=1)
+    sc_path = area_base.sc_path(working_s)
+    ic_path = area_base.ic_path(working_s)
 
     for p in [sc_path, ic_path]:
         if not Path(p).exists():
@@ -87,13 +92,13 @@ def main():
         print(f"{'='*72}")
         t_bloc = time.time()
 
-        for lid in settings.all_leiden_fields:
-            run = replace(base_run, field_idx=lid, label=file_label, bloc=bloc_key)
+        for aid in settings.all_area_fields:
+            run = replace(base_run, field_idx=aid, label=file_label, bloc=bloc_key)
 
             el_path  = Path(run.el_path(working_s))
             rk_path  = run.rankings_path(working_s)
 
-            print(f"\n--- leiden {lid} ---")
+            print(f"\n--- area {aid} ({AREA_CODES[aid]}) ---")
             t_field = time.time()
 
             with _db() as db:
@@ -119,6 +124,8 @@ def main():
                     df, diag = rank_field(db, run, working_s, rk_path, verbose=True)
                     guard.record_build(rk_path, *rk_inputs, script=rk_scripts,
                                        build_seconds=time.time() - t0)
+                    diag.update(area_code=AREA_CODES[aid], area_label=AREA_NAMES[aid],
+                                member_field_idx=list(AREA_GROUPS[aid]))
                     Path(run.diag_path(working_s)).write_text(json.dumps(diag, indent=2))
                     print(f"  ranked: {len(df):,} units  [{time.time()-t_field:.1f}s]")
 

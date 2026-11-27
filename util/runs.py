@@ -24,8 +24,6 @@ from .areas import (
     FIELD_TO_AREA_CODE,
     FOR_DIV_TO_AREA_ID,
     FOR_DIV_TO_AREA_CODE,
-    LEIDEN_GROUPS,
-    LEIDEN_NAMES,
 )
 
 
@@ -75,7 +73,8 @@ class GlobalSettings:
         return range(self.field_first, self.field_last + 1)
 
     @property
-    def all_leiden_fields(self) -> range:
+    def all_area_fields(self) -> range:
+        """AREA5 broad research areas 1–5 (util/areas.py), ranked with field_idx = area id."""
         return range(1, 6)
 
 
@@ -94,7 +93,7 @@ class Run:
     chi       : source–institution mixing; -1 = χ* = Nᵤ/(Nₛ+Nᵤ)
     mu_type   : '' (alpha=1), 'uniform', or 'unit_scaled' (alpha<1)
     label     : user-defined run name; used in all output filenames
-    field_idx : OA field 11–36; set per-field by the runner via dataclasses.replace()
+    field_idx : OA field 11–36, AREA5 area 1–5, or OA subfield ≥ 1000; set by the runner
 
     epsilon   : 0 = standard; 1 = add cross-field sentinel units (SX/IX idx=1)
                   absorb cross-field citations; sentinel v-scores masked to NaN
@@ -130,8 +129,8 @@ class Run:
             )
 
     @property
-    def is_leiden(self) -> bool:
-        """True when field_idx is a Leiden main field index (1–5)."""
+    def is_area(self) -> bool:
+        """True when field_idx is an AREA5 broad research area id (1–5, util/areas.py)."""
         return 1 <= self.field_idx <= 5
 
     @property
@@ -161,15 +160,15 @@ class Run:
         return f"{working_dir}/el_{self.field_idx}_{self.window}_{self.label}.parquet"
 
     def sc_path(self, working_dir: str) -> str:
-        if self.is_leiden:
-            return f"{working_dir}/leiden_source_cands_{self.window}.parquet"
+        if self.is_area:
+            return f"{working_dir}/area_source_cands_{self.window}.parquet"
         if self.is_subfield:
             return f"{working_dir}/subfield_source_cands_{self.window}.parquet"
         return f"{working_dir}/field_source_cands_{self.window}.parquet"
 
     def ic_path(self, working_dir: str) -> str:
-        if self.is_leiden:
-            return f"{working_dir}/leiden_inst_cands_{self.window}.parquet"
+        if self.is_area:
+            return f"{working_dir}/area_inst_cands_{self.window}.parquet"
         if self.is_subfield:
             return f"{working_dir}/subfield_inst_cands_{self.window}.parquet"
         return f"{working_dir}/field_inst_cands_{self.window}.parquet"

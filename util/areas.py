@@ -162,12 +162,10 @@ FOR_DIV_TO_AREA_CODE: dict[int, str] = {
     div: a.code for a in ALL_AREAS for div in a.for_divisions
 }
 
-# ── Backward-compatibility aliases for CWTS Leiden naming ──────────────────────
+# ── SQL helper ───────────────────────────────────────────────────────────────
 
-LEIDEN_GROUPS = AREA_GROUPS
-LEIDEN_NAMES = AREA_NAMES
-LEIDEN_NAMES_SHORT = AREA_MNEMONICS
-LEIDEN_GROUP = FIELD_TO_AREA_ID
-LEIDEN_LABEL = AREA_SHORT_NAMES
-LEIDEN_SLUG = AREA_SLUGS
-LEIDEN_COLOUR = AREA_COLORS
+def area_case_sql(col: str = 'field_idx') -> str:
+    """SQL CASE expression mapping an OA field_idx column to its AREA5 area id (1–5)."""
+    whens = ' '.join(f"WHEN {col} IN ({', '.join(map(str, fids))}) THEN {aid}"
+                     for aid, fids in sorted(AREA_GROUPS.items()))
+    return f"CASE {whens} END"

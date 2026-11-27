@@ -21,8 +21,8 @@ No explicit set config is needed for topic sets; only runs need a config file.
 
 ## Run parameters (`util.Run` dataclass)
 - `window`: `{census_start}_{census_end}` e.g. `2020_2024`
-- `field_idx`: grouping index — OA field 11–36, Leiden group 1–5, or OA subfield 1100–3616
-  - `run.is_leiden` = True when field_idx ∈ 1–5; `run.is_subfield` = True when field_idx ≥ 1000
+- `field_idx`: grouping index — OA field 11–36, AREA5 area 1–5, or OA subfield 1100–3616
+  - `run.is_area` = True when field_idx ∈ 1–5 (AREA5, `util/areas.py`); `run.is_subfield` = True when field_idx ≥ 1000
   - `sc_path`/`ic_path` auto-select the right candidacy file for the level
 - `tau_s`, `tau_u`: retention thresholds in **weighted works per year**
   (actual cutoff = tau × window_years applied to candidacy totals)
@@ -46,8 +46,8 @@ research institutions (MSK, Mayo, Kaiser, Ragon, etc.) which OA classifies
 separately from education/nonprofit.
 
 ## DuckDB resource & connection insulation
-Pipeline DuckDB executions (`build_flat_works.py`, `build_field_candidacy.py`, `run_leiden_bloc.py`,
-`run_leiden_sensitivity.py`) follow insulation best practices:
+Pipeline DuckDB executions (`build_flat_works.py`, `build_field_candidacy.py`, `run_area_bloc.py`,
+`run_area_sensitivity.py`) follow insulation best practices:
 - **Fresh connection per stage**: Avoids sharing connections across massive queries; closes connection and frees jemalloc memory immediately when a stage completes.
 - **NVMe temp directory**: Sets `temp_directory` to `paths.project_root / '.tmp'` (local NVMe SSD) rather than `paths.working / '.tmp'` (mounted via FUSE user-space, e.g. `/media/s-drive`), preventing kernel dirty-page writeback deadlocks during disk spills.
 - **Capped memory and threads**: Managed globally via `settings.yaml` (`memory_limit: 28GB`, `threads: 8`).
@@ -58,15 +58,14 @@ Pipeline DuckDB executions (`build_flat_works.py`, `build_field_candidacy.py`, `
 SpectralRankingGlobal/
   pipeline/                    # all pipeline stages + ranking engine
     build_flat_works.py        #   ✅ stage 1a/1b: flat works + corpus references
-    build_field_candidacy.py   #   ✅ stage 2: per-field/leiden/subfield candidacy
+    build_field_candidacy.py   #   ✅ stage 2: per-field/area/subfield candidacy
     build_edge_list_field.py   #   ✅ stage 3: field citation edge list
     build_csr_field.py         #   ✅ stage 4a: parquet edge list → CSRData
     run_rankings.py            #   ✅ stage 4b: rank one field
     build_work_v.py            #   ✅ stage 4c: work_v = (v_S + mean(v_I))/2 for all retained works
-    run_leiden_sensitivity.py  #   ✅ parameter sensitivity suite for Leiden
-    run_leiden_bloc.py         #   ✅ country-bloc Leiden rankings
+    run_area_sensitivity.py    #   ✅ parameter sensitivity suite for the 5 AREA5 areas
+    run_area_bloc.py           #   ✅ AREA5 rankings: baseline + country blocs
     run_field_bloc.py          #   ✅ country-bloc OA field rankings
-    run_area5.py               #   ✅ FOR2020_AREA5 rankings (baseline only) — see FOR/AREA5 section
     run_for_division.py        #   ✅ FOR2020 division-level rankings (baseline only) — see FOR/AREA5 section
     run_era2018.py             #   ✅ ERA 2018 emulation (Divisions + Groups, baseline & sentinel)
     run_era2026.py             #   ✅ ERA 2026 emulation (Divisions + Groups)
@@ -79,10 +78,9 @@ SpectralRankingGlobal/
     plot_era2018_generic.py    #   ✅ ERA 2018 hierarchical division + group facet plotter
     plot_era2018_sentinel_comparison.py # ✅ ERA 2018 dual-panel baseline vs sentinel comparative plots
     find_committee_v.py        #   ✅ ERA REC & Advisory Committee spectral v and enclave profiling
-    leiden_facets.py           #   ✅ 2×5 log(v) vs rank, multi-label overlay
-    leiden_bloc_facets.py      #   ✅ baseline vs one comparison per PDF (7 PDFs)
-    hep_heatmap.py             #   ✅ AU HEP influence heatmap across 26 fields
-    impact_facets.py           #   🔄 in development
+    hep_heatmap.py             #   ✅ AU HEP influence heatmap across 26 fields or 5 areas
+    country_heatmap.py         #   ✅ per-country institution heatmap (areas or fields)
+    impact_facets.py           #   ✅ 2×5 AREA5 baseline-vs-variant/bloc facets
   enclaves/
     build_enclave_hcw.py       #   ✅ HCW detection + v attachment (stage E1)
     tfidf_enclave.py           #   ✅ TF-IDF term lift per field (stage E2)
@@ -93,7 +91,8 @@ SpectralRankingGlobal/
   spectral_analysis/           # next: eigenvector community structure
   util/
     load_config.py             #   load_config() → Paths, load_runs() → list
-    runs.py                    #   Run dataclass + GlobalSettings + LEIDEN_GROUPS
+    runs.py                    #   Run dataclass + GlobalSettings
+    areas.py                   #   AREA5 single source of truth (AREA_GROUPS, names, colours, area_case_sql)
     guard.py                   #   freshness tracking for pipeline outputs — see Pipeline guard system
   data/
     bloc.xlsx                  #   bloc_name → ISO-3166-1-alpha-2 country codes
@@ -130,7 +129,8 @@ WORKING/
                                                 inst_weight, direct_inst_weight,
                                                 subfield_idx, subfield_name,
                                                 field_idx, field_weight,
-                                                leiden_idx, leiden_name,
+                                                leiden_idx, leiden_name,   (legacy CWTS groups;
+                                                  kept, unused since 2026-11-28)
                                                 referenced_works_count,
                                                 title, cited_by_count, authors_count,
                                                 institutions_distinct_count
@@ -139,15 +139,14 @@ WORKING/
                                               both in flat_works
   field_source_cands_{window}.parquet       stage 2; source weighted works per OA field
   field_inst_cands_{window}.parquet         stage 2; inst weighted works per OA field
-  leiden_source_cands_{window}.parquet      stage 2; source weighted works per Leiden group
-  leiden_inst_cands_{window}.parquet        stage 2; inst weighted works per Leiden group
+  area_source_cands_{window}.parquet        stage 2; source weighted works per AREA5 area
+  area_inst_cands_{window}.parquet          stage 2; inst weighted works per AREA5 area
+                                              (re-aggregated from field_*_cands)
   subfield_source_cands_{window}.parquet    stage 2; source weighted works per subfield
   subfield_inst_cands_{window}.parquet      stage 2; inst weighted works per subfield
   el_{field_idx}_{window}_{label}.parquet   stage 3; one per (field, label)
   rankings_{field_idx}_{window}_{label}.parquet      stage 4; ranked units
   rankings_{field_idx}_{window}_{label}_diag.json    stage 4; diagnostics
-  area5/rankings_{area5_idx}_{window}_baseline.parquet          FOR2020_AREA5 rankings
-  area5/rankings_{area5_idx}_{window}_baseline_diag.json        (+ area5_code/label/members)
   for_division/rankings_{division_code}_{window}_baseline.parquet   FOR2020 division rankings
   for_division/rankings_{division_code}_{window}_baseline_diag.json (+ division label/members)
   enclave_hcw_{window}_{label}.parquet     stage E1; HCW with v scores + titles
@@ -177,13 +176,13 @@ enclaves/reports/
   {fid}_{window}_{label}_researchers.md  stage E5; top-3 authors per enclave per field
 ```
 `window` = `{census_start}_{census_end}` (e.g. `2020_2024`).
-`field_idx` = OA field 11–36, Leiden group 1–5, or subfield ≥ 1000.
+`field_idx` = OA field 11–36, AREA5 area 1–5, or subfield ≥ 1000.
 
 For current row counts / freshness of any of the above, run
 `.venv/bin/python pipeline/pipeline_status.py` (see CLAUDE.md) rather than trusting
 numbers written here — they're a point-in-time snapshot, not live state.
 
-## Sensitivity variants (Leiden, window 2020_2024)
+## Sensitivity variants (AREA5, window 2020_2024)
 Five one-at-a-time parameter variants against the baseline (τ=10, ρ=0, ε=0, ω=0, β=0):
 
 | label   | change        | needs new edge list? |
@@ -194,14 +193,14 @@ Five one-at-a-time parameter variants against the baseline (τ=10, ρ=0, ε=0, �
 | om1     | ω=1           | no (symlink)         |
 | beta1   | β=1           | no (symlink)         |
 
-`run_leiden_sensitivity.py` uses symlinks for no-el variants to avoid duplicating
-5–9 GB edge lists for Leiden 3/4. Fresh DuckDB connection per leiden group prevents
+`run_area_sensitivity.py` uses symlinks for no-el variants to avoid duplicating
+5–9 GB edge lists for areas 3/4. Fresh DuckDB connection per area prevents
 memory accumulation across large edge list builds.
 
-## Bloc runs (Leiden + OA field, window 2020_2024)
+## Bloc runs (AREA5 + OA field, window 2020_2024)
 All-in filter: a work is included only if EVERY affiliated institution is in the bloc.
 Candidacy parquets are global (shared with baseline); new edge lists built per bloc.
-Applies to both `run_field_bloc.py` (26 OA fields) and `run_leiden_bloc.py` (5 Leiden groups).
+Applies to both `run_field_bloc.py` (26 OA fields) and `run_area_bloc.py` (5 AREA5 areas).
 
 | label       | bloc key     | countries |
 |-------------|--------------|-----------|
@@ -211,10 +210,8 @@ Applies to both `run_field_bloc.py` (26 OA fields) and `run_leiden_bloc.py` (5 L
 | BASELINECIA | BASELINE-CIA | all OA countries except CN,IN,US |
 
 ## Analysis outputs
-- `analysis/leiden_facets.pdf` — 2×5 log(v) vs rank; multi-label overlay, default all 6 labels
-- `analysis/leiden_{label}.pdf` — 7 PDFs from `leiden_bloc_facets.py`, one per comparison:
-  - `leiden_OECDG20CIA.pdf`, `leiden_CIAA.pdf` — bloc vs baseline (coloured scatter)
-  - `leiden_tau20.pdf`, `leiden_rho1.pdf`, `leiden_eps1.pdf`, `leiden_om1.pdf`, `leiden_beta1.pdf` — variants vs baseline (green scatter)
+- `analysis/plots/area_{cmp}_ordinal.pdf`, `area_{cmp}_influence.pdf` — `impact_facets.py`,
+  2×5 (sources/institutions × AREA5 areas), one pair per bloc or sensitivity variant
 - `analysis/hep_heatmap.pdf` — AU HEP institution scores across 26 OA fields
 
 ## Pipeline guard system
@@ -231,7 +228,7 @@ confirmation on stdin unless `auto_yes=True` (wired to a `--yes`/`-y` flag on ev
 guarded script). Script mtime is tracked as a real dependency, not just data files.
 
 Wired into: `build_flat_works.py`, `build_field_candidacy.py`, `run_field_bloc.py`,
-`run_leiden_bloc.py`, `run_leiden_sensitivity.py`, `build_work_v.py`, `hca_extract.py`,
+`run_area_bloc.py`, `run_area_sensitivity.py`, `build_work_v.py`, `hca_extract.py`,
 `hca_crossfield.py`, `build_enclave_hcw.py`, `tfidf_enclave.py`, `nmf_enclave.py`,
 `network_enclave.py`, `researcher_enclaves.py`, `plot_hca_hcr.py` — i.e. every stage.
 
@@ -257,84 +254,54 @@ When a build has multiple real script dependencies (e.g. rankings depend on
 calls — passing a shorter list to `record_build` silently drops those scripts from
 future freshness checks. Tests: `util/tests/test_guard.py` (16 tests).
 
-## Field index mapping (OA → CWTS Leiden)
-26 OA fields, `field_idx` 11–36.
-
-| field_idx | OA Field                                      | OA Domain        | CWTS Leiden Main Field                  |
-|-----------|-----------------------------------------------|------------------|-----------------------------------------|
-| 11        | Agricultural and Biological Sciences          | Life Sciences    | 3. Life and Earth Sciences              |
-| 12        | Arts and Humanities                           | Social Sciences  | 5. Social Sciences and Humanities       |
-| 13        | Biochemistry, Genetics and Molecular Biology  | Life Sciences    | 3. Life and Earth Sciences              |
-| 14        | Business, Management and Accounting           | Social Sciences  | 5. Social Sciences and Humanities       |
-| 15        | Chemical Engineering                          | Physical Sciences| 2. Physical Sciences and Engineering    |
-| 16        | Chemistry                                     | Physical Sciences| 2. Physical Sciences and Engineering    |
-| 17        | Computer Science                              | Physical Sciences| 1. Mathematics and Computer Science     |
-| 18        | Decision Sciences                             | Social Sciences  | 5. Social Sciences and Humanities       |
-| 19        | Earth and Planetary Sciences                  | Physical Sciences| 3. Life and Earth Sciences              |
-| 20        | Economics, Econometrics and Finance           | Social Sciences  | 5. Social Sciences and Humanities       |
-| 21        | Energy                                        | Physical Sciences| 2. Physical Sciences and Engineering    |
-| 22        | Engineering                                   | Physical Sciences| 2. Physical Sciences and Engineering    |
-| 23        | Environmental Science                         | Physical Sciences| 3. Life and Earth Sciences              |
-| 24        | Immunology and Microbiology                   | Life Sciences    | 3. Life and Earth Sciences              |
-| 25        | Materials Science                             | Physical Sciences| 2. Physical Sciences and Engineering    |
-| 26        | Mathematics                                   | Physical Sciences| 1. Mathematics and Computer Science     |
-| 27        | Medicine                                      | Health Sciences  | 4. Biomedical and Health Sciences       |
-| 28        | Neuroscience                                  | Life Sciences    | 4. Biomedical and Health Sciences       |
-| 29        | Nursing                                       | Health Sciences  | 4. Biomedical and Health Sciences       |
-| 30        | Pharmacology, Toxicology and Pharmaceutics    | Life Sciences    | 4. Biomedical and Health Sciences       |
-| 31        | Physics and Astronomy                         | Physical Sciences| 2. Physical Sciences and Engineering    |
-| 32        | Psychology                                    | Social Sciences  | 5. Social Sciences and Humanities       |
-| 33        | Social Sciences                               | Social Sciences  | 5. Social Sciences and Humanities       |
-| 34        | Veterinary                                    | Health Sciences  | 4. Biomedical and Health Sciences       |
-| 35        | Dentistry                                     | Health Sciences  | 4. Biomedical and Health Sciences       |
-| 36        | Health Professions                            | Health Sciences  | 4. Biomedical and Health Sciences       |
-
-## FOR2020/AREA5 classification (`pipeline/run_area5.py`, `pipeline/run_for_division.py`)
+## FOR2020/AREA5 classification (`pipeline/run_area_bloc.py`, `pipeline/run_for_division.py`)
 Two ANZSRC-grounded groupings, sourced from `LarryCram/ResearchClassification`
-(`pip install git+https://github.com/LarryCram/ResearchClassification.git`), sitting
-alongside — not replacing — the OA field/Leiden/subfield levels above. Both are fully
-decoupled from `Run`/`util/runs.py`'s field_idx-range dispatch (`is_leiden`/`is_subfield`)
-by design: no new numeric band, no `flat_works` schema change. `field_idx` inside
-`Run` for these two scripts is just that run's own scratch-candidacy identity, scoped to a
-throwaway temp file under `WORKING/.tmp/` and never routed through `Run.sc_path()`/`ic_path()`.
+(`pip install git+https://github.com/LarryCram/ResearchClassification.git`).
+
+**AREA5 is the broad-area level of the main pipeline** (since 2026-11-28; it replaced the
+CWTS Leiden 5-group scheme). Areas are ranked with `field_idx` = area id 1–5 (`run.is_area`):
+candidacy `area_{source,inst}_cands_{window}.parquet` is re-aggregated from the field
+candidacy tables over `util.areas.AREA_GROUPS` (exact — each subfield belongs to one field);
+the edge list filters `flat_works` by `field_idx IN` the area's member fields (the legacy
+`leiden_idx` column is ignored). `run_area_bloc.py` (baseline + 4 blocs) and
+`run_area_sensitivity.py` (5 variants) write `WORKING/rankings_{1..5}_{window}_{label}.parquet`
+— the same filenames the Leiden runs used, so readers of `rankings_{1..5}` now see AREA5.
+`_diag.json` carries `area_code`/`area_label`/`member_field_idx`. Older snapshots also hold
+a standalone `WORKING/area5/` directory from the retired `run_area5.py` (baseline only).
+
+**FOR2020 divisions** (`run_for_division.py`) remain decoupled from `Run`'s field_idx-range
+dispatch (`is_area`/`is_subfield`): `field_idx` inside `Run` is just that run's scratch-
+candidacy identity, scoped to a throwaway temp file under `WORKING/.tmp/`.
 
 - `data/oax_field_to_area5.csv` / `data/oax_subfield_to_for2020.csv` — built once by
   `util/build_for_mapping.py` (manual, not part of the guarded rerun order — only needs
   re-running if `ResearchClassification` itself is updated). Neither touches `flat_works`;
   joined ad hoc against the existing `field_source_cands`/`subfield_source_cands` (etc.)
   candidacy tables at ranking time.
-- No new candidacy or edge-list files: both scripts re-aggregate the *existing*
-  `field_source_cands`/`field_inst_cands` (AREA5) or `subfield_source_cands`/
-  `subfield_inst_cands` (FOR-division) parquets — already the expensive GROUP BY over all
-  of flat_works — into scratch temp parquet files, build the edge list as another scratch
-  temp file, and delete both after ranking. Only `WORKING/area5/rankings_*.parquet` /
-  `WORKING/for_division/rankings_*.parquet` + their `_diag.json` are kept.
-- Baseline label only (τ=10/yr, m=(0,1,1,0), α=1.0, ρ=0) — no bloc variants, no sensitivity
-  suite, for this first pass.
-- Provenance (which OA fields/subfields feed each group, resolver confidence/match_method)
-  lives in each ranking's own `_diag.json`, not encoded into the filename — the directory
-  (`area5/` vs `for_division/`) is what disambiguates scheme, so the bare numeric code inside
-  each filename stays exactly as ANZSRC/AREA5 define it (no collision-avoiding offset needed).
+- FOR divisions: no new candidacy or edge-list files — `run_for_division.py` re-aggregates
+  `subfield_source_cands`/`subfield_inst_cands` into scratch temp parquets, builds the edge
+  list as a scratch temp file and deletes both after ranking. Only
+  `WORKING/for_division/rankings_*.parquet` + `_diag.json` are kept. Baseline label only.
 
-### AREA5 groups (`AREA5_IDX` in `run_area5.py`) — nearly identical to Leiden, one field moves
+### AREA5 areas (`util/areas.py`) — differ from the retired CWTS Leiden groups in one field
 ```
-1  MCS  Mathematics, Computing and Information Science   [17, 26]                  (= Leiden 1)
-2  PSE  Physical Science and Engineering                 [15, 16, 21, 22, 25, 31]  (= Leiden 2)
-3  LES  Life and Earth Science                           [11, 13, 19, 23, 24, 34]  (Leiden 3 + Vet)
-4  BHS  Biomedical and Health Science                     [27, 28, 29, 30, 35, 36]  (Leiden 4 − Vet)
-5  SSH  Social Science and Humanities                     [12, 14, 18, 20, 32, 33]  (= Leiden 5)
+1  MCS  Mathematics, Computing and Information Science   [17, 26]
+2  PSE  Physical Science and Engineering                 [15, 16, 21, 22, 25, 31]
+3  LES  Life and Earth Science                           [11, 13, 19, 23, 24, 34]
+4  BHS  Biomedical and Health Science                     [27, 28, 29, 30, 35, 36]
+5  SSH  Social Science and Humanities                     [12, 14, 18, 20, 32, 33]
 6  IND  Indigenous Studies                                 []  — unreached by any OA field;
        carried as a recognized, always-listed, currently-unpopulated category (see below)
 ```
-Only Veterinary (34) moves, from Leiden's Biomedical/Health group to AREA5's Life & Earth
-Science group — ANZSRC places Veterinary Science under FOR division 30 ("Agricultural,
+Relative to the retired CWTS Leiden groups (still in `flat_works.leiden_idx`), only
+Veterinary (34) moves, from Biomedical/Health to Life & Earth Science — ANZSRC places Veterinary Science under FOR division 30 ("Agricultural,
 Veterinary and Food Sciences"), not clinical medicine.
 
 **Indigenous Studies**: confirmed exhaustively — no OA field or subfield in this project's
 data resolves there via OpenAlex's topic hierarchy (there is no dedicated Indigenous-studies
 branch distinguishable from the underlying discipline it's expressed through, and
 `ResearchClassification` only bridges *from* FOR2020 division 45 outward via a
-`cultural_proxy`, never the OAX→FOR direction this project needs). `run_area5.py` skips
+`cultural_proxy`, never the OAX→FOR direction this project needs). The area runners skip
 computing a ranking for it (nothing to rank) but still lists it explicitly rather than
 silently omitting it. Actual per-work identification of Indigenous-studies-relevant works
 would need a different data source entirely — not something this package or OpenAlex's
@@ -423,14 +390,9 @@ diagnostics if you need current values.
 | 35        | Dentistry                              | 0.856 |
 | 36        | Health Professions                     | 0.288 |
 
-### Leiden groups (field_idx 1–5)
-| field_idx | Leiden Group                          | n_s    | n_u    | gap   |
-|-----------|---------------------------------------|--------|--------|-------|
-| 1         | Mathematics and Computer Science      | 3,624  | 3,754  | 0.420 |
-| 2         | Physical Sciences and Engineering     | 6,724  | 5,694  | 0.298 |
-| 3         | Life and Earth Sciences               | 8,475  | 7,008  | 0.572 |
-| 4         | Biomedical and Health Sciences        | 11,585 | 10,069 | 0.423 |
-| 5         | Social Sciences and Humanities        | 16,082 | 7,251  | 0.455 |
+### AREA5 areas (field_idx 1–5)
+Not yet computed: the Leiden-group gaps previously listed here are obsolete. Read
+`rankings_{1..5}_2020_2024_baseline_diag.json` after `run_area_bloc.py` has run.
 
 ## HCW analysis (enclaves/ pipeline)
 
@@ -524,7 +486,7 @@ the full flat_works scan before the tau filter is applied).
 - `build_edge_list_field.py` — `build_edge_list(..., bloc_codes=())`: when non-empty,
   materialises `_excl_works` (works with any out-of-bloc institution) then applies
   `work_idx NOT IN (SELECT work_idx FROM _excl_works)` before the tau filter.
-- `run_leiden_bloc.py` — resolves `settings.blocs[run.bloc]` and passes to `build_edge_list`.
+- `run_area_bloc.py` / `run_field_bloc.py` — resolve `settings.blocs[run.bloc]` and pass to `build_edge_list`.
 - Candidacy (`build_field_candidacy.py`) is NOT bloc-filtered; candidacy thresholds are
   global.  Bloc runs share the same candidacy parquets as the baseline run.
 

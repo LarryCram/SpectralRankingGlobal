@@ -11,6 +11,7 @@ import pandas as pd
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 from util import load_config
+from util.areas import AREA_GROUPS
 
 def main():
     paths = load_config()
@@ -22,14 +23,15 @@ def main():
 
     print("Querying flat_works for HASS vs Total publications by country and year (2011–2025)...")
     
-    # Query using leiden_idx == 5 (Social Sciences and Humanities)
+    # HASS = AREA5 area 5 (SSH: Social Sciences, Humanities, Arts and Business)
+    ssh = ', '.join(map(str, AREA_GROUPS[5]))
     q = f"""
     WITH base AS (
         SELECT 
             publication_year as year,
             country_code,
             COUNT(DISTINCT work_idx) as n_total,
-            COUNT(DISTINCT CASE WHEN leiden_idx = 5 THEN work_idx END) as n_hass
+            COUNT(DISTINCT CASE WHEN field_idx IN ({ssh}) THEN work_idx END) as n_hass
         FROM '{fw_path}'
         WHERE publication_year BETWEEN 2011 AND 2025
           AND country_code IN ({c_sql})
@@ -40,7 +42,7 @@ def main():
             publication_year as year,
             'GLOBAL' as country_code,
             COUNT(DISTINCT work_idx) as n_total,
-            COUNT(DISTINCT CASE WHEN leiden_idx = 5 THEN work_idx END) as n_hass
+            COUNT(DISTINCT CASE WHEN field_idx IN ({ssh}) THEN work_idx END) as n_hass
         FROM '{fw_path}'
         WHERE publication_year BETWEEN 2011 AND 2025
           AND country_code IS NOT NULL

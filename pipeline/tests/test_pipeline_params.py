@@ -61,7 +61,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from util.runs import Run
 from build_field_candidacy import (build_field_candidacy,
-                                   build_leiden_candidacy,
+                                   build_area_candidacy,
                                    build_subfield_candidacy)
 from build_edge_list_field import build_edge_list
 from build_csr_field import build_csr_field
@@ -250,26 +250,33 @@ class TestBuildFieldCandidacy:
         assert abs(row[0] - 1.0) < 1e-9, f"window filter: expected 1.0, got {row[0]}"
 
 
-# ─── build_leiden_candidacy / build_subfield_candidacy ────────────────────────
+# ─── build_area_candidacy / build_subfield_candidacy ──────────────────────────
 
-class TestLeidenSubfieldCandidacy:
+def _area_cands(corpus, tmp_path, tag):
+    """Field candidacy, then AREA5 re-aggregation (the production order)."""
+    fs, fu = str(tmp_path / f'fs{tag}.parquet'), str(tmp_path / f'fu{tag}.parquet')
+    out_s, out_u = str(tmp_path / f'as{tag}.parquet'), str(tmp_path / f'au{tag}.parquet')
+    with duckdb.connect() as db:
+        build_field_candidacy(db, corpus['fw'], '2020_2024', fs, fu)
+        build_area_candidacy(db, fs, fu, out_s, out_u)
+    return out_s, out_u
+
+
+class TestAreaSubfieldCandidacy:
     """
-    Uses corpus fixture (all 4 works in field 17 → leiden_idx=1, subfield_idx=1700).
+    Uses corpus fixture (all 4 works in field 17 → AREA5 area 1 = MCS, subfield_idx=1700).
     Works 1,2: source 101, inst 201, iw=1.0, fw=1.0
     Work 3:    source 102, inst 201, iw=1.0, fw=1.0
     Work 4:    source 103, inst 202, iw=1.0, fw=1.0
 
-    Leiden source candidacy (leiden=1): S1=2.0, S2=1.0, S3=1.0
-    Leiden inst candidacy  (leiden=1): I1=3.0, I2=1.0
-    Subfield candidacy (sf=1700): same values as leiden (single subfield in test corpus)
+    Area source candidacy (area 1): S1=2.0, S2=1.0, S3=1.0
+    Area inst candidacy  (area 1): I1=3.0, I2=1.0
+    Subfield candidacy (sf=1700): same values (single subfield in test corpus)
     """
 
-    def test_leiden_source_candidacy_value(self, corpus, tmp_path):
-        """S1=101: 2 distinct works (W1, W2) in leiden=1 → weighted_works=2.0."""
-        out_s = str(tmp_path / 'ls.parquet')
-        out_u = str(tmp_path / 'lu.parquet')
-        with duckdb.connect() as db:
-            build_leiden_candidacy(db, corpus['fw'], '2020_2024', out_s, out_u)
+    def test_area_source_candidacy_value(self, corpus, tmp_path):
+        """S1=101: 2 distinct works (W1, W2) in area 1 → weighted_works=2.0."""
+        out_s, _ = _area_cands(corpus, tmp_path, 1)
         with duckdb.connect() as db:
             row = db.execute(
                 f"SELECT CAST(weighted_works AS DOUBLE) FROM '{out_s}' WHERE field_idx=1 AND source_idx=101"
@@ -277,12 +284,9 @@ class TestLeidenSubfieldCandidacy:
         assert row is not None
         assert abs(row[0] - 2.0) < 1e-9
 
-    def test_leiden_inst_candidacy_value(self, corpus, tmp_path):
-        """I1=201: works W1,W2,W3 all in leiden=1 with iw=1.0 → weighted_works=3.0."""
-        out_s = str(tmp_path / 'ls2.parquet')
-        out_u = str(tmp_path / 'lu2.parquet')
-        with duckdb.connect() as db:
-            build_leiden_candidacy(db, corpus['fw'], '2020_2024', out_s, out_u)
+    def test_area_inst_candidacy_value(self, corpus, tmp_path):
+        """I1=201: works W1,W2,W3 all in area 1 with iw=1.0 → weighted_works=3.0."""
+        _, out_u = _area_cands(corpus, tmp_path, 2)
         with duckdb.connect() as db:
             row = db.execute(
                 f"SELECT CAST(weighted_works AS DOUBLE) FROM '{out_u}' WHERE field_idx=1 AND institution_idx=201"
@@ -290,15 +294,25 @@ class TestLeidenSubfieldCandidacy:
         assert row is not None
         assert abs(row[0] - 3.0) < 1e-9
 
-    def test_leiden_output_uses_leiden_idx_as_field_idx(self, corpus, tmp_path):
-        """Output schema: field_idx column holds leiden_idx values (1–5)."""
-        out_s = str(tmp_path / 'ls3.parquet')
-        out_u = str(tmp_path / 'lu3.parquet')
-        with duckdb.connect() as db:
-            build_leiden_candidacy(db, corpus['fw'], '2020_2024', out_s, out_u)
+    def test_area_output_uses_area_id_as_field_idx(self, corpus, tmp_path):
+        """Output schema: field_idx column holds AREA5 area ids (1–5)."""
+        out_s, _ = _area_cands(corpus, tmp_path, 3)
         with duckdb.connect() as db:
             vals = set(db.execute(f"SELECT DISTINCT field_idx FROM '{out_s}'").df()['field_idx'].tolist())
-        assert vals == {1}  # all test works are in leiden group 1 (CS, field 17)
+        assert vals == {1}  # all test works are in area 1 (MCS, field 17)
+
+    def test_area_sums_member_fields(self, tmp_path):
+        """Vet (34) joins area 3 (LES), not area 4; fields within an area are summed."""
+        fs, fu = str(tmp_path / 'fs.parquet'), str(tmp_path / 'fu.parquet')
+        out_s, out_u = str(tmp_path / 'as.parquet'), str(tmp_path / 'au.parquet')
+        with duckdb.connect() as db:
+            db.execute(f"COPY (FROM (VALUES (11, 7, 1.5), (34, 7, 2.0), (27, 7, 4.0)) "
+                       f"t(field_idx, source_idx, weighted_works)) TO '{fs}'")
+            db.execute(f"COPY (FROM (VALUES (11, 8, 1.0)) "
+                       f"t(field_idx, institution_idx, weighted_works)) TO '{fu}'")
+            build_area_candidacy(db, fs, fu, out_s, out_u)
+            got = dict(db.execute(f"SELECT field_idx, weighted_works FROM '{out_s}'").fetchall())
+        assert got == {3: 3.5, 4: 4.0}
 
     def test_subfield_source_candidacy_value(self, corpus, tmp_path):
         """subfield_idx=1700: S1=101 contributes 2.0 (works W1, W2)."""

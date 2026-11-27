@@ -28,6 +28,7 @@ import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from util import load_config, load_settings, load_runs, Run
+from util.areas import AREA_GROUPS
 
 SX_IDX = 1   # sentinel source_idx for ε=1 runs
 IX_IDX = 1   # sentinel institution_idx for ε=1 runs
@@ -141,7 +142,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     FOR-division grouping several subfield_idx into one division) — when member_ids is
     non-empty, flat_works is filtered by `filter_col IN member_ids` instead of
     `filter_col = run.field_idx`; filter_col_override picks the column ('field_idx' or
-    'subfield_idx') explicitly instead of inferring it from run.is_leiden/is_subfield.
+    'subfield_idx') explicitly instead of inferring it from run.is_area/is_subfield.
     run.field_idx itself is still used as this call's own scratch-candidacy identity
     (sc_path/ic_path are expected to already be scoped to that single group code).
 
@@ -157,13 +158,14 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     tau_u_abs = run.tau_u_abs()
 
     # Dispatch filter column based on run type:
-    #   leiden   (field_idx 1–5)    → filter by leiden_idx
+    #   area     (field_idx 1–5)    → filter by field_idx IN the AREA5 member fields
     #   subfield (field_idx ≥ 1000) → filter by subfield_idx; no aggregation needed
     #   field    (field_idx 11–36)  → filter by field_idx; aggregate subfields
     if filter_col_override is not None:
         filter_col = filter_col_override
-    elif run.is_leiden:
-        filter_col = 'leiden_idx'
+    elif run.is_area:
+        filter_col = 'field_idx'
+        member_ids = member_ids or AREA_GROUPS[field_idx]
     elif run.is_subfield:
         filter_col = 'subfield_idx'
     else:
@@ -205,7 +207,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     print(f"  Retained: {n_s:,} sources, {n_u:,} institutions  "
           f"(τ_s={tau_s_abs:.0f}, τ_u={tau_u_abs:.0f})")
 
-    # ── 2. Flat works for this field/leiden/subfield + window ─────────────────
+    # ── 2. Flat works for this field/area/subfield + window ─────────────────
     # All-in bloc filter: exclude any work whose institution set is not fully
     # within bloc_codes.  Checked across ALL institutions in this group+window
     # (not just retained units) so even below-tau collaborators trigger exclusion.
@@ -224,7 +226,7 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
     else:
         bloc_clause = ""
 
-    # For field and leiden modes, flat_works is at subfield granularity so we
+    # For field and area modes, flat_works is at subfield granularity so we
     # GROUP BY (work, source, institution) to aggregate subfield weights.
     # For subfield mode, rows are already at the right granularity.
     if run.is_subfield:
