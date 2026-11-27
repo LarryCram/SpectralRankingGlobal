@@ -67,7 +67,7 @@ from pathlib import Path
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config, load_settings, guard
+from util import load_config, load_settings, guard, oa_glob, oa_is_compact
 
 # NOTE: MAX_AUTHORS (hyper-authored/consortium exclusion) now lives upstream in
 # pipeline/build_flat_works.py (value 29) — flat_works is the base work list for
@@ -133,7 +133,8 @@ def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path,
 
     Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
-    inputs = [str(flat_works_path), f'{oax}/work_topics/*.parquet', f'{oax}/topics.parquet']
+    wt_glob = oa_glob(oax, 'work_topics')
+    inputs = [str(flat_works_path), wt_glob, f'{oax}/topics.parquet']
     if not guard.ensure_fresh(out, *inputs, script=__file__, auto_yes=auto_yes,
                               label='filtered_works_topics'):
         return
@@ -141,7 +142,28 @@ def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path,
     print('  Building filtered_works_topics.parquet ...')
     t0 = time.time()
     con = _con(out.parent)
-    con.execute(f"""
+    if oa_is_compact(oax):
+        # compact/ layout: work_topics already flattened with field_idx/field_name
+        con.execute(f"""
+        COPY (
+          WITH dedup_works AS (
+            SELECT DISTINCT work_idx, publication_year, cited_by_count,
+                   authors_count, institutions_distinct_count
+            FROM '{flat_works_path}'
+            WHERE cited_by_count > (2027 - publication_year)
+          )
+          SELECT DISTINCT
+            dw.work_idx, dw.publication_year, dw.cited_by_count,
+            dw.authors_count, dw.institutions_distinct_count,
+            wt.score      AS field_score,
+            wt.field_idx  AS field_idx,
+            wt.field_name AS field_name
+          FROM dedup_works dw
+          JOIN '{wt_glob}' wt USING (work_idx)
+        ) TO '{out}' (FORMAT PARQUET)
+        """)
+    else:
+      con.execute(f"""
     COPY (
       WITH
       dedup_works AS (
@@ -155,7 +177,7 @@ def build_filtered_works_topics(flat_works_path: Path, oax: Path, out: Path,
                dw.authors_count, dw.institutions_distinct_count,
                unnest(wt.topics) AS topic
         FROM dedup_works dw
-        JOIN '{oax}/work_topics/*.parquet' wt USING (work_idx)
+        JOIN '{wt_glob}' wt USING (work_idx)
       )
       SELECT DISTINCT
         fw.work_idx, fw.publication_year, fw.cited_by_count,
@@ -288,7 +310,7 @@ def build_hcw_authors(hcw_path: Path, oax: Path, out: Path, auto_yes: bool = Fal
     Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
     inputs = [str(hcw_path), f'{oax}/institutions.parquet',
-              f'{oax}/authorships/*.parquet', f'{oax}/authors/*.parquet']
+              oa_glob(oax, 'authorships'), f'{oax}/authors/*.parquet']
     if not guard.ensure_fresh(out, *inputs, script=__file__, auto_yes=auto_yes,
                               label='hcw_authors'):
         return
@@ -313,7 +335,7 @@ def build_hcw_authors(hcw_path: Path, oax: Path, out: Path, auto_yes: bool = Fal
     CREATE TEMP TABLE _auth_raw AS
     SELECT h.field_idx, a.author_idx, a.work_idx,
            il.institution_name, a.country_code
-    FROM '{oax}/authorships/*.parquet' a
+    FROM '{oa_glob(oax, 'authorships')}' a
     JOIN _hcw h ON h.work_idx = a.work_idx
     LEFT JOIN _inst il ON il.institution_idx = a.institution_idx
     WHERE a.author_idx IS NOT NULL
@@ -385,7 +407,7 @@ def build_hcw_authorships(hcw_path: Path, oax: Path, out: Path, auto_yes: bool =
     Used for co-author overlap analysis in the clustering pipeline.
     Rebuilds only if stale relative to its inputs (see util/guard.py).
     """
-    inputs = [str(hcw_path), f'{oax}/authorships/*.parquet']
+    inputs = [str(hcw_path), oa_glob(oax, 'authorships')]
     if not guard.ensure_fresh(out, *inputs, script=__file__, auto_yes=auto_yes,
                               label='hcw_authorships'):
         return
@@ -396,7 +418,7 @@ def build_hcw_authorships(hcw_path: Path, oax: Path, out: Path, auto_yes: bool =
     con.execute(f"""
     COPY (
       SELECT DISTINCT a.work_idx, a.author_idx
-      FROM '{oax}/authorships/*.parquet' a
+      FROM '{oa_glob(oax, 'authorships')}' a
       JOIN (SELECT DISTINCT work_idx FROM '{hcw_path}') h USING (work_idx)
       WHERE a.author_idx IS NOT NULL
     ) TO '{out}' (FORMAT PARQUET)

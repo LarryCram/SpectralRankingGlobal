@@ -29,9 +29,9 @@ def main():
     oecd_sql = ', '.join(f"'{c}'" for c in oecd_plus)
     
     leiden_tsv = "/home/lc/m/LeidenOpen/raw/cwts_leiden_ranking_open_edition_2024/university.tsv"
-    inst_parquet = "/home/lc/m/openalex_jul26/parquet_converted/institutions.parquet"
-    rk_18 = "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2018/division/rankings_div_*.parquet"
-    rk_26 = "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/era2026/division/rankings_div_*.parquet"
+    inst_parquet = str(paths.openalex / "institutions.parquet")
+    rk_18 = str(paths.working / "era2018/division/rankings_div_*.parquet")
+    rk_26 = str(paths.working / "era2026/division/rankings_div_*.parquet")
 
     db = duckdb.connect()
 

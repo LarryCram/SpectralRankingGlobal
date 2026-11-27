@@ -30,6 +30,24 @@ class Paths:
     xpac:         bool = False
 
 
+def oa_glob(openalex: Path, table: str) -> str:
+    """
+    Glob for a partitioned OpenAlex table. Snapshots from Oct26 on keep partitioned
+    tables under `compact/` (or `xpac/`); older layouts kept them at the top level.
+    Note the layouts can differ in schema (e.g. work_topics is flattened in compact/).
+    """
+    openalex = Path(openalex)
+    for d in (openalex / 'compact' / table, openalex / table):
+        if d.is_dir():
+            return f'{d}/*.parquet'
+    raise FileNotFoundError(f'no partitioned table {table!r} under {openalex}')
+
+
+def oa_is_compact(openalex: Path) -> bool:
+    """True when the snapshot uses the compact/ layout (flattened work_topics etc.)."""
+    return (Path(openalex) / 'compact').is_dir()
+
+
 def load_config(config_path: Path = _CONFIG_PATH) -> Paths:
     with open(config_path) as f:
         cfg = yaml.safe_load(f)

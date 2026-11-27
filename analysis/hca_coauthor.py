@@ -38,7 +38,7 @@ import duckdb
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from util import load_config
+from util import load_config, oa_glob
 
 JACCARD_MERGE = 0.10   # min Jaccard similarity to confirm same-person merge
 
@@ -208,7 +208,7 @@ def main() -> None:
     test_mode = '--test' in sys.argv
     paths = load_config()
     clusters_path   = paths.working / 'hca_clusters.parquet'
-    oax_authorships = paths.openalex / 'authorships' / '*.parquet'
+    oax_authorships = oa_glob(paths.openalex, 'authorships')
 
     clusters = pd.read_parquet(clusters_path)
     n_multi = (clusters['cluster_n'] > 1).sum()

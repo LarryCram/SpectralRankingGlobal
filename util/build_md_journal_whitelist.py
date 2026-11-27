@@ -95,9 +95,12 @@ def build_whitelist(era_journal_xlsx: Path, sources_parquet: Path, out_path: Pat
 
 
 def main():
+    import sys
     root = Path(__file__).parent.parent
+    sys.path.insert(0, str(root))
+    from util import load_config
     era_xlsx = Path("/home/lc/Projects_Antigravity/SmallProjects/data_persisted/ERA 2018 Journal List.xlsx")
-    sources_pq = Path("/media/m-drive/openalex_jul26/parquet_converted/sources.parquet")
+    sources_pq = load_config().openalex / "sources.parquet"
     out_pq = root / "data" / "md_journal_whitelist.parquet"
 
     build_whitelist(era_xlsx, sources_pq, out_pq)

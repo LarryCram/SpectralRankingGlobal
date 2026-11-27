@@ -41,7 +41,7 @@ from nameparser import HumanName
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from util import load_config, load_settings, FIELD_NAMES
+from util import load_config, load_settings, FIELD_NAMES, oa_glob
 from util.name_util import clean_name, norm, last_norm, fi
 
 
@@ -450,7 +450,7 @@ def main():
 
     fw_path = str(working / f"flat_works_{settings.year_min}_{settings.year_max}.parquet")
     authors_glob = f"{paths.openalex}/authors/*.parquet"
-    authorships_glob = f"{paths.openalex}/authorships/*.parquet"
+    authorships_glob = oa_glob(paths.openalex, 'authorships')
     work_v_path = str(working / "work_v_2020_2024_baseline.parquet")
     enclave_hcw_path = str(working / "enclave_hcw_2020_2024_baseline.parquet")
     enclave_nmf_path = str(working / "enclave_nmf_2020_2024_baseline.parquet")

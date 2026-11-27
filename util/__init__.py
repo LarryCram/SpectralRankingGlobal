@@ -1,4 +1,4 @@
-from .load_config import load_config, load_settings, load_runs, load_world, Paths
+from .load_config import load_config, load_settings, load_runs, load_world, Paths, oa_glob, oa_is_compact
 from .areas import (
     AREAS,
     ALL_AREAS,

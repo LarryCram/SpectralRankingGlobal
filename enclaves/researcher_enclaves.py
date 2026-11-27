@@ -9,7 +9,7 @@ Inputs:
   WORKING/enclave_nmf_{window}_{label}.parquet
   WORKING/enclave_hcw_{window}_{label}.parquet    (for source_idx)
   WORKING/corpus_references_{ymin}_{ymax}.parquet
-  OPENALEX/parquet_converted/authorships/*.parquet
+  OPENALEX/parquet_converted/[compact/]authorships/*.parquet
   OPENALEX/parquet_converted/authors/*.parquet
 
 Outputs:
@@ -33,7 +33,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from util import load_config, load_settings, FIELD_NAMES, guard
+from util import load_config, load_settings, FIELD_NAMES, guard, oa_glob
 from network_enclave import scan_citation_edges
 
 
@@ -176,7 +176,7 @@ def main() -> None:
     out_dir.mkdir(exist_ok=True)
 
     oa        = paths.openalex
-    auth_glob = str(oa / 'authorships' / '*.parquet')
+    auth_glob = oa_glob(oa, 'authorships')
     au_glob   = str(oa / 'authors'     / '*.parquet')
 
     for p in (nmf_path, hcw_path):
