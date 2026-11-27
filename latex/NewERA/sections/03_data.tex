@@ -1,51 +1,24 @@
+% !TeX root = ../main.tex
 % ---------------------------------------------------------------
-\section{Data Corpus and National Disciplinary Taxonomy}
+\section{ERA 2018 and Its Emulation}
 \label{sec:data}
 % ---------------------------------------------------------------
 
-\subsection{OpenAlex Snapshot and Corpus Filtering}
+\subsection{ERA 2018}
 
-The empirical foundation for this study is built from a global snapshot of OpenAlex citation metadata \citep{priemOpenAlexFullyopenIndex2022} encompassing all scholarly works published between 2000 and 2025, with our primary national research evaluation focusing on the five-year census window \textbf{2020--2024}. 
+ERA 2018 evaluated research outputs published by Australian higher education providers in 2011--2016 (journal articles; for some disciplines also books, chapters, conference papers and non-traditional outputs). Outputs were assigned by the institutions to codes of the 2008 Australian and New Zealand Standard Research Classification Fields of Research (FoR 2008), which has 22 two-digit divisions and 157 four-digit groups. A UoE is an institution's output in one two-digit or four-digit code. A UoE was evaluated only if it exceeded a low-volume threshold of 50 outputs, counted either as indexed journal articles (for disciplines assessed by citation analysis) or as weighted outputs, with books weighted five (for disciplines assessed by peer review). Eight Research Evaluation Committees (RECs) rated each UoE on a five-point scale, from 1 (well below world standard) to 5 (well above world standard), with 3 denoting world standard.
 
-To construct an authoritative corpus, we extract a master relational table, \texttt{flat\_works}, containing approximately 261.4 million records structured at the $( \text{work} \times \text{institution} \times \text{subfield} )$ level. The following rigorous quality filters are applied:
-\begin{itemize}
-    \item \textbf{Scholarly Work Types}: Expanded to eight primary peer-reviewed formats: \textit{article, review, book, book-chapter, dissertation, letter, preprint, report}.
-    \item \textbf{Integrity and Completeness}: Filtered to non-retracted works, excluding paratext (editorials, front matter, tables of contents), and requiring $\text{referenced\_works\_count} \ge 1$.
-    \item \textbf{Consortium Threshold}: Works with $\text{authors\_count} > 29$ are excluded to eliminate mega-authored consortium publications whose author credits obscure institutional responsibility.
-    \item \textbf{Title Deduplication}: Normalized title deduplication ensures preprints and subsequent formal journal publications do not double-count citation linkages.
-    \item \textbf{Institution Types}: Restricted to research-performing organizational classes: \textit{education, nonprofit, government, healthcare, and other}. Clinical research institutes and university teaching hospitals are explicitly captured under the \textit{healthcare} designation.
-\end{itemize}
+The ERA 2018 Discipline Matrix fixed, for each FoR code, whether the committee drew principally on citation indicators supplied by the Australian Research Council or on the reports of peer reviewers who read a sample of nominated outputs. Of the 22 divisions, nine were assessed by citation analysis, eleven by peer review, and two (01 Mathematical Sciences and 10 Technology) were mixed, with different methods for different four-digit groups (Table~\ref{tab:era_divisions}). Information and Computing Sciences (08) and Economics (14) were assessed by peer review. The published outcomes contain 2,600 rated UoEs from 40 institutions: 677 at the two-digit level and 1,923 at the four-digit level.
 
-\subsection{Retention Thresholds \texorpdfstring{($\tau$)}{(tau)}}
+\subsection{Corpus}
 
-To ensure statistical stability and avoid spurious eigenvalues driven by singleton or transient entities, minimum activity thresholds are enforced:
-\begin{itemize}
-    \item $\tau_S = 10.0$ weighted works per year for publishing sources (50.0 weighted works over the 2020--2024 window).
-    \item $\tau_U = 10.0$ weighted works per year for research institutions (50.0 weighted works over the 2020--2024 window).
-\end{itemize}
-Because thresholds are defined in weighted works per year, the qualification criterion remains invariant to the length of the census window.
+The corpus is the October 2026 snapshot of OpenAlex \citep{priemOpenAlexFullyopenIndex2022}. We retain works of nine types (article, review, book, book chapter, conference paper, dissertation, letter, preprint and report) that are not retracted, are not paratext, have at least one reference, and have no more than 29 authors; the author cap excludes consortium papers whose credit cannot reasonably be apportioned among institutions. Works with the same normalised title are counted once, so that a preprint and its published version do not both enter the network. Institutions are restricted to the OpenAlex types education, nonprofit, government, healthcare and other. For the emulation, the target and census windows coincide with the ERA 2018 reference period, $t_t = t_c = [2011, 2016]$: references are taken from works published in 2011--2016 to works published in 2011--2016.
 
-\subsection{The AREA5 Concordance: Bridging OpenAlex and ANZSRC FOR 2020}
+\subsection{Emulating units of evaluation}
 
-A central innovation of this framework is establishing a direct, audited mapping between OpenAlex's global topic hierarchy and the Australian and New Zealand Standard Research Classification \citep[ANZSRC 2020;][]{anzsrc2020}. 
+OpenAlex classifies each work into topics, and each topic belongs to one of 252 subfields. We map each OpenAlex subfield to a single FoR 2008 group using a published crosswalk (\texttt{ResearchClassification}; % TODO(authors): citation / URL for the crosswalk
+), and a division is the union of its groups. Because the mapping is many-to-one, a four-digit group that no subfield maps to cannot be emulated; 107 of the 157 groups are reachable. For each division and reachable group we compute a separate spectral ranking of all sources and institutions worldwide, using the field weights $f_{wF}$ of Section~\ref{sec:spectral_ranking}.
 
-Rather than adopting the four-domain model of OpenAlex (which submerges computer science and mathematics into the physical sciences) or relying on the proprietary five-superfield model of the CWTS Leiden Ranking \citep{waltmanNewMethodologyConstructing2012} (which places veterinary science into human biomedical health), we establish a unified \textbf{5 Broad Research Areas (AREA5)} framework. This taxonomy is explicitly grounded in the 23 two-digit divisions of ANZSRC FOR 2020 and linked directly to OpenAlex's 26 fields, as documented in Table~\ref{tab:area5_concordance}.
+The thresholds follow ERA. An institution is retained in a unit if its field-weighted, author-fractional output over the six years is at least 50, so that $\tau_I = 50/6$ works per year matches the low-volume threshold. A source is retained if it published at least 60 field-weighted works ($\tau_S = 10$ per year). ERA assigned multidisciplinary journals such as \textit{Nature}, \textit{Science} and \textit{PLOS ONE} to a separate category (MD) of its journal list; the 708 OpenAlex sources matched to that category are retained in any unit in which they published at least one field-weighted work, so that their articles are not lost when no single field reaches $\tau_S$. All rankings use the baseline parameters of Section~\ref{sec:spectral_ranking}: bipartite mask, fractional reference counting ($\rho = 0$), author-fractional institutional credit and no sentinel ($\varepsilon = 0$).
 
-\input{tables/tab1_area5_concordance}
-
-Two key boundary definitions warrant emphasis:
-\begin{enumerate}
-    \item \textbf{Mathematics and Computing (MCS)}: Information and Computing Sciences (Division 46) and Mathematical Sciences (Division 49) form an autonomous macro-discipline. This reflects their distinct publication mechanisms (where top computer science conferences carry equal or greater prestige than journals) and prevents their intensity from being obscured within heavy industrial engineering or chemistry.
-    \item \textbf{Veterinary Science (LES)}: In strict concordance with ANZSRC Division 30 (\textit{Agricultural, Veterinary and Food Sciences}), veterinary science is united with animal biology and agricultural ecology within Life and Earth Sciences (LES), rather than combined with human clinical medicine and hospital epidemiology in Biomedical and Health Sciences (BHS).
-    \item \textbf{Indigenous Studies (IND)}: Division 45 is an essential national research priority. Because machine-learned global topic models do not currently distinguish a standalone Indigenous branch from the underlying academic disciplines through which it is expressed, Division 45 is carried as an explicitly recognized, zero-populated category in global data rather than silently discarded.
-\end{enumerate}
-
-\subsection{Corpus Scale and Spectral Health}
-
-Table~\ref{tab:corpus_summary} reports the scale of the retained bipartite network and the corresponding eigensolve diagnostics across each of the five broad disciplines.
-
-\input{tables/tab2_corpus_summary}
-
-Across all five areas, the qualifying network encompasses thousands of selective sources ($N_S$ from 3,896 in MCS to 17,354 in SSH) and world research institutions ($N_U$ from 4,173 in MCS to 10,821 in BHS). In every case, the dominant eigenvalue $\lambda_1$ converges to $1.0000 \pm 0.0002$ under ARPACK Arnoldi iteration. 
-
-Crucially, the spectral gap ($1 - \lambda_2$) ranges between $0.3330$ and $0.5866$, confirming that the bipartite cross-citation graphs are strongly primitive, free of disconnected sub-components, and characterized by rapid geometric convergence of the prestige distribution.
+Each Australian institution is identified with its OpenAlex institution record through a concordance maintained for this study, and a rated UoE is matched when its institution is retained in the corresponding emulated unit. The comparison statistic is the Spearman correlation $r_s$ between $v$ and the ERA rating across the matched UoEs of a code. Its 95\% interval is obtained from 2,000 bootstrap resamples of UoEs. To pool codes, we convert $v$ and the rating to percentile ranks within each code before correlating, which removes differences between disciplines in the level of ratings.

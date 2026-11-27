@@ -4,6 +4,29 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-11-27 — NewERA rebuilt around ERA 2018; discipline-mode misclassification found
+
+- **Paper restructured** (`latex/NewERA/`): ported to the Frontiers in Research Metrics and Analytics
+  template (`FrontiersinHarvard.cls`, `Frontiers-Harvard.bst`). Abstract and §3–5 rewritten around the
+  ERA 2018 testbed; the 2020–24 AREA5 / UK / bloc material is out of the main text (still in git history
+  and `tables/tab1–4`, `figures/fig2–5`).
+- **New `latex/NewERA/era2018_analysis.py`**: single source for every Results number
+  (`era2018_numbers.json`, `tables/tab_era2018_*.tex`, `figures/fig_era2018_v_by_rating.pdf`). Reads the
+  Oct26 WORKING dir via `--working` (this checkout's `config.yaml` still points at jul26).
+- **New `data/era2018_discipline_matrix.csv`**: parsed from the official ERA 2018 Discipline Matrix PDF
+  (179 FoR codes; citation analysis / peer review / mixed).
+- **Bug — evaluation mode misclassified** in `analysis/compute_division_indicators.py` and the
+  citation-vs-peer-review split of `analysis/test_committee_representation_hypothesis.py`: 08 (ICS) and
+  14 (Economics) were treated as citation disciplines; the Discipline Matrix assesses both by peer review,
+  and 01 and 10 are mixed. With the correct modes, division fixed effects and institution-clustered SEs,
+  the REC-representation coefficient is 0.19 (s.e. 0.08) alone but 0.10 (s.e. 0.08, n.s.) once Go8
+  membership is included; the large association is a Go8 premium (0.35 pts citation, 0.97 pts peer
+  review, at equal v). The conclusions of `ERA2018_COMMITTEE_REPRESENTATION_AND_ERA_BIAS.md` need revising.
+- **Sentinel ERA 2018 outputs** (`WORKING/era2018_sentinel/`) do not exist in either jul26 or Oct26
+  WORKING dirs, although CLAUDE.md lists the stage as complete.
+- **`make_bib.py`**: writes a trimmed `references.bib` from `../MyLibrary.bib` and converts BibLaTeX
+  fields/names to BibTeX (the current Zotero export is Better BibLaTeX).
+
 ## 2026-11-03 — DuckDB Insulation, FUSE Temp Spill Removal & Conference Papers Work Type
 
 - **DuckDB Connection & Resource Insulation (`pipeline/build_flat_works.py`, `pipeline/build_field_candidacy.py`)**:

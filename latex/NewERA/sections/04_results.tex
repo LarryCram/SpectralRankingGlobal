@@ -1,81 +1,42 @@
+% !TeX root = ../main.tex
 % ---------------------------------------------------------------
-\section{Empirical Results: National Research Evaluation in Australia}
+\section{Results}
 \label{sec:results}
 % ---------------------------------------------------------------
 
-\subsection{Institutional Profiles of Australian Higher Education Providers}
+\subsection{Coverage}
 
-Applying the bipartite spectral ranking model across all 42 Australian Higher Education Providers (HEPs) provides a comprehensive, size-independent mapping of Australian university research influence. 
+Table~\ref{tab:era_divisions} lists the 22 divisions with the size of each retained network and the number of rated UoEs that could be matched. At the two-digit level, 506 of the 677 rated UoEs (75\%) were matched: 253 of 282 in citation disciplines, 234 of 352 in peer review disciplines and 19 of 43 in the two mixed divisions. At the four-digit level the proportion fell to 864 of 1,923 (45\%), partly because 50 groups have no OpenAlex subfield mapped to them and partly because an institution must reach the threshold within a narrower field.
 
-Figure~\ref{fig:hep_heatmap} displays the full influence heatmap of Australian universities across all 26 OpenAlex disciplines for the 2020--2024 window, while Table~\ref{tab:hep_summary} reports institutional prestige scores ($v_I$) aggregated into the five canonical AREA5 broad disciplines.
+Coverage was lost mainly in the humanities, law and the creative arts. In Law and Legal Studies (18) only 24 sources and 52 institutions worldwide met the thresholds, the spectral gap was 0.05, and 5 of 33 rated UoEs could be matched. History and Archaeology (21) and Philosophy and Religious Studies (22) had spectral gaps of 0.07 and 0.03, and Studies in Creative Arts and Writing (19) matched 8 of 35 UoEs. In these divisions the reference network among works indexed by OpenAlex is too sparse, or too weakly connected, to support a ranking, consistent with the known shortfall of citation indexes in these fields \citep{mongeonJournalCoverageWeb2016}. Technology (10) is a different case: its subfields are distributed across other divisions by the crosswalk, and only one Australian institution reached the threshold. Elsewhere, all divisions retained more than 200 sources and institutions, with spectral gaps between 0.13 and 0.77.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/fig2_hep_heatmap_fields.pdf}
-\caption{Heatmap of Australian Higher Education Provider research influence scores ($v_I$) across 26 disciplines (2020--2024 census window). Cell colors range from blue ($v_I < 1.0$, below global mean) through white ($v_I = 1.0$, world average) to orange/red ($v_I > 1.0$, high research intensity). Institutions and disciplines are clustered by total influence.}
-\label{fig:hep_heatmap}
-\end{figure}
+Unmatched UoEs were not a random subset. Their mean ERA rating was 3.18, against 3.79 for matched UoEs, and 33\% of them were rated 1 or 2, against 10\% of matched UoEs. Smaller units, which are more likely to fall below the threshold in OpenAlex, were also more likely to be rated below world standard. The agreement statistics below therefore describe the better-rated part of the exercise.
 
-\input{tables/tab3_hep_summary}
+\input{tables/tab_era2018_divisions}
 
-Several pivotal empirical findings emerge from this national analysis:
+\subsection{Agreement with ERA ratings}
 
-\begin{enumerate}
-    \item \textbf{Comprehensive Excellence among the Group of Eight (Go8)}:
-    All eight Go8 members achieve overall mean influence scores between $1.71$ and $2.01$, indicating that their research output attracts 70\% to 100\% more global prestige per unit than the world baseline. Monash University (MON, mean $v_I = 2.01$), the University of Sydney (SYD, $v_I = 1.98$), UNSW Sydney (NSW, $v_I = 1.91$), and the University of Adelaide (ADE, $v_I = 1.92$) exhibit broad-based intensity exceeding $1.6$ across all five macro-disciplines.
-    
-    \item \textbf{Specialized High-Intensity Clusters in the ATN and Non-Go8 Universities}:
-    Crucially, the size-independent intensity metric $v_I$ reveals world-leading excellence outside the traditional Go8 establishment. Swinburne University of Technology (SWN) and the University of Technology Sydney (UTS) record extraordinary intensity in \textit{Mathematics, Computing and Information Sciences} (MCS $v_I = 3.21$ and $2.80$, respectively), outperforming all comprehensive universities in computing. Both institutions also demonstrate premier status in \textit{Physical Sciences and Engineering} (PSE $v_I = 1.89$ and $1.99$).
-    
-    \item \textbf{High-Intensity Niche Performers}:
-    Australian Catholic University (ACU) provides a compelling demonstration of the metric's utility. Despite possessing a modest total volume of publications, ACU achieves the nation's highest institutional score in \textit{Social Sciences, Humanities and Business} (SSH $v_I = 2.92$) and strong biomedical/nursing performance (BHS $v_I = 1.86$), driving a mean institutional intensity of $1.86$. Under traditional volume-dependent metrics, ACU's distinctive research quality is frequently obscured.
-    
-    \item \textbf{Mission-Specific Strengths in Regional Universities}:
-    Universities in the Regional Universities Network (RUN) and Innovative Research Universities (IRU) display targeted disciplinary excellence. For example, Deakin University (DKN, mean $v_I = 1.72$) achieves world-class status in computing (MCS $v_I = 2.08$) and social sciences (SSH $v_I = 2.20$), while Charles Darwin University (CDU) demonstrates localized environmental research strength.
-\end{enumerate}
+Within divisions, the Spearman correlation between $v$ and the ERA rating was positive in 20 of the 21 divisions where it could be computed (Table~\ref{tab:era_divisions}). The exception, Law, rests on five UoEs. Correlations were highest in Biological Sciences ($r_s = 0.79$), Commerce, Management, Tourism and Services (0.79), Mathematical Sciences (0.79) and Economics (0.72), Among divisions with more than ten matched UoEs, they were lowest in Built Environment and Design (0.08), Agricultural and Veterinary Sciences (0.30), Language, Communication and Culture (0.31) and Environmental Sciences (0.32). With at most 39 UoEs per division the bootstrap intervals are wide, and in eight divisions they include zero.
 
-\subsection{Cross-Country Comparative Context}
+Pooling percentile ranks within divisions gives $r_s = 0.53$ over 253 UoEs in citation disciplines and $r_s = 0.51$ over 234 UoEs in peer review disciplines. The spectral ranking therefore agreed about as well with ratings that ERA committees based on peer review as with ratings based on citation indicators. Two of the closest agreements, Economics and Information and Computing Sciences ($r_s = 0.68$), were in disciplines assessed by peer review. At the four-digit level, agreement was lower in citation disciplines ($r_s = 0.26$, 592 UoEs in 60 groups) than in peer review disciplines ($r_s = 0.50$, 272 UoEs in 28 groups).
 
-To demonstrate that the bipartite spectral framework functions robustly across distinct national governance structures, Figure~\ref{fig:country_heatmap} illustrates national institutional profiles for Australia alongside the United Kingdom and the United States.
+Figure~\ref{fig:v_by_rating} shows how the ratings were distributed against $v$. In citation disciplines the median $\log_{10} v$ rises monotonically with the rating, from $-0.45$ at rating~1 to $0.08$ at rating~5. In peer review disciplines the medians also rise with the rating, from $-0.46$ to $0.00$, but the spread within each rating is wider. Five of the eight UoEs with $v$ below a third of the world mean that were nevertheless rated 4 or 5 were in Law, where the network is too sparse to rank.
 
 \begin{figure}[htbp]
 \centering
-\begin{minipage}{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/fig3_country_heatmap_au.pdf}
-    \caption*{(a) Australia (AU)}
-\end{minipage}\hfill
-\begin{minipage}{0.48\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/fig3_country_heatmap_gb.pdf}
-    \caption*{(b) United Kingdom (GB)}
-\end{minipage}
-\caption{Cross-country comparison of institutional research influence ($v_I$) across disciplines for top-ranked national universities in Australia and the United Kingdom.}
-\label{fig:country_heatmap}
+\includegraphics[width=\textwidth]{figures/fig_era2018_v_by_rating.pdf}
+\caption{Spectral influence $\log_{10} v$ of matched two-digit UoEs by ERA 2018 rating, for disciplines assessed by citation analysis (left) and peer review (right). Points are jittered horizontally; bars mark medians. The dashed line marks the world mean, $v = 1$. Mixed divisions (01, 10) are omitted.}
+\label{fig:v_by_rating}
 \end{figure}
 
-The comparative profiles highlight a critical structural feature: unlike unipartite citation counts, which are inevitably dominated by large flagship multi-faculty campuses, bipartite prestige intensity illuminates specialized research institutes (e.g., medical research institutes and specialized polytechnics) with equal clarity across different national ecosystems.
+\subsection{Calibration against world standard}
 
-\subsection{Algorithmic and Geopolitical Robustness}
+ERA ratings are framed relative to world standard, and $v = 1$ is the output-weighted world mean of a field, so the two scales can be compared directly, although they are not the same quantity. In citation disciplines, 49\% of matched UoEs had $v \ge 1$, and 93\% of these were rated above world standard (4 or 5). Of UoEs with $v < 1$, 70\% were also rated above world standard. In peer review disciplines, 32\% of matched UoEs had $v \ge 1$; 59\% of these and 33\% of those with $v < 1$ were rated above world standard. Relative to the spectral ranking, ERA ratings were higher overall, and the difference was largest in citation disciplines. The proportion of Australian UoEs at or above the world mean varied widely between divisions, from none in Economics and 9\% in Psychology and Cognitive Sciences to 82\% in Engineering (Table~\ref{tab:era_divisions}).
 
-A vital requirement for any national evaluation metric is stability against arbitrary boundary conditions and parameter specifications. We assess the resilience of the bipartite spectral ranking across two major dimensions: parameter perturbation and geopolitical citation bloc restriction.
+\subsection{Institutional characteristics at equal influence}
 
-Table~\ref{tab:sensitivity_correlations} reports the Spearman rank correlation ($\rho_s$) between baseline institutional rankings and five systematic variants across the five broad disciplines.
+Table~\ref{tab:era_premium} reports linear models of the ERA rating of two-digit UoEs, with division fixed effects and standard errors clustered by institution. In citation disciplines, a doubling of $v$ was associated with a rating higher by 0.91 points ($3.01 \times \log_{10} 2$) when $v$ was the only regressor. In peer review disciplines the corresponding difference was 0.50 points.
 
-\input{tables/tab4_sensitivity_correlations}
+Adding membership of the Group of Eight (Go8), the association of eight research-intensive universities, changes the picture differently in the two kinds of discipline. In citation disciplines, Go8 units were rated 0.35 points (s.e. 0.11) higher than other units with the same $v$, and the coefficient on $\log_{10} v$ fell modestly, from 3.01 to 2.50. In peer review disciplines, Go8 units were rated 0.97 points (s.e. 0.20) higher at the same $v$, and the coefficient on $\log_{10} v$ fell by about half, from 1.67 to 0.89. In peer review disciplines, therefore, the difference in ratings between Go8 and other institutions was about as large as the difference associated with a tenfold difference in $v$. Excluding the five sparse divisions (10, 18, 19, 21 and 22) leaves the result substantially unchanged: the Go8 coefficient in peer review disciplines, in the model that also includes committee representation, is 0.89 (s.e. 0.20) over 202 UoEs, against 0.95 in the full sample, and the pooled within-division correlation is $r_s = 0.54$.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.88\textwidth]{figures/fig4_leiden_oecdg20cia_influence.pdf}
-\caption{Stability of institutional influence ($v_I$) under geopolitical citation restriction: baseline global ranking ($x$-axis) versus the OECD+G20 excluding China, India, and the United States ($y$-axis) across sources (upper) and institutions (lower) for the five broad disciplines. The diagonal line denotes perfect invariance.}
-\label{fig:bloc_stability}
-\end{figure}
-
-The empirical diagnostics demonstrate remarkable robustness:
-\begin{itemize}
-    \item \textbf{Retention Threshold Invariance ($\tau = 20$)}: Doubling the qualification threshold from 10 to 20 weighted works per year produces virtually identical institutional rankings, with Spearman rank correlations exceeding $0.993$ across all five disciplines.
-    \item \textbf{Citation Multiplicity Weighting ($\rho = 1$)}: Replacing fixed-count citation weighting ($\rho = 0$) with full raw citation counts ($\rho = 1$) yields rank correlations between $0.908$ and $0.975$, proving that the bipartite projection is not hypersensitive to citation density normalization.
-    \item \textbf{Geopolitical Bloc Stability}: When citations are restricted exclusively to the OECD+G20 bloc, institutional rank correlations exceed $0.985$ across all disciplines. Even when the world's three largest publishing powers (China, India, and the United States) are simultaneously excluded from the citation network (OECDG20-CIA), the rank correlation remains above $0.903$ in STEM and $0.976$ in SSH. As visualized in Figure~\ref{fig:bloc_stability}, institutions align tightly along the diagonal identity axis.
-\end{itemize}
-
-An instructive exception appears in the CIAA variant (AU, CN, IN, US only) within Social Sciences and Humanities ($\rho_s = 0.017$). In SSH, Chinese and Indian domestic citation networks operate in distinct linguistic and localized paradigms; restricting the entire world to this 4-country bloc severs the European, Commonwealth, and Latin American citation exchanges that anchor global social science discourse. This divergence affirms that the model sensitively captures genuine sociological realities rather than imposing a monolithic mathematical artifact.
+\input{tables/tab_era2018_premium}

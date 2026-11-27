@@ -21,6 +21,7 @@ latex/**/*.lof
 latex/**/*.lot
 latex/**/*.pdf
 !latex/NewERA/figures/*.pdf
+!latex/NewERA/logo1.pdf
 **/MyLibrary.bib
 
 data/ERA Documents/

@@ -1,36 +1,41 @@
-\documentclass[11pt]{article}
-\setlength\parindent{10pt}
-\usepackage{booktabs, natbib, amsmath, amssymb, mathrsfs, tabularx, makecell, csquotes}
-\usepackage[margin=1in]{geometry}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{authblk}
-\usepackage{tikz}
-\usetikzlibrary{positioning, arrows.meta, calc}
-\usepackage{hyperref}
-\usepackage{graphicx}
-\pagestyle{plain}
+%%% Frontiers in Research Metrics and Analytics — Original Research
+%%% Template: FrontiersinHarvard.cls v3.4 (author–date references)
+%%% Build: pdflatex main && python make_bib.py && bibtex main && pdflatex main && pdflatex main
 
-\captionsetup[table]{skip=10pt}
-\captionsetup[figure]{skip=10pt}
+\documentclass[utf8]{FrontiersinHarvard}
+\usepackage{url,hyperref,lineno,microtype,subcaption}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{booktabs,amsmath,amssymb,mathrsfs,csquotes}
+\linenumbers
 
-\title{Bibliometric Evidence to Support National esearch ssessment}
-
-% \author[1]{Domingo Docampo}
-% \author[2]{Lawrence Cram}
-
-% \affil[1]{Atlantic Research Center for Information and Communication Technologies \newline
-% University of Vigo, Vigo, Spain}
-% \affil[2]{Research School of Physics, Australian National University, Canberra, 2600, ACT, Australia \newline
-% Charles Darwin University, Brinkin, 0810, NT, Australia}
-
-\date{\today}
+\def\keyFont{\fontsize{8}{11}\helveticabold }
+\def\firstAuthorLast{Docampo {and} Cram}
+\def\Authors{Domingo Docampo\,$^{1}$ and Lawrence Cram\,$^{2,3,*}$}
+\def\Address{$^{1}$Atlantic Research Center for Information and Communication Technologies, University of Vigo, Vigo, Spain \\
+$^{2}$Research School of Physics, Australian National University, Canberra, ACT, Australia \\
+$^{3}$Charles Darwin University, Darwin, NT, Australia}
+\def\corrAuthor{Lawrence Cram}
+\def\corrEmail{[email]}
 
 \begin{document}
+\onecolumn
+\firstpage{1}
+
+\title[Bibliometric evidence for national research assessment]{Bibliometric Evidence to Support National Research Assessment: A Spectral Ranking Test Against ERA 2018}
+
+\author[\firstAuthorLast ]{\Authors}
+\address{}
+\correspondance{}
+\extraAuth{}
+
 \maketitle
 
 \begin{abstract}
-National research evaluation frameworks are transitioning from burdensome, submission-heavy assessment exercises toward agile, data-driven systems grounded in transparent global bibliometrics. However, conventional citation metrics suffer from systemic defects: raw volume bias that rewards scale over quality, reliance on opaque journal impact factors, and vulnerability to metric gaming. Here we introduce an evidence-based framework for national research evaluation utilizing a bipartite spectral ranking model. Modeling scientific influence as a mutual reinforcement network between publishing channels (sources, $\mathcal{S}$) and research institutions ($\mathcal{I}$), we apply a one-mode Breiger projection to derive an intrinsic, size-independent prestige intensity metric ($v$), calibrated such that the global average across any discipline is exactly unity ($1.0$). We ground this global model in national policy frameworks by establishing an audited concordance (AREA5) bridging the 23 two-digit divisions of the Australian ANZSRC FOR 2020 standard and OpenAlex's machine-learned topic hierarchy, preserving computing and mathematical sciences as an independent analytical pillar and properly aligning veterinary science with agriculture. Evaluating all 42 Australian Higher Education Providers across the 2020--2024 census window reveals that research intensity flourishes across diverse university mission groups, demonstrating that specialized technological universities (e.g., Swinburne and UTS in computing and engineering) and targeted institutions (e.g., ACU in social sciences and nursing) achieve world-leading excellence comparable to the comprehensive Group of Eight. Extensive geopolitical bloc and parameter sensitivity analyses confirm that institutional prestige rankings remain remarkably robust ($\rho_s > 0.98$ under OECD+G20 restrictions). The bipartite spectral framework provides higher education authorities with an open, reproducible, and equitable instrument for evidence-based research evaluation.
+\section{}
+National research assessment exercises rely on expert panels whose judgements are costly to obtain and difficult to audit, while the bibliometric indicators that might support them are criticised for size bias, field dependence and dependence on journal-level proxies. We test whether a size-independent spectral ranking of institutions, computed from an open citation index, reproduces the outcomes of a completed national exercise. The ranking treats publication sources and institutions as two kinds of node in a single reference network, so that the influence of each is determined by the influence of the other, and expresses each institution's influence per unit of output relative to the world mean of its field. Using OpenAlex works published in 2011--2016, we emulate the units of evaluation of Excellence in Research for Australia (ERA) 2018 at the two-digit and four-digit levels of the 2008 Fields of Research classification, with volume thresholds matching the ERA low-volume threshold. Of 677 rated two-digit units, 506 could be emulated. Within divisions, the rank correlation between spectral influence and the ERA rating was positive in 20 of 21 divisions and of similar magnitude in disciplines that ERA assessed by citation analysis and by peer review. Coverage, not agreement, limited the method: in law, creative arts and history the network was too sparse to support a ranking. At equal spectral influence, units in Group of Eight universities received higher ratings, by about one third of a rating point in citation disciplines and one point in peer review disciplines. Representation on the rating committee added little once Group of Eight membership was taken into account. We discuss what these results imply for the bibliometric component of the assessment that is to replace ERA.
+
+\tiny
+\keyFont{\section{Keywords:} research evaluation, spectral ranking, peer review, ERA, OpenAlex, institutional ranking, bibliometric indicators, Australia}
 \end{abstract}
 
 \input{sections/01_introduction}
@@ -38,6 +43,27 @@ National research evaluation frameworks are transitioning from burdensome, submi
 \input{sections/03_data}
 \input{sections/04_results}
 \input{sections/05_discussion}
-\bibliographystyle{../spbasic}
-\bibliography{../MyLibrary}
+
+\section*{Conflict of Interest Statement}
+The authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest.
+
+\section*{Author Contributions}
+% TODO(authors): describe contributions by initials.
+DD and LC conceived the study. \ldots
+
+\section*{Funding}
+% TODO(authors)
+\ldots
+
+\section*{Acknowledgments}
+% TODO(authors)
+\ldots
+
+\section*{Data Availability Statement}
+% TODO(authors): repository URL and OpenAlex snapshot identifier.
+The analyses use the OpenAlex snapshot of October 2026 \citep{priemOpenAlexFullyopenIndex2022} and the published ERA 2018 outcomes. Code to reproduce the rankings and the tables and figures in this article is available at \ldots
+
+\bibliographystyle{Frontiers-Harvard}
+\bibliography{references}
+
 \end{document}

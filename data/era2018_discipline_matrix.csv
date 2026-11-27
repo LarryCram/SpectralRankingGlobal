@@ -1,0 +1,180 @@
+cluster,code,title,lvt,citation
+MIC,01,Mathematical Sciences,50IJ/50WO,Yes*
+MIC,0101,Pure Mathematics,50WO,-
+MIC,0102,Applied Mathematics,50IJ,Yes
+MIC,0103,Numerical and Computational Mathematics,50IJ,Yes
+MIC,0104,Statistics,50IJ,Yes
+MIC,0105,Mathematical Physics,50IJ,Yes
+MIC,0199,Other Mathematical Sciences,50IJ,Yes
+PCE,02,Physical Sciences,50IJ,Yes
+PCE,0201,Astronomical and Space Sciences,50IJ,Yes
+PCE,0202,"Atomic, Molecular, Nuclear, Particle and Plasma Physics",50IJ,Yes
+PCE,0203,Classical Physics,50IJ,Yes
+PCE,0204,Condensed Matter Physics,50IJ,Yes
+PCE,0205,Optical Physics,50IJ,Yes
+PCE,0206,Quantum Physics,50IJ,Yes
+PCE,0299,Other Physical Sciences,50IJ,Yes
+PCE,03,Chemical Sciences,50IJ,Yes
+PCE,0301,Analytical Chemistry,50IJ,Yes
+PCE,0302,Inorganic Chemistry,50IJ,Yes
+PCE,0303,Macromolecular and Materials Chemistry,50IJ,Yes
+PCE,0304,Medicinal and Biomolecular Chemistry,50IJ,Yes
+PCE,0305,Organic Chemistry,50IJ,Yes
+PCE,0306,Physical Chemistry (incl. Structural),50IJ,Yes
+PCE,0307,Theoretical and Computational Chemistry,50IJ,Yes
+PCE,0399,Other Chemical Sciences,50IJ,Yes
+PCE,04,Earth Sciences,50IJ,Yes
+PCE,0401,Atmospheric Sciences,50IJ,Yes
+PCE,0402,Geochemistry,50IJ,Yes
+PCE,0403,Geology,50IJ,Yes
+PCE,0404,Geophysics,50IJ,Yes
+PCE,0405,Oceanography,50IJ,Yes
+PCE,0406,Physical Geography and Environmental Geoscience,50IJ,Yes
+PCE,0499,Other Earth Sciences,50IJ,Yes
+EE,05,Environmental Sciences,50IJ,Yes
+EE,0501,Ecological Applications,50IJ,Yes
+EE,0502,Environmental Science and Management,50IJ,Yes
+EE,0503,Soil Sciences,50IJ,Yes
+EE,0599,Other Environmental Sciences,50IJ,Yes
+BB,06,Biological Sciences,50IJ,Yes
+BB,0601,Biochemistry and Cell Biology,50IJ,Yes
+BB,0602,Ecology,50IJ,Yes
+BB,0603,Evolutionary Biology,50IJ,Yes
+BB,0604,Genetics,50IJ,Yes
+BB,0605,Microbiology,50IJ,Yes
+BB,0606,Physiology,50IJ,Yes
+BB,0607,Plant Biology,50IJ,Yes
+BB,0608,Zoology,50IJ,Yes
+BB,0699,Other Biological Sciences,50IJ,Yes
+BB,07,Agricultural and Veterinary Sciences,50IJ,Yes
+BB,0701,"Agriculture, Land and Farm Management",50IJ,Yes
+BB,0702,Animal Production,50IJ,Yes
+BB,0703,Crop and Pasture Production,50IJ,Yes
+BB,0704,Fisheries Sciences,50IJ,Yes
+BB,0705,Forestry Sciences,50IJ,Yes
+BB,0706,Horticultural Production,50IJ,Yes
+BB,0707,Veterinary Sciences,50IJ,Yes
+BB,0799,Other Agricultural and Veterinary Sciences,50IJ,Yes
+MIC,08,Information and Computing Sciences,50WO,-
+MIC,0801,Artificial Intelligence and Image Processing,50WO,-
+MIC,0802,Computation Theory and Mathematics,50WO,-
+MIC,0803,Computer Software,50WO,-
+MIC,0804,Data Format,50WO,-
+MIC,0805,Distributed Computing,50WO,-
+MIC,0806,Information Systems,50WO,-
+MIC,0807,Library and Information Studies,50WO,-
+MIC,0899,Other Information and Computing Sciences,50WO,-
+EE,09,Engineering,50IJ,Yes
+EE,0901,Aerospace Engineering,50IJ,Yes
+EE,0902,Automotive Engineering,50IJ,Yes
+EE,0903,Biomedical Engineering,50IJ,Yes
+EE,0904,Chemical Engineering,50IJ,Yes
+EE,0905,Civil Engineering,50IJ,Yes
+EE,0906,Electrical and Electronic Engineering,50IJ,Yes
+EE,0907,Environmental Engineering,50IJ,Yes
+EE,0908,Food Sciences,50IJ,Yes
+EE,0909,Geomatic Engineering,50IJ,Yes
+EE,0910,Manufacturing Engineering,50IJ,Yes
+EE,0911,Maritime Engineering,50IJ,Yes
+EE,0912,Materials Engineering,50IJ,Yes
+EE,0913,Mechanical Engineering,50IJ,Yes
+EE,0914,Resources Engineering and Extractive Metallurgy,50IJ,Yes
+EE,0915,Interdisciplinary Engineering,50IJ,Yes
+EE,0999,Other Engineering,50IJ,Yes
+***,10,Technology,50IJ/50WO,Yes*
+BB,1001,Agricultural Biotechnology,50IJ,Yes
+BB,1002,Environmental Biotechnology,50IJ,Yes
+BB,1003,Industrial Biotechnology,50IJ,Yes
+MHS,1004,Medical Biotechnology,50IJ,Yes
+EE,1005,Communications Technologies,50WO,-
+EE,1006,Computer Hardware,50WO,-
+EE,1007,Nanotechnology,50IJ,Yes
+EE,1099,Other Technology,50IJ,Yes
+MHS,11,Medical and Health Sciences,50IJ,Yes
+MHS,1101,Medical Biochemistry and Metabolomics,50IJ,Yes
+MHS,1102,Cardiovascular Medicine and Haematology,50IJ,Yes
+MHS,1103,Clinical Sciences,50IJ,Yes
+MHS,1104,Complementary and Alternative Medicine,50IJ,Yes
+MHS,1105,Dentistry,50IJ,Yes
+MHS,1106,Human Movement and Sports Science,50IJ,Yes
+MHS,1107,Immunology,50IJ,Yes
+MHS,1108,Medical Microbiology,50IJ,Yes
+MHS,1109,Neurosciences,50IJ,Yes
+MHS,1110,Nursing,50IJ,Yes
+MHS,1111,Nutrition and Dietetics,50IJ,Yes
+MHS,1112,Oncology and Carcinogenesis,50IJ,Yes
+MHS,1113,Ophthalmology and Optometry,50IJ,Yes
+MHS,1114,Paediatrics and Reproductive Medicine,50IJ,Yes
+MHS,1115,Pharmacology and Pharmaceutical Sciences,50IJ,Yes
+MHS,1116,Medical Physiology,50IJ,Yes
+MHS,1117,Public Health and Health Services,50IJ,Yes
+MHS,1199,Other Medical and Health Sciences,50IJ,Yes
+HCA,12,Built Environment and Design,50WO,-
+HCA,1201,Architecture,50WO,-
+HCA,1202,Building,50WO,-
+HCA,1203,Design Practice and Management,50WO,-
+HCA,1204,Engineering Design,50WO,-
+HCA,1205,Urban and Regional Planning,50WO,-
+HCA,1299,Other Built Environment and Design,50WO,-
+EHS,13,Education,50WO,-
+EHS,1301,Education Systems,50WO,-
+EHS,1302,Curriculum and Pedagogy,50WO,-
+EHS,1303,Specialist Studies in Education,50WO,-
+EHS,1399,Other Education,50WO,-
+EC,14,Economics,50WO,-
+EC,1401,Economic Theory,50WO,-
+EC,1402,Applied Economics,50WO,-
+EC,1403,Econometrics,50WO,-
+EC,1499,Other Economics,50WO,-
+EC,15,"Commerce, Management, Tourism and Services",50WO,-
+EC,1501,"Accounting, Auditing and Accountability",50WO,-
+EC,1502,"Banking, Finance and Investment",50WO,-
+EC,1503,Business and Management,50WO,-
+EC,1504,Commercial Services,50WO,-
+EC,1505,Marketing,50WO,-
+EC,1506,Tourism,50WO,-
+EC,1507,Transportation and Freight Services,50WO,-
+EC,1599,"Other Commerce, Management, Tourism and Services",50WO,-
+EHS,16,Studies in Human Society,50WO,-
+EHS,1601,Anthropology,50WO,-
+EHS,1602,Criminology,50WO,-
+EHS,1603,Demography,50WO,-
+EHS,1604,Human Geography,50WO,-
+EHS,1605,Policy and Administration,50WO,-
+EHS,1606,Political Science,50WO,-
+EHS,1607,Social Work,50WO,-
+EHS,1608,Sociology,50WO,-
+EHS,1699,Other Studies in Human Society,50WO,-
+MHS,17,Psychology and Cognitive Sciences,50IJ,Yes
+MHS,1701,Psychology,50IJ,Yes
+MHS,1702,Cognitive Sciences,50IJ,Yes
+MHS,1799,Other Psychology and Cognitive Science,50IJ,Yes
+HCA,18,Law and Legal Studies,50WO,-
+HCA,1801,Law,50WO,-
+HCA,1802,Maori Law,50WO,-
+HCA,1899,Other Law and Legal Studies,50WO,-
+HCA,19,Studies in Creative Arts and Writing,50WO,-
+HCA,1901,Art Theory and Criticism,50WO,-
+HCA,1902,"Film, Television and Digital Media",50WO,-
+HCA,1903,Journalism and Professional Writing,50WO,-
+HCA,1904,Performing Arts and Creative Writing,50WO,-
+HCA,1905,Visual Arts and Crafts,50WO,-
+HCA,1999,Other Studies in Creative Arts and Writing,50WO,-
+HCA,20,"Language, Communication and Culture",50WO,-
+HCA,2001,Communication and Media Studies,50WO,-
+HCA,2002,Cultural Studies,50WO,-
+HCA,2003,Language Studies,50WO,-
+HCA,2004,Linguistics,50WO,-
+HCA,2005,Literary Studies,50WO,-
+HCA,2099,"Other Language, Communication and Culture",50WO,-
+HCA,21,History and Archaeology,50WO,-
+HCA,2101,Archaeology,50WO,-
+HCA,2102,Curatorial and Related Studies,50WO,-
+HCA,2103,Historical Studies,50WO,-
+HCA,2199,Other History and Archaeology,50WO,-
+HCA,22,Philosophy and Religious Studies,50WO,-
+HCA,2201,Applied Ethics,50WO,-
+HCA,2202,History and Philosophy of Specific Fields,50WO,-
+HCA,2203,Philosophy,50WO,-
+HCA,2204,Religion and Religious Studies,50WO,-
+HCA,2299,Other Philosophy and Religious Studies,50WO,-
