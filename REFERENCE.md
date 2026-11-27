@@ -621,9 +621,18 @@ Report: `latex/Researchers/`.
 | `compare_stanford.py` | `latex/Researchers/{numbers.tex, researchers_numbers.json, tables/, figures/}` |
 
 ### Stanford → OA matching
-Name-only (Stanford has no Scopus ID / ORCID). Candidates: eligible OA authors' `author_name` variants
-from authorships, blocked on (last surname token, first initial); first names compatible (initials equal;
-first three letters equal when both ≥ 4 letters, umlaut fallback). Score = 3·institution hit (token
-Jaccard ≥ 0.5 vs OA affiliations) + 2·country hit + 1·middle-initial agreement − 1.5·|log works ratio|
-− 1.5·|log h ratio|. `matched` = country or institution hit, |log h ratio| ≤ log 2.5, margin ≥ 1 over the
-runner-up; an OA author claimed twice keeps the higher score (`conflict` for the other).
+Name-only (Stanford has no Scopus ID / ORCID). 347,131 persons (career ∪ single-year tables).
+1. Name keys of eligible OA authors' authorship name variants (surname token, first initial, first
+   token, middle initial) — cached at `WORKING/researchers/oa_name_keys.parquet` (~6 min to build;
+   delete to rebuild).
+2. DuckDB join: same surname key + initial, compatible first name, Stanford country among OA
+   affiliation countries, |log h ratio| ≤ log 2.5 vs **career** h (single-year-only persons: paper-count
+   ratio instead — single-year h counts 2025 citations only); keep the 5 closest in works + h per person.
+3. pandas: OA canonical display_name must contain the Stanford surname and agree on given names
+   (`name_quality`: concatenated full given names equal, or same first name when one side has no more
+   full names; initials consistent; no prefix rule — Yanfei ≠ Yan). Initials-only agreement needs an
+   institution hit (token Jaccard ≥ 0.5). Score = 3·inst + 1·middle initial + 1.5·name − 1.5·|log works
+   ratio| − 1.5·|log h ratio|; `matched` needs margin ≥ 1 over the runner-up; double claims → `conflict`.
+Result (2026-11-28): 261,826 matched; 80.9% of the career table, 74.8% of the single-year table;
+hand audit of 100 random matches: 98 consistent, 2 unconfirmable common names. Keep DuckDB steps
+scalar-only (no `list()` aggregates over the person×name join): earlier versions OOM-ed/swapped.

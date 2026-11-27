@@ -100,7 +100,8 @@ def write_macros(nums: dict, path: Path):
         if isinstance(v, (int, np.integer)):
             s = fmt_int(v)
         elif isinstance(v, float):
-            s = f'{v:.2f}' if abs(v) < 10 else f'{v:.1f}'
+            s = (f'{v:.1f}' if ('pct' in k or 'share' in k or 'shift' in k or 'gain' in k or 'in st' in k
+                                or 'in top' in k or 'self med' in k) else f'{v:.2f}')
         else:
             s = str(v)
         lines.append(f'\\newcommand{{\\{name}}}{{{s}}}  % {k}')
@@ -223,6 +224,18 @@ def main() -> None:
     nums['top in st citfracns'] = float(tdf.loc[5, 'top_in_st'])
     nums['st in top citfracns'] = float(tdf.loc[5, 'st_in_top'])
     nums['top in st pubfrac'] = float(tdf.loc[1, 'top_in_st'])
+    nums['top med works cit'] = int(av.loc[av.top_sub_cv_frac_ns <= TOP, 'n_works'].median())
+    nums['top med works pub'] = int(av.loc[av.top_sub_pubv_frac <= TOP, 'n_works'].median())
+    nums['st med works'] = int(jc.n_works.median())
+    for col, k in (('pubv_frac', 'pub'), ('cv_frac_ns', 'cit')):
+        n = 'n_pub' if k == 'pub' else 'n_cited_ns'
+        nums[f'med {k} all'] = float(av.loc[av[n] >= MIN_WORKS, col].median())
+        nums[f'med {k} st'] = float(jc.loc[jc[n] >= MIN_WORKS, col].median())
+        nums[f'share {k} above one st'] = 100 * float((jc.loc[jc[n] >= MIN_WORKS, col] > 1).mean())
+        nums[f'share {k} above one all'] = 100 * float((av.loc[av[n] >= MIN_WORKS, col] > 1).mean())
+    nums['all med works'] = int(av.n_works.median())
+    nums['top med cites cit'] = int(av.loc[av.top_sub_cv_frac_ns <= TOP, 'cites_ns'].median())
+    nums['st med cites'] = int(jc.cites_ns.median())
     nums['st in top pubfrac'] = float(tdf.loc[1, 'st_in_top'])
 
     # country composition of the lists
@@ -265,6 +278,9 @@ def main() -> None:
     nums['self med st'] = 100 * float(jc.self_pct.median())
     nums['self med all'] = 100 * float(av.loc[av.cites_all >= 50, 'self_share'].median())
     nums['self over forty'] = int((av.loc[av.cites_all >= 50, 'self_share'] > 0.40).sum())
+    nums['self base'] = int((av.cites_all >= 50).sum())
+    nums['self over forty pct'] = 100 * nums['self over forty'] / nums['self base']
+    nums['st self over forty pct'] = 100 * float((car.self_pct > 0.40).mean())
     ok = (av.n_cited_all >= MIN_WORKS) & (av.n_cited_ns >= MIN_WORKS)
     a = av.loc[ok]
     nums['rho cit all ns'] = float(spearmanr(a.cv_frac_all, a.cv_frac_ns).statistic)
@@ -273,6 +289,7 @@ def main() -> None:
     nums['self shift ninety'] = float(dp.quantile(0.9))
     hi = a.self_share > 0.40
     nums['self hi shift'] = float(((a.cv_frac_all.rank(pct=True) - a.cv_frac_ns.rank(pct=True)) * 100)[hi].median())
+    nums['self hi gain'] = -nums['self hi shift']
 
     # ── full vs fractional ────────────────────────────────────────────────────
     a = av[av.n_pub >= MIN_WORKS]
@@ -307,12 +324,13 @@ def main() -> None:
     for col, n, lab, colr in [('pubv_frac', 'n_pub', r'$V^{\mathrm{pub}}$', C_STAN),
                               ('cv_frac_ns', 'n_cited_ns', r'$V^{\mathrm{cit}}$ (ns)', C_OURS)]:
         x = av.loc[(av[n] >= MIN_WORKS) & (av[col] > 0), col]
-        ax.hist(np.log10(x), bins=120, histtype='step', lw=2, color=colr, label=lab + ', all eligible',
-                density=True)
+        ax.hist(np.log10(x), bins=120, range=(-1.5, 1.5), histtype='step', lw=2, color=colr,
+                label=lab + ', all eligible', density=True)
         x = jc.loc[(jc[n] >= MIN_WORKS) & (jc[col] > 0), col]
-        ax.hist(np.log10(x), bins=120, histtype='step', lw=1.2, ls='--', color=colr,
+        ax.hist(np.log10(x), bins=120, range=(-1.5, 1.5), histtype='step', lw=1.2, ls='--', color=colr,
                 label=lab + ', Stanford-listed', density=True)
     ax.set_xlabel(r'$\log_{10}$ researcher score (fractional counting)')
+    ax.set_xlim(-1.5, 1.5)
     ax.set_ylabel('density')
     ax.axvline(0, color='#888888', lw=0.8, ls='--')
     ax.spines[['top', 'right']].set_visible(False)

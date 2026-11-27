@@ -22,6 +22,7 @@ latex/**/*.lot
 latex/**/*.pdf
 !latex/NewERA/figures/*.pdf
 !latex/NewERA/logo1.pdf
+!latex/Researchers/figures/*.pdf
 **/MyLibrary.bib
 
 data/ERA Documents/

@@ -4,6 +4,23 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-11-28 — Researchers subproject; Oct26 baseline rankings refreshed
+
+- **Oct26 refresh (minimal chain)**: Oct26 `flat_works` had been rebuilt on 2026-11-03 (conference
+  papers) but candidacy and all rankings dated from 2026-10-20. Rebuilt, from the Antigravity checkout
+  (which owns Oct26 config and guard records): `build_field_candidacy.py`, `run_field_bloc.py --label
+  baseline` (26 OA fields), `build_work_v.py` (first Oct26 build). Leiden, bloc and sensitivity outputs
+  on Oct26 remain stale. ERA 2018/2026 outputs (`WORKING/era20*/`) are separate files and untouched;
+  they predate the conference-paper flat_works.
+- **New `researchers/`**: researcher spectral scores as an alternative to the Stanford/Elsevier top-2%
+  database (v9, Aug 2026). Six guard-wired scripts with `--working/--openalex`; self-citation join over
+  1.19B corpus references in 32 buckets (~10 min). Report drafted in `latex/Researchers/`.
+- **Matching incidents**: first versions of `match_stanford.py` materialised 140M person×name pairs in
+  pandas (swap exhausted) and then hit DuckDB OOM on `list()` aggregates. Fixed by scalar-only SQL
+  steps, country/h filters inside the join, top-5 by volume, cached name keys. Name rule tightened
+  after hand audits (prefix rule produced Yanfei→Yan errors; `bin`/`al` had been treated as particles;
+  single-year-table h is not comparable with OA h — paper count used instead).
+
 ## 2026-11-27 — NewERA rebuilt around ERA 2018; discipline-mode misclassification found
 
 - **Paper restructured** (`latex/NewERA/`): ported to the Frontiers in Research Metrics and Analytics

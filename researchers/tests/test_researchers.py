@@ -176,3 +176,34 @@ class TestRanks:
         assert list(r.rank_pubv_full[:2]) == [2, 1]
         assert pd.isna(r.rank_pubv_full[2])          # below volume threshold: unranked
         assert r.top_field_pubv_full[1] == pytest.approx(0.5)
+
+
+# ── Stanford name matching ───────────────────────────────────────────────────
+
+from researchers.match_stanford import name_quality, oa_given, split_stanford, stanford_given
+
+
+@pytest.mark.parametrize('stanford, oa, q', [
+    ('Wang, Zhong Lin', 'Zhonglin Wang', 2),          # concatenated given names
+    ('Pettersen, Kristin Y.', 'Kristin Ytterstad Pettersen', 2),
+    ('Axel, Léon', 'Leon Axel', 2),                   # accents
+    ('Kaplan, Thomas A.', 'T. A. Kaplan', 0),          # initials only
+    ('Xu, Yanfei', 'Yan Xu', -1),                      # no prefix rule for given names
+    ('Chen, Wen Lih', 'Wen‐Chin Chen', -1),
+    ('Gupta, Vishal K.', 'Vishal Anand Gupta', -1),    # middle initials disagree
+    ('Fischer, A. P.', 'Anastasia Noel Fischer', -1),
+    ('Bhaskar, Surindar Nath', 'B. Sur', -1),          # surname absent
+])
+def test_name_quality(stanford, oa, q):
+    lk = split_stanford(stanford)[0]
+    assert name_quality(stanford_given(stanford), oa_given(oa, lk)) == q
+
+
+@pytest.mark.parametrize('stanford, oa, q', [
+    ('Li, Bing', 'Bin Li', -1),                        # 'bin' is a given name, not a particle
+    ("Wang, Jin'An", 'Jin Wang', -1),                  # apostrophe joins the given name
+    ("Wang, Jin'An", 'Jinan Wang', 2),
+])
+def test_name_quality_edge_cases(stanford, oa, q):
+    lk = split_stanford(stanford)[0]
+    assert name_quality(stanford_given(stanford), oa_given(oa, lk)) == q

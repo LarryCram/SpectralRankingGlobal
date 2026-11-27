@@ -51,9 +51,10 @@ from researchers.common import add_path_args, connect, resolve_paths
 from util import guard
 from util.name_util import clean_name, last_norm, norm  # noqa: F401
 
-W_INST, W_CNTRY, W_MID, W_VOL = 3.0, 2.0, 1.0, 1.5
+W_INST, W_CNTRY, W_MID, W_VOL, W_NAME = 3.0, 2.0, 1.0, 1.5, 1.5
 MAX_LOGH = math.log(2.5)
 MARGIN = 1.0
+TOP_K = 5        # candidates kept per person, by closeness in works_count and h
 
 _STOP = {'university', 'of', 'the', 'and', 'universidad', 'universite', 'universitat',
          'universita', 'universiteit', 'universidade', 'de', 'di', 'du', 'des', 'der',
@@ -124,6 +125,54 @@ def inst_hit(st_tokens: frozenset, oa_inst_tokens: list[frozenset]) -> bool:
     return False
 
 
+_PARTICLES = {'van', 'der', 'den', 'de', 'del', 'della', 'di', 'da', 'dos', 'das', 'du', 'la',
+              'le', 'von', 'zu', 'ter', 'ten'}   # not 'bin', 'al': also given names (Bin Li)
+
+
+def _tokens(s: str) -> list[str]:
+    return [t for t in re.split(r'[^a-z]+', norm(clean_name(s)).replace("'", '')) if t]
+
+
+def stanford_given(authfull: str) -> list[str]:
+    s = clean_name(authfull)
+    first = s.split(',', 1)[1] if ',' in s else ''
+    return [t for t in _tokens(first) if t not in _PARTICLES]
+
+
+def oa_given(display_name: str, surname_key: str) -> list[str] | None:
+    """Given-name tokens of an OA display name, or None if the surname is absent."""
+    toks = _tokens(display_name)
+    sk = [t for t in re.split(r'[^a-z]+', surname_key) if t]
+    if not sk or not all(t in toks for t in sk):
+        return None
+    return [t for t in toks if t not in sk and t not in _PARTICLES]
+
+
+def name_quality(st: list[str], oa: list[str] | None) -> int:
+    """
+    -1 incompatible, 0 initials only, 2 same given name.
+    Initials must agree as far as both go; full given names must be equal once
+    concatenated (Zhong Lin = Zhonglin), or share the first name when one side has no
+    further full names (Kristin Y. = Kristin Ytterstad). No prefix rule: it confuses
+    Chinese given names (Yanfei vs Yan).
+    """
+    if not st or not oa:
+        return -1 if oa is None else 0
+    si, oi = ''.join(t[0] for t in st), ''.join(t[0] for t in oa)
+    if not (si.startswith(oi) or oi.startswith(si)):
+        return -1
+    s0, o0 = st[0], oa[0]
+    if len(s0) < 2 or len(o0) < 2:
+        return 0
+    sf = _de_umlaut(''.join(t for t in st if len(t) > 1))
+    of = _de_umlaut(''.join(t for t in oa if len(t) > 1))
+    if sf == of:
+        return 2
+    if _de_umlaut(s0) == _de_umlaut(o0) and (sf == _de_umlaut(s0) or of == _de_umlaut(o0)):
+        return 2
+    return -1
+
+
 # ── Stanford persons ──────────────────────────────────────────────────────────
 
 def stanford_persons(sdir: Path) -> pd.DataFrame:
@@ -135,7 +184,9 @@ def stanford_persons(sdir: Path) -> pd.DataFrame:
         one.rename(columns={'sid': 'sid_singleyr', 'h': 'h_singleyr', 'sm_field': 'sm_field_1'}),
         on=keys, how='outer')
     per['sm_field'] = per['sm_field'].fillna(per.pop('sm_field_1'))
-    per['h'] = per['h_career'].fillna(per['h_singleyr'])  # career h (single-year h is not comparable)
+    # career h only: the single-year h counts 2025 citations and is not comparable with an
+    # OpenAlex h-index; persons only in the single-year table are checked on paper count
+    per['h'] = per['h_career']
     per = per.reset_index(drop=True)
     per.insert(0, 'pid', np.arange(len(per)))
     parts = per['authfull'].map(split_stanford)
@@ -143,6 +194,7 @@ def stanford_persons(sdir: Path) -> pd.DataFrame:
     per['first'] = [p[1] for p in parts]
     per['mid'] = [p[2] for p in parts]
     per['fi'] = per['first'].str[:1]
+    per['given'] = per['authfull'].map(stanford_given)
     return per
 
 
@@ -150,46 +202,57 @@ def stanford_persons(sdir: Path) -> pd.DataFrame:
 
 def candidates(p, per: pd.DataFrame, iso2: dict, con) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Blocking, first-name compatibility and the country filter all run in DuckDB so the
-    common-name blocks (e.g. Wang/W) never materialise in pandas. Returns
-    (pairs: pid, author_idx, author_name; meta: author_idx, display_name, works_count,
-    h_index, insts).
+    Three plain DuckDB steps, then one join that applies every hard filter, so only
+    plausible pairs ever reach pandas:
+      _meta  eligible OA authors: works_count, h_index, affiliation countries
+      _blk   their name variants (authorships), keyed on surname token + first initial
+      pairs  person x name on (surname, initial), keeping only pairs that agree on
+             country, have |log h ratio| <= MAX_LOGH and compatible first names
     """
     t0 = time.time()
-    ps = per[['pid', 'last_key', 'fi', 'first', 'cntry']].copy()
+    ps = per[['pid', 'last_key', 'fi', 'first', 'mid', 'cntry', 'h', 'np']].copy()
     ps['iso2'] = ps['cntry'].map(iso2)
-    ps = ps[(ps.last_key != '') & (ps.fi != '')]
+    ps = ps[(ps.last_key != '') & (ps.fi != '') & ps.iso2.notna()]
     con.register('_per_df', ps)
     con.execute('CREATE TEMP TABLE _per AS SELECT * FROM _per_df')
+
     con.execute(f"""
-        CREATE TEMP TABLE _names AS
-        SELECT DISTINCT a.author_idx, a.author_name
-        FROM parquet_scan('{p.authorships_glob}') a
+        CREATE TEMP TABLE _meta AS
+        SELECT a.author_idx, a.works_count, a.h_index,
+               list_distinct(list_transform(a.affiliations, x -> x.institution.country_code)) AS ccs
+        FROM parquet_scan('{p.authors_glob}') a
         SEMI JOIN (SELECT author_idx FROM parquet_scan('{p.author_volume}') WHERE eligible) e
           USING (author_idx)
-        WHERE a.author_name IS NOT NULL
     """)
-    print(f"  eligible name variants: {con.execute('SELECT COUNT(*) FROM _names').fetchone()[0]:,}  [{time.time()-t0:.0f}s]")
-    # coarse SQL blocking (strip_accents ~ unidecode for most names)
-    con.execute(r"""
-        CREATE TEMP TABLE _blk AS
-        SELECT author_idx, author_name, lk, fi, ofirst FROM (
-          SELECT author_idx, author_name,
-                 trim(string_split(trim(regexp_replace(n, '[^a-z\- ]', ' ', 'g')), ' ')[-1], '-') AS lk,
-                 regexp_extract(n, '[a-z]') AS fi,
-                 regexp_extract(n, '^[^a-z]*([a-z]+)', 1) AS ofirst
-          FROM (SELECT author_idx, author_name,
-                       lower(strip_accents(regexp_replace(author_name, '[\x{2010}-\x{2015}\x{2212}]', '-', 'g'))) AS n
-                FROM _names)) b
-        SEMI JOIN (SELECT DISTINCT last_key, fi FROM _per) k ON k.last_key = b.lk AND k.fi = b.fi
-    """)
-    con.execute('DROP TABLE _names')
-    print(f"  blocked name variants: {con.execute('SELECT COUNT(*) FROM _blk').fetchone()[0]:,}  [{time.time()-t0:.0f}s]")
-    # first-name compatibility (names_compatible, umlaut fallback via replace)
+    print(f"  eligible OA authors with records: {con.execute('SELECT COUNT(*) FROM _meta').fetchone()[0]:,}  [{time.time()-t0:.0f}s]", flush=True)
+
+    # name keys of eligible authors' authorship name variants (cached: ~6 min to build)
+    keys_pq = p.out / 'oa_name_keys.parquet'
+    if not keys_pq.exists():
+        con.execute(r"""
+            COPY (
+              SELECT DISTINCT author_idx,
+                     t[len(t)] AS lk, left(t[1], 1) AS fi, t[1] AS ofirst,
+                     CASE WHEN len(t) >= 3 THEN left(t[2], 1) ELSE '' END AS omid
+              FROM (SELECT author_idx,
+                           list_filter(string_split(regexp_replace(lower(strip_accents(
+                               regexp_replace(author_name, '[\x{2010}-\x{2015}\x{2212}]', '-', 'g'))),
+                               '[^a-z\- ]', ' ', 'g'), ' '), x -> trim(x, '-') <> '') AS t
+                    FROM parquet_scan('""" + p.authorships_glob + r"""')
+                    SEMI JOIN _meta USING (author_idx)
+                    WHERE author_name IS NOT NULL)
+              WHERE len(t) >= 2
+            ) TO '""" + str(keys_pq) + r"""' (FORMAT PARQUET)
+        """)
+    con.execute(f"CREATE TEMP TABLE _blk AS SELECT * FROM parquet_scan('{keys_pq}')")
+    print(f"  name keys: {con.execute('SELECT COUNT(*) FROM _blk').fetchone()[0]:,}  [{time.time()-t0:.0f}s]", flush=True)
+
+    # 1. person x name key: same surname token and initial, compatible first name
     con.execute("""
-        CREATE TEMP TABLE _pr AS
-        SELECT p.pid, p.iso2, b.author_idx, b.author_name
-        FROM _per p JOIN _blk b ON b.lk = p.last_key AND b.fi = p.fi
+        CREATE TEMP TABLE _pr0 AS
+        SELECT p.pid, b.author_idx, (p.mid <> '' AND b.omid = p.mid) AS mid_ok
+        FROM _per p
+        JOIN _blk b ON b.lk = trim(p.last_key, '-') AND b.fi = p.fi
         WHERE CASE
           WHEN length(p.first) >= 4 AND length(b.ofirst) >= 4 THEN
                left(p.first, 3) = left(b.ofirst, 3)
@@ -200,34 +263,40 @@ def candidates(p, per: pd.DataFrame, iso2: dict, con) -> tuple[pd.DataFrame, pd.
           ELSE TRUE END
     """)
     con.execute('DROP TABLE _blk')
-    print(f"  compatible (person, name) pairs: {con.execute('SELECT COUNT(*) FROM _pr').fetchone()[0]:,}  [{time.time()-t0:.0f}s]")
+    print(f"  name-compatible rows: {con.execute('SELECT COUNT(*) FROM _pr0').fetchone()[0]:,}  [{time.time()-t0:.0f}s]", flush=True)
+
+    # 2. one row per (person, author) that agrees on country and h
     con.execute(f"""
-        CREATE TEMP TABLE _meta AS
-        SELECT a.author_idx, a.display_name, a.works_count, a.h_index,
-               list_distinct(list_transform(a.affiliations, x -> x.institution.country_code)) AS ccs,
-               list_distinct(list_transform(a.affiliations, x -> x.institution.display_name)) AS insts
-        FROM parquet_scan('{p.authors_glob}') a
-        SEMI JOIN (SELECT DISTINCT author_idx FROM _pr) d USING (author_idx)
+        CREATE TEMP TABLE _pr1 AS
+        SELECT r.pid, r.author_idx, bool_or(r.mid_ok) AS mid_ok,
+               ANY_VALUE(abs(ln((m.works_count + 1) / (p.np + 1)))
+                       + COALESCE(abs(ln((m.h_index + 1) / (p.h + 1))), 0)) AS dvol
+        FROM _pr0 r
+        JOIN _per  p USING (pid)
+        JOIN _meta m USING (author_idx)
+        WHERE list_contains(m.ccs, p.iso2)
+          AND CASE WHEN p.h IS NULL THEN abs(ln((m.works_count + 1) / (p.np + 1))) <= {MAX_LOGH}
+                   ELSE abs(ln((m.h_index + 1) / (p.h + 1))) <= {MAX_LOGH} END
+        GROUP BY r.pid, r.author_idx
     """)
-    # country filter: a match must agree on country (an institution hit implies it)
-    pairs = con.execute("""
-        SELECT r.pid, r.author_idx, r.author_name
-        FROM _pr r JOIN _meta m USING (author_idx)
-        WHERE list_contains(m.ccs, r.iso2)
+    con.execute('DROP TABLE _pr0')
+    print(f"  country- and h-consistent pairs: {con.execute('SELECT COUNT(*) FROM _pr1').fetchone()[0]:,}  [{time.time()-t0:.0f}s]", flush=True)
+
+    # 3. keep the TOP_K closest in volume per person
+    pairs = con.execute(f"""
+        SELECT pid, author_idx, mid_ok FROM _pr1
+        QUALIFY row_number() OVER (PARTITION BY pid ORDER BY dvol) <= {TOP_K}
     """).fetchdf()
-    meta = con.execute("""
-        SELECT author_idx, display_name, works_count, h_index, insts
-        FROM _meta SEMI JOIN (SELECT DISTINCT author_idx FROM _pr) d USING (author_idx)
+    print(f'  candidate (person, author) pairs: {len(pairs):,}  [{time.time()-t0:.0f}s]', flush=True)
+
+    con.register('_pids', pd.DataFrame({'author_idx': pairs.author_idx.unique()}))
+    meta = con.execute(f"""
+        SELECT a.author_idx, a.display_name, a.works_count, a.h_index,
+               list_distinct(list_transform(a.affiliations, x -> x.institution.display_name)) AS insts
+        FROM parquet_scan('{p.authors_glob}') a SEMI JOIN _pids USING (author_idx)
     """).fetchdf()
-    meta = meta[meta.author_idx.isin(pairs.author_idx.unique())]
-    print(f'  pairs with country agreement: {len(pairs):,}; authors {len(meta):,}  [{time.time()-t0:.0f}s]')
-    parts = pairs['author_name'].map(split_oa)
-    pairs['oa_mid'] = [x[2] for x in parts]
-    pairs = pairs.merge(per[['pid', 'mid']], on='pid')
-    pairs['mid_ok'] = (pairs['mid'] != '') & (pairs['oa_mid'] != '') & (pairs['mid'] == pairs['oa_mid'])
-    pairs = (pairs.sort_values('mid_ok', ascending=False)
-                  .drop_duplicates(['pid', 'author_idx'])[['pid', 'author_idx', 'author_name', 'mid_ok']])
-    print(f'  candidate (person, author) pairs: {len(pairs):,}')
+    pairs = pairs.merge(meta[['author_idx', 'display_name']], on='author_idx', how='left')
+    pairs['author_name'] = pairs.pop('display_name')
     return pairs, meta
 
 
@@ -241,10 +310,16 @@ def score_pairs(pairs: pd.DataFrame, per: pd.DataFrame, meta: pd.DataFrame,
     oa_tok = [[inst_tokens(x or '') for x in (l if l is not None else [])] for l in d['insts']]
     d['inst_hit'] = [inst_hit(st_tok[s], o) for s, o in zip(d['inst_name'], oa_tok)]
     d['cntry_hit'] = True  # enforced in candidates()
+    sk = dict(zip(per.pid, per.last_key))
+    gv = dict(zip(per.pid, per.given))
+    d['name_q'] = [name_quality(gv[pid], oa_given(dn or '', sk[pid]))
+                   for pid, dn in zip(d['pid'], d['display_name'])]
+    d = d[d['name_q'] >= 0].copy()   # OA canonical name contradicts the Stanford name
     d['log_np'] = np.abs(np.log((d['works_count'].fillna(0) + 1) / (d['np'].fillna(0) + 1)))
-    d['log_h'] = np.abs(np.log((d['h_index'].fillna(0) + 1) / (d['h'].fillna(0) + 1)))
+    d['log_h'] = np.abs(np.log((d['h_index'].fillna(0) + 1) / (d['h'] + 1)))  # NaN if no career h
     d['score'] = (W_INST * d['inst_hit'] + W_CNTRY * d['cntry_hit'] + W_MID * d['mid_ok']
-                  - W_VOL * d['log_np'] - W_VOL * d['log_h'])
+                  + W_NAME * d['name_q']
+                  - W_VOL * d['log_np'] - W_VOL * d['log_h'].fillna(d['log_np']))
     return d
 
 
@@ -254,7 +329,9 @@ def resolve(d: pd.DataFrame, per: pd.DataFrame) -> pd.DataFrame:
     second = d.groupby('pid')['score'].nth(1)
     best = d.groupby('pid').head(1).copy()
     best['margin'] = best['pid'].map(second).sub(best['score']).mul(-1).fillna(np.inf)
-    plausible = (best['inst_hit'] | best['cntry_hit']) & (best['log_h'] <= MAX_LOGH)
+    # initials-only names need an institution hit; full given names need country (enforced)
+    vol_ok = best['log_h'].fillna(best['log_np']) <= MAX_LOGH
+    plausible = (best['inst_hit'] | (best['name_q'] >= 2)) & vol_ok
     best['status'] = np.where(plausible & (best['margin'] >= MARGIN), 'matched',
                               np.where(plausible, 'ambiguous', 'implausible'))
     # one OA author per Stanford person: keep the higher-scoring claim
@@ -263,7 +340,7 @@ def resolve(d: pd.DataFrame, per: pd.DataFrame) -> pd.DataFrame:
     best.loc[dup[dup].index, 'status'] = 'conflict'
     out = per[['pid', 'sid_career', 'sid_singleyr', 'authfull', 'inst_name', 'cntry', 'np', 'h']].merge(
         best[['pid', 'author_idx', 'status', 'score', 'margin', 'n_cand', 'author_name',
-              'display_name', 'works_count', 'h_index', 'inst_hit', 'cntry_hit', 'log_np', 'log_h']],
+              'display_name', 'works_count', 'h_index', 'inst_hit', 'cntry_hit', 'name_q', 'log_np', 'log_h']],
         on='pid', how='left')
     out['status'] = out['status'].fillna('unmatched')
     return out.rename(columns={'author_name': 'oa_name', 'works_count': 'oa_works_count',
@@ -281,7 +358,7 @@ def main() -> None:
                               auto_yes=args.yes, label='stanford_match'):
         return
     t0 = time.time()
-    con = connect(memory_limit='16GB')
+    con = connect(memory_limit='16GB', threads=6)
     per = stanford_persons(sdir)
     print(f'Stanford persons (career ∪ single-year): {len(per):,}')
     iso2 = dict(con.execute(f"SELECT lower(alpha_3), country_code "
