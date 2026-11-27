@@ -1,0 +1,44 @@
+% !TeX root = ../main.tex
+% ---------------------------------------------------------------
+\section{From Sources and Institutions to Researchers}
+\label{sec:spectral_ranking}
+% ---------------------------------------------------------------
+
+\subsection{Spectral influence of sources and institutions}
+
+We use the bipartite spectral ranking of \citet{docampodomingoRecirculatingCardinalSpectral2026}, computed separately for each of the 26 OpenAlex fields $F$. Sources and institutions enter a field by publishing a minimum volume of field-weighted works in the ranking window, where a work's weight $f_{wF}$ in field $F$ is the sum of its subfield weights in that field. References among the retained works link sources to institutions and institutions to sources. Each reference is weighted by the mean field weight of the two works and by the inverse length of the referencing work's filtered reference list, and an institution's share of a work is fractionated over authors and their affiliations \citep{waltmanFieldnormalizedCitationImpact2015}. Row-normalising the resulting source--institution reference matrix gives a bipartite transition matrix $\mathbf{H}$. Its square separates into one-mode operators for sources and for institutions \citep{breigerDualityPersonsGroups1974}, and the Perron vector of the source operator gives the stationary ranking probability $\pi_p$ of every unit $p$. The size-independent influence is
+\begin{equation}
+  v_p = \frac{A}{a_p}\,\pi_p ,
+  \label{eq:v}
+\end{equation}
+where $a_p$ is the field-weighted work count of unit $p$ and $A = \sum_p a_p$, so that the output-weighted mean of $v$ over the units of a field is one \citep{pinskiCitationInfluenceJournal1976, palacios-huertaMeasurementIntellectualInfluence2004}. A source or institution with $v = 2$ attracts twice the field-average influence per unit of output. The model, its parameters and its convergence diagnostics are set out in \citet{docampodomingoRecirculatingCardinalSpectral2026}. Here we use the baseline settings of that paper, with the ranking window 2020--2024.
+
+\subsection{Spectral scores of works}
+
+The ranking scores sources and institutions, not works or people. We attach two scores to each work, both derived from the influence of the units involved.
+
+The \emph{publication score} describes where, and from which institutions, a work was published. In field $F$ the work score is the mean of the influence of its source and the unweighted mean influence of its retained institutions, $u_{wF} = \frac{1}{2}\big(v_{S(w)} + \bar{v}_{I(w)}\big)$, falling back to $v_{S(w)}$ when none of the work's institutions is retained. A work that appears in several fields has the field-weighted mean
+\begin{equation}
+  u_w = \frac{\sum_F f_{wF}\, u_{wF}}{\sum_F f_{wF}} ,
+  \label{eq:pubv}
+\end{equation}
+taken over the fields in which its source is retained. The publication score is fixed when a work appears. It does not depend on who later cites the work, so self-citation cannot alter it.
+
+The \emph{citer score} describes who cites a work. Each citing work $c$ is assigned the influence of its source, taking the largest value over the fields in which that source is retained, $v_c = \max_F v_{S(c),F}$; this is the convention we used for highly cited works in an earlier study of citation enclaves. For a work $w$ with a set $\mathcal{C}_w$ of citing works that carry a score, the citer score is
+\begin{equation}
+  \langle v \rangle_w = \frac{1}{|\mathcal{C}_w|} \sum_{c \in \mathcal{C}_w} v_c .
+  \label{eq:citerv}
+\end{equation}
+It is a mean, not a sum, so a work cited by a few papers in highly influential sources scores higher than a work cited by many papers in sources of average influence. Citing works whose source is not retained in any field carry no score and are omitted. We compute $\langle v \rangle_w$ in two versions. In the first, $\mathcal{C}_w$ contains every citing work. In the second, it excludes self-citations, defined as in the Stanford database: a citing work is a self-citation of $w$ when it shares at least one author with $w$ \citep{ioannidisStandardizedCitationMetrics2019a}. We also compute single-year versions, in which $\mathcal{C}_w$ is restricted to citing works published in 2025, the year of the Stanford single-year table.
+
+\subsection{Spectral scores of researchers}
+
+A researcher's score is the mean of the work scores over that researcher's works. Let $W_a$ be the works of author $a$ that are articles, reviews or conference papers, and let $n_w$ be the number of authors of work $w$. Under full counting each work has weight $\phi_w = 1$; under fractional counting it has weight $\phi_w = 1/n_w$, so that a single-authored paper counts as much as twenty papers with twenty authors each. The two researcher scores are the weighted means
+\begin{equation}
+  V^{\mathrm{pub}}_a = \frac{\sum_{w \in W_a} \phi_w\, u_w}{\sum_{w \in W_a} \phi_w} , \qquad
+  V^{\mathrm{cit}}_a = \frac{\sum_{w \in W_a^{c}} \phi_w\, \langle v \rangle_w}{\sum_{w \in W_a^{c}} \phi_w} ,
+  \label{eq:author_v}
+\end{equation}
+where the first sum runs over the works that have a publication score and the second over the subset $W_a^{c}$ that has at least one scored citing work. Uncited works are left out of $V^{\mathrm{cit}}$, and the number of cited works is reported alongside it. With two counting rules, citations with and without self-citations, and career and single-year citation windows, there are two publication scores and eight citer scores per researcher.
+
+Both scores are size-independent in the same sense as $v$. They describe the typical standing of a researcher's work, not its total volume or its total citations. A researcher with many papers is not ranked above one with few unless the papers score higher on average. This is the main conceptual difference from the composite indicator $c$ of the Stanford database, which combines six cumulative citation counts and indices and therefore rises with productivity \citep{ioannidisMultipleCitationIndicators2016}. The scores are also field-normalised by construction, because $v$ has mean one within every field, whereas the Stanford database leaves normalisation to the user through subfield percentiles.

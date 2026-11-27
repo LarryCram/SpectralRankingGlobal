@@ -587,3 +587,43 @@ Emulates a modern "ERA 2026" evaluation using the spectral ranking bipartite eng
   - `group/`: `rankings_grp_{code}_2020_2025_baseline.parquet` and `_diag.json`
   - `hep_reports/`: `era2026_au_hep_spectral_rankings.parquet` and `.csv` summarizing the Australian HEP evaluations.
 
+
+## Researcher v-scores (`researchers/`)
+
+Researcher-level alternative to the Stanford/Elsevier "top 2%" standardized citation metrics
+database (Ioannidis et al.; v9, August 2026 update, zip in `data/UNTRACKED/`). Run on Oct26 only:
+every script takes `--working`/`--openalex` (default `config.yaml`), so this checkout can stay on jul26.
+Report: `latex/Researchers/`.
+
+### Definitions
+- **Eligible author**: ≥ 5 corpus works (`flat_works` 2000–2025) of type article / review /
+  conference-paper, counted on OA `author_idx` from `compact/authorships` (Stanford's volume baseline).
+  Scores use those works only.
+- **Publication score** `pub_v` (per work): field-weighted mean of `work_v` (`build_work_v.py`) over the
+  work's OA fields; field weight = Σ subfield weights of the work in that field.
+- **Citer score** ⟨v⟩ (per work): mean over citing corpus works of their v, where a citing work's v =
+  MAX `source_v` across fields (enclave convention). Citing works with no retained source are excluded.
+  **Self-citation** = citing and cited work share ≥ 1 `author_idx` (Stanford definition).
+  Single-year variant: citing works published in 2025 only.
+- **Author scores**: weighted means over the author's works — full (weight 1) or fractional
+  (weight 1/authors_count). `pubv_{full,frac}`; `cv_{full,frac}_{all,ns,25all,25ns}` over cited works only
+  (`n_cited_*` gives the count). Ranks / within-field (`top_field_*`) / within-subfield (`top_sub_*`)
+  fractions only for measures with ≥ 5 contributing works; `top_sub_* <= 0.02` is the top-2% analogue.
+
+### Stages (all guard-wired; outputs in `WORKING/researchers/`)
+| Script | Output |
+|---|---|
+| `build_author_works.py` | `author_works_2000_2025.parquet`, `author_volume_2000_2025.parquet` |
+| `build_work_scores.py` | `work_scores_2000_2025_baseline.parquet`, `work_subfields_2000_2025.parquet` (self-citation join in 32 `cited_idx` buckets) |
+| `build_author_scores.py` | `author_v_2000_2025_baseline.parquet` |
+| `load_stanford.py` | `stanford/stanford_{career,singleyr}.parquet`, Table 2 thresholds (normalised column names: `nc`, `h`, `hm`, `c`, `*_ns`, `self_pct`, …) |
+| `match_stanford.py` | `stanford_oa_match.parquet`, `stanford_match_audit_sample.csv` |
+| `compare_stanford.py` | `latex/Researchers/{numbers.tex, researchers_numbers.json, tables/, figures/}` |
+
+### Stanford → OA matching
+Name-only (Stanford has no Scopus ID / ORCID). Candidates: eligible OA authors' `author_name` variants
+from authorships, blocked on (last surname token, first initial); first names compatible (initials equal;
+first three letters equal when both ≥ 4 letters, umlaut fallback). Score = 3·institution hit (token
+Jaccard ≥ 0.5 vs OA affiliations) + 2·country hit + 1·middle-initial agreement − 1.5·|log works ratio|
+− 1.5·|log h ratio|. `matched` = country or institution hit, |log h ratio| ≤ log 2.5, margin ≥ 1 over the
+runner-up; an OA author claimed twice keeps the higher score (`conflict` for the other).
