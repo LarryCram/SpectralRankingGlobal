@@ -36,6 +36,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import threading
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 import hashlib
 import json
@@ -63,7 +66,8 @@ MAX_QUERY_LEN = 2300
 VOL_FRAC = 0.5
 N_DOI = 10
 MIN_SHARED = 2
-PAUSE = 0.15          # seconds between uncached requests
+RATE = 6.0            # max uncached requests per second, shared by all worker threads
+                      # (Elsevier throttled with HTTP 429 at ~10-12/s on this key)
 AUTHOR_URL = 'https://api.elsevier.com/content/search/author'
 SCOPUS_URL = 'https://api.elsevier.com/content/search/scopus'
 _STOP = {'university', 'of', 'the', 'and', 'school', 'college', 'faculty', 'department', 'institute',
@@ -162,7 +166,7 @@ def norm_doi(d) -> str | None:
 class Elsevier:
     """Minimal cached client; every response is stored as JSON keyed by URL + params."""
 
-    def __init__(self, env_path: Path):
+    def __init__(self, env_path: Path, rate: float = RATE):
         env = {}
         for line in env_path.read_text().splitlines():
             if '=' in line and not line.lstrip().startswith('#'):
@@ -174,22 +178,45 @@ class Elsevier:
         self.cache = Path(env['SCOPUS_CACHE_DIR']) / 'raw_api'
         self.calls = 0
         self.remaining = {}
+        self.status = Counter()            # HTTP status counts (incl. retries)
+        self.lock = threading.Lock()
+        self.session = threading.local()   # one requests.Session per thread
+        self.interval = 1.0 / rate          # global rate limit across threads
+        self.next_t = 0.0
+
+    def _wait_turn(self) -> None:
+        with self.lock:
+            now = time.monotonic()
+            t = max(now, self.next_t)
+            self.next_t = t + self.interval
+        if t > now:
+            time.sleep(t - now)
 
     def get(self, url: str, params: dict) -> dict | None:
         key = hashlib.sha1(json.dumps([url, sorted(params.items())]).encode()).hexdigest()
         f = self.cache / url.rsplit('/', 1)[-1] / f'{key}.json'
         if f.exists():
             return json.loads(f.read_text())
+        if not hasattr(self.session, 's'):
+            self.session.s = requests.Session()
         for attempt in range(6):
-            r = requests.get(url, headers=self.h, params=params, timeout=60)
-            self.calls += 1
-            if 'X-RateLimit-Remaining' in r.headers:
-                self.remaining[url] = r.headers['X-RateLimit-Remaining']
+            self._wait_turn()
+            try:
+                r = self.session.s.get(url, headers=self.h, params=params, timeout=60)
+            except requests.RequestException:
+                with self.lock:
+                    self.status['exception'] += 1
+                time.sleep(2 ** attempt)
+                continue
+            with self.lock:
+                self.calls += 1
+                self.status[r.status_code] += 1
+                if 'X-RateLimit-Remaining' in r.headers:
+                    self.remaining[url] = r.headers['X-RateLimit-Remaining']
             if r.status_code == 200:
                 data = r.json()
                 f.parent.mkdir(parents=True, exist_ok=True)
                 f.write_text(json.dumps(data))
-                time.sleep(PAUSE)
                 return data
             if r.status_code in (429, 500, 502, 503, 504):
                 time.sleep(2 ** attempt)
@@ -290,16 +317,24 @@ def parse_dois(data: dict | None) -> list[tuple[str, str]]:
     return out
 
 
-def stage_b(api: Elsevier, au_ids: list[str]) -> pd.DataFrame:
-    rows = []
-    for i, au in enumerate(au_ids):
-        base = {'query': f'AU-ID({au})', 'count': N_DOI, 'field': 'prism:doi,prism:coverDate'}
-        dois = parse_dois(api.get(SCOPUS_URL, {**base, 'sort': '-coverDate'}))
-        if len(dois) < MIN_SHARED + 1:
-            dois += parse_dois(api.get(SCOPUS_URL, {**base, 'sort': '+coverDate'}))
-        rows += [dict(au_id=au, doi=d, cover_date=c) for d, c in dict(dois).items()]
-        if (i + 1) % 200 == 0:
-            print(f'    stage B: {i+1:,}/{len(au_ids):,} candidates', flush=True)
+def _candidate_dois(api: Elsevier, au: str) -> list[dict]:
+    base = {'query': f'AU-ID({au})', 'count': N_DOI, 'field': 'prism:doi,prism:coverDate'}
+    dois = parse_dois(api.get(SCOPUS_URL, {**base, 'sort': '-coverDate'}))
+    if len(dois) < MIN_SHARED + 1:
+        dois += parse_dois(api.get(SCOPUS_URL, {**base, 'sort': '+coverDate'}))
+    return [dict(au_id=au, doi=d, cover_date=c) for d, c in dict(dois).items()]
+
+
+def stage_b(api: Elsevier, au_ids: list[str], workers: int = 1) -> pd.DataFrame:
+    rows, t0, done = [], time.time(), 0
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        for res in ex.map(lambda au: _candidate_dois(api, au), au_ids):
+            rows += res
+            done += 1
+            if done % 500 == 0:
+                rate = api.calls / max(time.time() - t0, 1e-9)
+                print(f'    stage B: {done:,}/{len(au_ids):,} candidates  {rate:.1f} calls/s  '
+                      f'status={dict(api.status)}', flush=True)
     return pd.DataFrame(rows, columns=['au_id', 'doi', 'cover_date'])
 
 
@@ -404,6 +439,8 @@ def main() -> None:
     add_path_args(ap)
     ap.add_argument('--sample', type=int, default=0, help='random sample of Stanford persons (0 = all)')
     ap.add_argument('--seed', type=int, default=20261128)
+    ap.add_argument('--workers', type=int, default=4, help='parallel Scopus Search requests in stage B')
+    ap.add_argument('--rate', type=float, default=RATE, help='max uncached API requests per second (all threads)')
     args = ap.parse_args()
     p = resolve_paths(args)
     out_dir = p.out / 'scopus'
@@ -415,17 +452,20 @@ def main() -> None:
         per = per.sample(args.sample, random_state=args.seed)
     iso_name = dict(duckdb.connect().execute(
         f"SELECT lower(alpha_3), display_name FROM parquet_scan('{p.openalex}/countries.parquet')").fetchall())
-    api = Elsevier(ROOT / '.env')
+    api = Elsevier(ROOT / '.env', rate=args.rate)
 
     cand = stage_a(api, per, iso_name)
     cand.to_parquet(out_dir / 'candidates.parquet', index=False)
     print(f'  stage A done: {cand.pid.nunique():,} persons with candidates, {len(cand):,} candidates, '
           f'{api.calls} API calls  [{time.time()-t0:.0f}s]', flush=True)
 
-    cdois = stage_b(api, sorted(cand.au_id.unique()))
+    calls_b0, t_b0 = api.calls, time.time()
+    cdois = stage_b(api, sorted(cand.au_id.unique()), workers=args.workers)
     cdois.to_parquet(out_dir / 'candidate_dois.parquet', index=False)
-    print(f'  stage B done: {len(cdois):,} DOIs for {cdois.au_id.nunique():,} candidates, '
-          f'{api.calls} API calls  [{time.time()-t0:.0f}s]', flush=True)
+    nb = api.calls - calls_b0
+    print(f'  stage B done: {len(cdois):,} DOIs for {cdois.au_id.nunique():,} candidates, {nb:,} calls in '
+          f'{time.time()-t_b0:.0f}s ({nb/max(time.time()-t_b0,1e-9):.1f}/s, {args.workers} workers), '
+          f'HTTP status {dict(api.status)}  [{time.time()-t0:.0f}s]', flush=True)
 
     links = stage_c(p, cdois, cand, per)
     links.to_parquet(out_dir / 'links.parquet', index=False)
