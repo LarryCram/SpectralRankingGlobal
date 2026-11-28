@@ -58,6 +58,7 @@ ERA_YEAR_MIN = 2011
 ERA_YEAR_MAX = 2011 + 5  # 2016 (6 years inclusive)
 ERA_TAU_U = 50.0 / 6.0    # 50 weighted works over 6 years (ERA Low Volume Threshold)
 ERA_TAU_S = 10.0         # 60 weighted works over 6 years (baseline source threshold)
+ERA_JOURNAL_XLSX = Path("/home/lc/Projects_Antigravity/SmallProjects/data_persisted/ERA 2018 Journal List.xlsx")
 ERA_WHITELIST_TAU = 1.0  # Multidisciplinary journal threshold
 
 
@@ -317,6 +318,9 @@ def main():
     parser.add_argument("--all", action="store_true", help="Run all 2-digit divisions, all 4-digit groups, and generate report")
     parser.add_argument("--force", action="store_true", help="Force recomputation of already existing rankings")
     parser.add_argument("--report", action="store_true", help="Generate Australian HEP report")
+    parser.add_argument("--method", choices=["crosswalk", "journal"], default="crosswalk",
+                        help="work→FoR assignment: OpenAlex subfield crosswalk (default) or the ERA 2018 "
+                             "Journal List (journal codes, crosswalk fallback) → WORKING/era2018_journal/")
     parser.add_argument("--epsilon", "--sentinel", dest="epsilon", action="store_true",
                         help="Include exogenous cross-field citations via sentinel model (epsilon=1, label='sentinel')")
     args = parser.parse_args()
@@ -327,6 +331,8 @@ def main():
     epsilon_val = 1 if args.epsilon else 0
     label = 'sentinel' if args.epsilon else 'baseline'
     era_dir = paths.working / f"era2018_{label}" if args.epsilon else paths.working / "era2018"
+    if args.method == "journal":
+        era_dir = paths.working / ("era2018_journal" + ("_sentinel" if args.epsilon else ""))
     cands_dir = paths.working / "era2018" / "candidacy"
     div_dir = era_dir / "division"
     grp_dir = era_dir / "group"
@@ -354,12 +360,40 @@ def main():
 
         sub_sc, sub_ic = ensure_candidacy(db, fw_path, cands_dir)
         div_map, div_labels, grp_map, grp_labels = get_for2008_mappings(db, sub_sc)
+        # per-level inputs: (flat table, source candidacy, institution candidacy)
+        level_inputs = {"division": (fw_path, sub_sc, sub_ic), "group": (fw_path, sub_sc, sub_ic)}
+        if args.method == "journal":
+            from era_journal_assign import build_journal_tables
+            jdir = paths.working / "era2018_journal" / "candidacy"
+            grp_of_sf = {sf: g for g, sfs in grp_map.items() for sf in sfs}
+            want = [jdir / f"fw_journal_{lv}_{ERA_WINDOW}.parquet" for lv in ("group", "division")]
+            if args.force or not all(p.exists() for p in want):
+                print("Building ERA 2018 journal-list assignment tables ...")
+                build_journal_tables(db, fw_path, ERA_JOURNAL_XLSX, str(paths.openalex / "sources.parquet"),
+                                     grp_of_sf, jdir, ERA_YEAR_MIN, ERA_YEAR_MAX, ERA_WINDOW)
+            for lv in ("group", "division"):
+                level_inputs[lv] = (str(jdir / f"fw_journal_{lv}_{ERA_WINDOW}.parquet"),
+                                    str(jdir / f"journal_{lv}_source_cands_{ERA_WINDOW}.parquet"),
+                                    str(jdir / f"journal_{lv}_inst_cands_{ERA_WINDOW}.parquet"))
+            r = Resolver()
+            def _label(code):
+                row = r._con.execute("SELECT label FROM for_2008 WHERE code = ?", [code]).fetchone()
+                return row[0] if row else code
+            div_codes = [f"{c:02d}" for (c,) in db.execute(
+                f"SELECT DISTINCT field_idx FROM '{level_inputs['division'][1]}' ORDER BY 1").fetchall()]
+            grp_codes = [f"{c:04d}" for (c,) in db.execute(
+                f"SELECT DISTINCT field_idx FROM '{level_inputs['group'][1]}' ORDER BY 1").fetchall()]
+            div_map = {c: (int(c),) for c in div_codes}
+            grp_map = {c: (int(c),) for c in grp_codes}
+            div_labels = {c: _label(c) for c in div_codes}
+            grp_labels = {c: _label(c) for c in grp_codes}
 
         print("\n==================================================================")
         print("ERA 2018 Spectral Ranking Pipeline Configuration")
         print("==================================================================")
         print(f"Window         : {ERA_WINDOW} ({ERA_YEAR_MIN}–{ERA_YEAR_MAX}, 6 years)")
         print(f"Sentinel (eps) : {epsilon_val} (label='{label}')")
+        print(f"Assignment     : {args.method}")
         print(f"Tau_U          : {ERA_TAU_U:.4f}/yr  (total = {ERA_TAU_U * 6:.1f} works, ERA LVT)")
         print(f"Tau_S          : {ERA_TAU_S:.1f}/yr  (total = {ERA_TAU_S * 6:.1f} works)")
         print(f"MD Whitelist   : {whitelist_pq} (threshold >= {ERA_WHITELIST_TAU:.1f} work)")
@@ -381,7 +415,7 @@ def main():
             div_code = args.division.zfill(2)
             if div_code not in div_map:
                 raise ValueError(f"Division {div_code} not in active divisions: {sorted(div_map.keys())}")
-            run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
+            run_unit(db, level_inputs["division"][0], cr_path, *level_inputs["division"][1:], whitelist_pq,
                      div_code, div_labels[div_code], "division", div_map[div_code], div_dir, tmp_dir,
                      skip_existing=skip_existing, epsilon=epsilon_val, label=label)
 
@@ -389,7 +423,7 @@ def main():
             grp_code = args.group.zfill(4)
             if grp_code not in grp_map:
                 raise ValueError(f"Group {grp_code} not in active groups: {sorted(grp_map.keys())}")
-            run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
+            run_unit(db, level_inputs["group"][0], cr_path, *level_inputs["group"][1:], whitelist_pq,
                      grp_code, grp_labels[grp_code], "group", grp_map[grp_code], grp_dir, tmp_dir,
                      skip_existing=skip_existing, epsilon=epsilon_val, label=label)
 
@@ -397,7 +431,7 @@ def main():
             print(f"Starting run across all {len(div_map)} Divisions [label='{label}', epsilon={epsilon_val}] ...")
             for div_code in sorted(div_map.keys()):
                 try:
-                    run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
+                    run_unit(db, level_inputs["division"][0], cr_path, *level_inputs["division"][1:], whitelist_pq,
                              div_code, div_labels[div_code], "division", div_map[div_code], div_dir, tmp_dir,
                              skip_existing=skip_existing, epsilon=epsilon_val, label=label)
                 except Exception as exc:
@@ -407,7 +441,7 @@ def main():
             print(f"Starting run across all {len(grp_map)} Groups [label='{label}', epsilon={epsilon_val}] ...")
             for grp_code in sorted(grp_map.keys()):
                 try:
-                    run_unit(db, fw_path, cr_path, sub_sc, sub_ic, whitelist_pq,
+                    run_unit(db, level_inputs["group"][0], cr_path, *level_inputs["group"][1:], whitelist_pq,
                              grp_code, grp_labels[grp_code], "group", grp_map[grp_code], grp_dir, tmp_dir,
                              skip_existing=skip_existing, epsilon=epsilon_val, label=label)
                 except Exception as exc:

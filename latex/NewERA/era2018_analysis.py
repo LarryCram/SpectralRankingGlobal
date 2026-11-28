@@ -64,16 +64,16 @@ def load_outcomes(outcomes_dir: Path) -> pd.DataFrame:
     return o.rename(columns={"short_name": "hep"})[["hep", "code", "era"]]
 
 
-def load_emulation(working: Path) -> pd.DataFrame:
-    h = pd.read_parquet(working / "era2018/hep_reports/era2018_au_hep_spectral_rankings.parquet")
+def load_emulation(working: Path, era_subdir: str = "era2018") -> pd.DataFrame:
+    h = pd.read_parquet(working / era_subdir / "hep_reports/era2018_au_hep_spectral_rankings.parquet")
     return h.rename(columns={"hep_short_name": "hep", "for_code": "code"})[
         ["hep", "code", "for_level", "v", "a_p", "rank_v_global"]]
 
 
-def load_diags(working: Path) -> dict:
+def load_diags(working: Path, era_subdir: str = "era2018") -> dict:
     out = {}
     for lvl, prefix in (("division", "div"), ("group", "grp")):
-        for f in (working / "era2018" / lvl).glob(f"rankings_{prefix}_*_2011_2016_baseline_diag.json"):
+        for f in (working / era_subdir / lvl).glob(f"rankings_{prefix}_*_2011_2016_baseline_diag.json"):
             d = json.loads(f.read_text())
             out[d["for_code"]] = d
     return out
@@ -145,11 +145,17 @@ def main():
     ap.add_argument("--outcomes", type=Path, default=DEFAULT_OUTCOMES)
     ap.add_argument("--compare-working", type=Path, default=None,
                     help="second WORKING dir (another OpenAlex snapshot) for a stability check")
+    ap.add_argument("--era-subdir", default="era2018",
+                    help="emulation folder under WORKING: era2018 (crosswalk) or era2018_journal")
+    ap.add_argument("--out-dir", type=Path, default=None,
+                    help="write tables/, figures/ and era2018_numbers.json here (default: the paper folder)")
     args = ap.parse_args()
 
     paths = load_config()
     working = args.working or paths.working
-    tables, figures = HERE / "tables", HERE / "figures"
+    out_root = args.out_dir or HERE
+    tables, figures = out_root / "tables", out_root / "figures"
+    tables.mkdir(parents=True, exist_ok=True)
     tables.mkdir(exist_ok=True)
     figures.mkdir(exist_ok=True)
 
@@ -157,8 +163,8 @@ def main():
     mode = dict(zip(mx.code, mx["mode"]))
     titles = dict(zip(mx.code, mx.title))
     o = load_outcomes(args.outcomes)
-    h = load_emulation(working)
-    diags = load_diags(working)
+    h = load_emulation(working, args.era_subdir)
+    diags = load_diags(working, args.era_subdir)
 
     m = o.merge(h, on=["hep", "code"], how="left")
     m["mode"] = m.code.map(mode)
@@ -324,7 +330,7 @@ Mode & UoEs & $\log_{10} v$ & Go8 & REC member \\
 
     make_figure(div, figures / "fig_era2018_v_by_rating.pdf")
 
-    (HERE / "era2018_numbers.json").write_text(json.dumps(num, indent=1, default=float))
+    (out_root / "era2018_numbers.json").write_text(json.dumps(num, indent=1, default=float))
     print(json.dumps({k: num[k] for k in ("n_rated", "n_matched", "pooled", "share_rated_ge4")},
                      indent=1))
     for md in ("ALL", "CA", "PR"):

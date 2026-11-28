@@ -228,8 +228,11 @@ def build_edge_list(db: duckdb.DuckDBPyConnection,
 
     # For field and area modes, flat_works is at subfield granularity so we
     # GROUP BY (work, source, institution) to aggregate subfield weights.
-    # For subfield mode, rows are already at the right granularity.
-    if run.is_subfield:
+    # For a single subfield, rows are already at the right granularity. A grouping
+    # scheme with several member subfields (member_ids, e.g. ERA FoR groups whose
+    # scratch code happens to be >= 1000 and so looks like a subfield) must aggregate
+    # too, or a work in two member subfields is duplicated (fixed 2026-11-28).
+    if run.is_subfield and len(member_ids) <= 1:
         db.execute(f"""
             CREATE OR REPLACE TEMP TABLE _fi AS
             SELECT work_idx, source_idx, institution_idx,
