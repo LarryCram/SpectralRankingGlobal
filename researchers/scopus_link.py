@@ -36,6 +36,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+from functools import lru_cache
 import hashlib
 import json
 import math
@@ -54,6 +55,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from researchers.common import ROOT, add_path_args, resolve_paths  # noqa: E402
 from researchers.match_stanford import stanford_persons  # noqa: E402
+from util.human_names import HumanNameParser, ParsedName  # noqa: E402
+
+_PARSER = HumanNameParser()
 
 MAX_QUERY_LEN = 2300
 VOL_FRAC = 0.5
@@ -81,17 +85,67 @@ def affil_key(inst) -> str | None:
     return max(toks, key=len) if toks else None
 
 
+@lru_cache(maxsize=None)
+def pn(name) -> ParsedName:
+    """HumanNameParser (util/human_names.py) parse, cached; name is a string or (given, family)."""
+    return _PARSER.parse(name)
+
+
 def split_name(authfull: str) -> tuple[str, str]:
-    s = asc(authfull)
-    last, first = (s.split(',', 1) + [''])[:2]
-    last = re.sub(r'[()"{}\[\]]', ' ', last).strip()
-    f = re.sub(r'[^A-Za-z\- ]', ' ', first).split()
-    return last, (f[0] if f else '')
+    """(family, first) in ASCII form, from the parsed name."""
+    p = pn(authfull)
+    return (p.family_name_main or ''), (p.first_name_canonical or '')
 
 
 def name_clause(authfull: str) -> str:
-    last, first = split_name(authfull)
+    # query with plain diacritic-stripped forms (Muller, not the Mueller digraph variant)
+    p = pn(authfull)
+    last = asc(p.family_name_raw or '') or (p.family_name_main or '')
+    first = asc(p.given_tokens_raw[0]) if p.given_tokens_raw else (p.first_name_canonical or '')
+    last = re.sub(r'[()"{}\[\]]', ' ', last).strip()
     return f'(AUTHLAST({last}) AND AUTHFIRST({first}))' if first else f'(AUTHLAST({last}))'
+
+
+def names_agree(a: ParsedName, b: ParsedName) -> bool:
+    """
+    Same person's name? Family names must share a letters-only form (hyphen/space/diacritic
+    variants agree). Given names: first initials must agree; when both sides give full names,
+    the first full names must be equal (second full names too, when both have one), or the
+    concatenations equal (Zhong Lin = Zhonglin), or one side's nickname equal the other's first
+    name. Initials-only on either side is accepted here (callers add volume/affiliation checks).
+    """
+    fa_set = {letters(f) for f in a.family_names if f}
+    fb_set = {letters(f) for f in b.family_names if f}
+    if not (fa_set & fb_set):
+        # compound surname split differently (Roti-Roti vs "Joseph L. Roti Roti"): accept when a
+        # long (>= 5 letters) family form of one side is contained in the other's whole name
+        whole_a = letters(''.join(a.given_tokens_raw) + (a.family_name_raw or ''))
+        whole_b = letters(''.join(b.given_tokens_raw) + (b.family_name_raw or ''))
+        if not (any(len(f) >= 5 and f in whole_b for f in fa_set) or
+                any(len(f) >= 5 and f in whole_a for f in fb_set)):
+            return False
+    # given names, from the raw (unwidened) tokens in written order
+    ra = [letters(t) for t in a.given_tokens_raw if letters(t)]
+    rb = [letters(t) for t in b.given_tokens_raw if letters(t)]
+    if not ra or not rb:
+        return True
+    ia, ib = ''.join(t[0] for t in ra), ''.join(t[0] for t in rb)
+    if not (ia.startswith(ib) or ib.startswith(ia)):          # initials must agree as far as both go
+        return False
+    ga, gb = [t for t in ra if len(t) > 1], [t for t in rb if len(t) > 1]
+    if not ga or not gb:                                      # initials only on one side
+        return True
+    if ''.join(ga) == ''.join(gb):                            # Gangding = Gang-Ding, Zhonglin = Zhong Lin
+        return True
+    abbr_a = [t.endswith('.') for t in a.given_tokens_raw if letters(t)]
+    abbr_b = [t.endswith('.') for t in b.given_tokens_raw if letters(t)]
+    if (abbr_b and abbr_b[0] and ga[0].startswith(rb[0])) or (abbr_a and abbr_a[0] and gb[0].startswith(ra[0])):
+        return True                                           # Yu. = Yuri (written abbreviation)
+    if ga[0] == gb[0]:                                        # Kristin Y. = Kristin Ytterstad
+        return not (len(ga) > 1 and len(gb) > 1 and ga[1] != gb[1])
+    na = {letters(t) for t in a.nickname_tokens if len(t) > 1}
+    nb = {letters(t) for t in b.nickname_tokens if len(t) > 1}
+    return bool(na & {gb[0]} or nb & {ga[0]})
 
 
 def letters(s: str) -> str:
@@ -191,12 +245,8 @@ def parse_profiles(data: dict | None) -> list[dict]:
     return out
 
 
-def profile_fits(p: dict, last: str, first: str) -> bool:
-    lk, fi = asc(last).lower(), asc(first).lower()[:1]
-    for s, g in p['names']:
-        if asc(s).lower() == lk and (not fi or asc(g).lower()[:1] == fi):
-            return True
-    return False
+def profile_fits(p: dict, person: ParsedName) -> bool:
+    return any(names_agree(pn((g or None, sname or None)), person) for sname, g in p['names'] if sname)
 
 
 def stage_a(api: Elsevier, per: pd.DataFrame, iso_name: dict) -> pd.DataFrame:
@@ -209,20 +259,20 @@ def stage_a(api: Elsevier, per: pd.DataFrame, iso_name: dict) -> pd.DataFrame:
         profs = parse_profiles(data)
         for pid in pids:
             r = byid.loc[pid]
-            last, first = split_name(r.authfull)
+            person = pn(r.authfull)
             for p in profs:
-                if profile_fits(p, last, first) and p['documents'] >= VOL_FRAC * (r.np or 0):
+                if profile_fits(p, person) and p['documents'] >= VOL_FRAC * (r.np or 0):
                     rows.append({**{k: v for k, v in p.items() if k != 'names'}, 'pid': pid, 'query': f'group{qi}'})
                     found.add(pid)
     missing = per[~per.pid.isin(found)]
     print(f'  stage A: {len(found):,} found in grouped pass; retrying {len(missing):,} individually', flush=True)
     for r in missing.itertuples():
-        last, first = split_name(r.authfull)
+        person = pn(r.authfull)
         country = iso_name.get(r.cntry)
         q = name_clause(r.authfull) + (f' AND AFFILCOUNTRY({asc(country)})' if country else '')
         profs = parse_profiles(api.get(AUTHOR_URL, {'query': q, 'count': 200, 'sort': '-document-count'}))
         for p in profs:
-            if profile_fits(p, last, first) and p['documents'] >= VOL_FRAC * (r.np or 0):
+            if profile_fits(p, person) and p['documents'] >= VOL_FRAC * (r.np or 0):
                 rows.append({**{k: v for k, v in p.items() if k != 'names'}, 'pid': r.pid, 'query': 'single'})
     cand = pd.DataFrame(rows).drop_duplicates(['pid', 'au_id']) if rows else pd.DataFrame(
         columns=['pid', 'au_id', 'surname', 'given', 'documents', 'affiliation', 'country', 'areas', 'query'])
@@ -280,17 +330,13 @@ def stage_c(p, cdois: pd.DataFrame, cand: pd.DataFrame, per: pd.DataFrame) -> pd
     found = con.execute('SELECT cd.au_id, COUNT(DISTINCT w.doi) AS n_found FROM _cd cd '
                         'JOIN _w w USING (doi) GROUP BY 1').fetchdf()
     con.close()
-    # name check: the OA author name must contain the Stanford surname (letters only, so
-    # hyphen/space variants agree) and start with the Stanford first initial
+    # name check: the OA author name must agree with the Stanford name (names_agree)
     per_au = cand.merge(per[['pid', 'authfull', 'np']], on='pid')
     keys = {}
     for au, af in zip(per_au.au_id, per_au.authfull):
-        last, first = split_name(af)
-        keys.setdefault(au, set()).add((letters(last), first[:1].lower()))
+        keys.setdefault(au, []).append(pn(af))
     def ok(au, name):
-        n = asc(name).lower(); nl = letters(n)
-        toks = re.findall(r'[a-z]+', n)
-        return any(sk and sk in nl and (not fi or (toks and toks[0][:1] == fi)) for sk, fi in keys.get(au, ()))
+        return isinstance(name, str) and any(names_agree(pn(name), person) for person in keys.get(au, ()))
     hits = hits[[ok(au, n) for au, n in zip(hits.au_id, hits.author_name)]]
     n_dois = cdois.groupby('au_id').doi.nunique().rename('n_dois')
     tally = (hits.groupby(['au_id', 'author_idx']).doi.nunique().rename('shared').reset_index()
@@ -301,7 +347,10 @@ def stage_c(p, cdois: pd.DataFrame, cand: pd.DataFrame, per: pd.DataFrame) -> pd
     best = (tally.groupby('au_id').head(1).merge(n_dois, on='au_id').merge(found, on='au_id', how='left')
             .merge(members, on='au_id', how='left'))
     best['n_found'] = best.n_found.fillna(0).astype(int)
-    best['accepted'] = (best.shared >= MIN_SHARED) & (best.shared > 0.5 * best.n_found)
+    member_shared = tally[tally.shared >= MIN_SHARED].groupby('au_id').shared.sum().rename('member_shared')
+    best = best.merge(member_shared, on='au_id', how='left')
+    # split OA profiles share the papers: accept when the members together hold a majority
+    best['accepted'] = (best.shared >= MIN_SHARED) & (best.member_shared.fillna(0) > 0.5 * best.n_found)
     best['openalex_id'] = 'A' + best.author_idx.astype('int64').astype(str)
     best['member_ids'] = [m if isinstance(m, list) else [] for m in best.member_ids]
     # OpenAlex work counts, to flag conflated OA profiles (many people merged into one ID)

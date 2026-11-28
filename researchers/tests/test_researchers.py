@@ -207,3 +207,26 @@ def test_name_quality(stanford, oa, q):
 def test_name_quality_edge_cases(stanford, oa, q):
     lk = split_stanford(stanford)[0]
     assert name_quality(stanford_given(stanford), oa_given(oa, lk)) == q
+
+
+# ── Scopus/OpenAlex name agreement (HumanNameParser-based) ───────────────────
+
+from researchers.scopus_link import names_agree, pn
+
+
+@pytest.mark.parametrize('a, b, same', [
+    ('Wang, Zhong Lin', 'Zhonglin Wang', True),
+    ('Peng, Gangding', 'Gang-Ding Peng', True),
+    ('Roti-Roti, Joseph L.', 'Joseph L. Roti Roti', True),
+    ('Leo Kumar, S. P.', 'S. P. Leo Kumar', True),
+    ('Golovin, Yuri I.', 'Yu. I. Golovin', True),
+    ('Kaplan, Thomas A.', 'T. A. Kaplan', True),
+    ('Grätzel, Michael', 'Michael Graetzel', True),
+    ('Xu, Yanfei', 'Yan Xu', False),
+    ('Chen, Wen Lih', 'Wen-Chin Chen', False),
+    ('Golovin, Yuri I.', 'Dmitry Yu. Golovin', False),
+    ('Gupta, Vishal K.', 'Vishal Anand Gupta', False),
+    ('Li, Bing', 'Bin Li', False),
+])
+def test_names_agree(a, b, same):
+    assert names_agree(pn(a), pn(b)) is same
