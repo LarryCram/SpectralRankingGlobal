@@ -230,3 +230,22 @@ from researchers.scopus_link import names_agree, pn
 ])
 def test_names_agree(a, b, same):
     assert names_agree(pn(a), pn(b)) is same
+
+
+def test_grouped_queries_are_canonical():
+    """Same queries whatever the input row order; a sample reuses the full run's queries."""
+    from researchers.scopus_link import build_grouped_queries
+    per = pd.DataFrame({
+        'pid': range(6),
+        'authfull': ['Smith, John', 'Jones, Ann', 'Smith, John', 'Lee, Wei', 'Brown, Ken', 'Ito, Aki'],
+        'inst_name': ['Monash University', 'Monash University', 'Monash University',
+                      'Tsinghua University', 'Tsinghua University', None],
+        'cntry': ['aus', 'aus', 'aus', 'chn', 'chn', 'jpn'],
+    })
+    full = build_grouped_queries(per)
+    shuffled = build_grouped_queries(per.sample(frac=1, random_state=3))
+    assert [q for q, _ in full] == [q for q, _ in shuffled]
+    assert sum(q.count('AUTHLAST(smith)') for q, _ in full) == 1      # duplicate clause written once
+    sample = build_grouped_queries(per, wanted=[3])
+    assert {q for q, _ in sample} <= {q for q, _ in full}
+    assert [p for _, p in sample] == [[3]]

@@ -231,19 +231,45 @@ class Elsevier:
 
 # ── stage A: grouped author search ────────────────────────────────────────────
 
-def build_grouped_queries(per: pd.DataFrame) -> list[tuple[str, list[int]]]:
-    per = per.assign(k=per['inst_name'].map(affil_key))
-    have = per[per.k.notna()]
+def build_grouped_queries(per_all: pd.DataFrame, wanted=None) -> list[tuple[str, list[int]]]:
+    """
+    Canonical grouped queries over the WHOLE Stanford person list, so that the query strings
+    (and hence the response cache keys) do not depend on which sample is being run or on the
+    row order of the input: persons are sorted by (affiliation keyword, name clause, authfull,
+    institution, country); identical clauses within a keyword are written once; a keyword whose
+    clauses exceed MAX_QUERY_LEN is split into consecutive chunks; chunks are packed greedily in
+    that fixed order. `wanted` (an iterable of pids) keeps only the queries that contain at
+    least one wanted person — each kept query is sent whole, exactly as in a full run.
+    """
+    df = per_all.assign(k=per_all['inst_name'].map(affil_key))
+    df = df[df.k.notna()].copy()
+    df['clause'] = df.authfull.map(name_clause)
+    df = df.sort_values(['k', 'clause', 'authfull', 'inst_name', 'cntry'], kind='mergesort')
+    parts: list[tuple[str, list[int]]] = []
+    for k, g in df.groupby('k', sort=True):
+        clauses = list(dict.fromkeys(g.clause))                 # unique, in sorted order
+        pids_by_clause = g.groupby('clause').pid.apply(list).to_dict()
+        head = f'(AFFIL({k}) AND ('
+        chunk: list[str] = []
+        for c in clauses:
+            if chunk and len(head) + len(' OR '.join(chunk + [c])) + 2 > MAX_QUERY_LEN:
+                parts.append((head + ' OR '.join(chunk) + '))', [x for cc in chunk for x in pids_by_clause[cc]]))
+                chunk = []
+            chunk.append(c)
+        if chunk:
+            parts.append((head + ' OR '.join(chunk) + '))', [x for cc in chunk for x in pids_by_clause[cc]]))
     queries, cur, cur_p = [], [], []
-    for k, g in sorted(have.groupby('k'), key=lambda kg: -len(kg[1])):
-        part = f'(AFFIL({k}) AND (' + ' OR '.join(name_clause(a) for a in g.authfull) + '))'
+    for part, pids in parts:
         if cur and len(' OR '.join(cur + [part])) > MAX_QUERY_LEN:
             queries.append((' OR '.join(cur), cur_p))
             cur, cur_p = [], []
         cur.append(part)
-        cur_p += g.pid.tolist()
+        cur_p += pids
     if cur:
         queries.append((' OR '.join(cur), cur_p))
+    if wanted is not None:
+        w = set(wanted)
+        queries = [(q, [x for x in pids if x in w]) for q, pids in queries if w.intersection(pids)]
     return queries
 
 
@@ -276,10 +302,10 @@ def profile_fits(p: dict, person: ParsedName) -> bool:
     return any(names_agree(pn((g or None, sname or None)), person) for sname, g in p['names'] if sname)
 
 
-def stage_a(api: Elsevier, per: pd.DataFrame, iso_name: dict) -> pd.DataFrame:
+def stage_a(api: Elsevier, per: pd.DataFrame, iso_name: dict, per_all: pd.DataFrame) -> pd.DataFrame:
     rows, found = [], set()
     byid = per.set_index('pid')
-    queries = build_grouped_queries(per)
+    queries = build_grouped_queries(per_all, wanted=per.pid)
     print(f'  stage A: {len(per):,} persons → {len(queries):,} grouped queries', flush=True)
     for qi, (q, pids) in enumerate(queries):
         data = api.get(AUTHOR_URL, {'query': q, 'count': 200, 'sort': '-document-count'})
@@ -447,14 +473,15 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
 
-    per = stanford_persons(p.stanford_dir)
+    per_all = stanford_persons(p.stanford_dir)
+    per = per_all
     if args.sample:
-        per = per.sample(args.sample, random_state=args.seed)
+        per = per_all.sample(args.sample, random_state=args.seed)
     iso_name = dict(duckdb.connect().execute(
         f"SELECT lower(alpha_3), display_name FROM parquet_scan('{p.openalex}/countries.parquet')").fetchall())
     api = Elsevier(ROOT / '.env', rate=args.rate)
 
-    cand = stage_a(api, per, iso_name)
+    cand = stage_a(api, per, iso_name, per_all)
     cand.to_parquet(out_dir / 'candidates.parquet', index=False)
     print(f'  stage A done: {cand.pid.nunique():,} persons with candidates, {len(cand):,} candidates, '
           f'{api.calls} API calls  [{time.time()-t0:.0f}s]', flush=True)
