@@ -27,6 +27,7 @@ from scipy.stats import norm, spearmanr
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(HERE))
 from util import load_config  # noqa: E402
 
 DEFAULT_OUTCOMES = Path("/home/lc/Dropbox/RESEARCH/ERA/data/ERA_OUTCOMES")
@@ -65,15 +66,16 @@ def load_outcomes(outcomes_dir: Path) -> pd.DataFrame:
 
 
 def load_emulation(working: Path, era_subdir: str = "era2018") -> pd.DataFrame:
-    h = pd.read_parquet(working / era_subdir / "hep_reports/era2018_au_hep_spectral_rankings.parquet")
+    f = sorted((working / era_subdir / "hep_reports").glob("era2018*_au_hep_spectral_rankings.parquet"))[0]
+    h = pd.read_parquet(f)
     return h.rename(columns={"hep_short_name": "hep", "for_code": "code"})[
         ["hep", "code", "for_level", "v", "a_p", "rank_v_global"]]
 
 
-def load_diags(working: Path, era_subdir: str = "era2018") -> dict:
+def load_diags(working: Path, era_subdir: str = "era2018", label: str = "baseline") -> dict:
     out = {}
     for lvl, prefix in (("division", "div"), ("group", "grp")):
-        for f in (working / era_subdir / lvl).glob(f"rankings_{prefix}_*_2011_2016_baseline_diag.json"):
+        for f in (working / era_subdir / lvl).glob(f"rankings_{prefix}_*_2011_2016_{label}_diag.json"):
             d = json.loads(f.read_text())
             out[d["for_code"]] = d
     return out
@@ -149,6 +151,11 @@ def main():
                     help="emulation folder under WORKING: era2018 (crosswalk) or era2018_journal")
     ap.add_argument("--out-dir", type=Path, default=None,
                     help="write tables/, figures/ and era2018_numbers.json here (default: the paper folder)")
+    ap.add_argument("--variants", default="era2018_sentinel,era2018_journal",
+                    help="other emulation folders under WORKING summarised for robustness (if present)")
+    ap.add_argument("--example-division", default="08", help="division shown with its groups")
+    ap.add_argument("--grid-divisions", default="06,05,11,14,20,18", help="divisions in the panel grid")
+    ap.add_argument("--no-figures", action="store_true")
     args = ap.parse_args()
 
     paths = load_config()
@@ -330,6 +337,26 @@ Mode & UoEs & $\log_{10} v$ & Go8 & REC member \\
 
     make_figure(div, figures / "fig_era2018_v_by_rating.pdf")
 
+    # ── Robustness: sentinel (epsilon = 1) and ERA journal-list assignment ──
+    num["variants"] = {"baseline": variant_summary(o, mode, h, go8)}
+    for sub in filter(None, args.variants.split(",")):
+        if (working / sub / "hep_reports").exists():
+            num["variants"][sub] = variant_summary(o, mode, load_emulation(working, sub), go8)
+    if (working / "era2018_sentinel" / "hep_reports").exists():
+        num["sentinel_shift"] = sentinel_shift(working, h, load_emulation(working, "era2018_sentinel"), div)
+    if (working / "era2018_journal").exists():
+        jd = load_diags(working, "era2018_journal")
+        num["journal_reachable_groups"] = sum(len(c) == 4 for c in jd)
+
+    if not args.no_figures and args.era_subdir == "era2018":
+        import era2018_figures as F
+        ctx = F.Ctx(working, paths.data, o, titles)
+        F.facet_figure(ctx, args.example_division, figures / f"fig_era2018_facet_{args.example_division}.pdf")
+        F.division_grid(ctx, args.grid_divisions.split(","), figures / "fig_era2018_divisions.pdf")
+        supp = out_root / "supplementary"
+        supp.mkdir(exist_ok=True)
+        F.supplementary_pdf(ctx, supp / "era2018_division_facets.pdf", [f"{i:02d}" for i in range(1, 23)])
+
     (out_root / "era2018_numbers.json").write_text(json.dumps(num, indent=1, default=float))
     print(json.dumps({k: num[k] for k in ("n_rated", "n_matched", "pooled", "share_rated_ge4")},
                      indent=1))
@@ -337,6 +364,63 @@ Mode & UoEs & $\log_{10} v$ & Go8 & REC member \\
         for k, r in reg[md].items():
             print(md, k, {c: (round(v["b"], 3), round(v["se"], 3), f"{v['p']:.3g}")
                           for c, v in r.items() if isinstance(v, dict)})
+
+
+def pooled_within(g: pd.DataFrame, col: str = "v") -> float:
+    """Spearman correlation of within-code percentile ranks of `col` and the ERA rating."""
+    return float(spearmanr(g.groupby("code")[col].rank(pct=True), g.groupby("code").era.rank(pct=True))[0])
+
+
+def variant_summary(o: pd.DataFrame, mode: dict, h: pd.DataFrame, go8: set) -> dict:
+    """Coverage, pooled agreement and the Go8 model for one emulation variant."""
+    m = o.merge(h, on=["hep", "code"], how="left")
+    m["mode"] = m.code.map(mode)
+    m["level"] = np.where(m.code.str.len() == 2, "division", "group")
+    ev = m.dropna(subset=["v"]).assign(log_v=lambda d: np.log10(d.v), is_go8=lambda d: d.hep.isin(go8).astype(int))
+    out = {"n_matched": {lvl: int((ev.level == lvl).sum()) for lvl in ("division", "group")}, "pooled": [],
+           "division_rho": {}, "regression_go8": {}}
+    for lvl in ("division", "group"):
+        for md in ("CA", "PR", "MIX"):
+            g = ev[(ev.level == lvl) & (ev["mode"] == md)]
+            if len(g) >= 5:
+                out["pooled"].append(dict(level=lvl, mode=md, n=len(g), rho_within=pooled_within(g)))
+    div = ev[ev.level == "division"]
+    for code, g in div.groupby("code"):
+        if len(g) >= 5 and g.era.nunique() > 1:
+            out["division_rho"][code] = dict(n=len(g), rho=float(spearmanr(g.v, g.era)[0]))
+    for md in ("CA", "PR"):
+        out["regression_go8"][md] = ols_cluster(div[div["mode"] == md].reset_index(drop=True),
+                                                ["log_v", "is_go8"], "code", "hep")
+    return out
+
+
+def sentinel_shift(working: Path, h: pd.DataFrame, hs: pd.DataFrame, ev_div: pd.DataFrame) -> dict:
+    """How v changes with the sentinel: world-wide rank agreement and the Australian shift."""
+    out = {"world_rs": {}}
+    for f in sorted((working / "era2018" / "division").glob("rankings_div_*_2011_2016_baseline.parquet")):
+        code = f.stem.split("_")[2]
+        fs = working / "era2018_sentinel" / "division" / f"rankings_div_{code}_2011_2016_sentinel.parquet"
+        if not fs.exists():
+            continue
+        b = pd.read_parquet(f, columns=["unit_idx", "unit_type", "v"])
+        sv = pd.read_parquet(fs, columns=["unit_idx", "unit_type", "v"])
+        x = b[b.unit_type == "U"].merge(sv[sv.unit_type == "U"], on="unit_idx")
+        out["world_rs"][code] = dict(n=len(x), rs=float(spearmanr(x.v_x, x.v_y)[0]),
+                                     n_base=int((b.unit_type == "U").sum()), n_sent=int((sv.unit_type == "U").sum()))
+    rs = np.array([r["rs"] for r in out["world_rs"].values()])
+    out["world_rs_median"], out["world_rs_min"] = float(np.median(rs)), float(rs.min())
+    x = h[h.for_level == "division"].merge(hs[hs.for_level == "division"], on=["hep", "code"], suffixes=("", "_s"))
+    d = np.log10(x.v_s / x.v)
+    out["au_division"] = dict(n=len(x), median_dlog=float(d.median()), q25=float(d.quantile(0.25)),
+                              q75=float(d.quantile(0.75)), share_up=float((d > 0).mean()),
+                              share_ge1_base=float((x.v >= 1).mean()), share_ge1_sent=float((x.v_s >= 1).mean()))
+    by_code = x.assign(d=d).groupby("code").d.median()
+    out["au_division_median_by_code"] = {k: float(v) for k, v in by_code.items()}
+    e = ev_div.merge(hs[hs.for_level == "division"][["hep", "code", "v"]].rename(columns={"v": "v_s"}),
+                     on=["hep", "code"])
+    out["matched_ge1"] = {md: dict(base=float((g.v >= 1).mean()), sent=float((g.v_s >= 1).mean()), n=len(g))
+                          for md, g in e.groupby("mode")}
+    return out
 
 
 def committee_flags(rec: dict, keys: pd.DataFrame) -> set:
