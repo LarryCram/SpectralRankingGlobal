@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=365, network=17,741 works)
+## Topic 0  (n_hcw--=191, network=7,159 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Manaf Al‐Okaily | 53 | 163 | 7,207 | 47 |
-| 2 | Sulieman Ibraheem Shelash Al-Hawary | 48 | 210 | 6,210 | 46 |
-| 3 | Anber Abraheem Shlash Mohammad | 44 | 208 | 4,754 | 40 |
+| 1 | P. S. Aithal | 62 | 1,657 | 17,405 | 43 |
+| 2 | Bambang Slamet Riyadi | 17 | 69 | 693 | 42 |
+| 3 | Sulieman Ibraheem Shelash Al-Hawary | 49 | 228 | 6,328 | 42 |
 
-## Topic 1  (n_hcw--=186, network=10,936 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 100 |
-| 2 | Barween Al Kurdi | 52 | 246 | 9,736 | 68 |
-| 3 | Tomi Apra Santosa | 19 | 160 | 1,093 | 45 |
-
-## Topic 2  (n_hcw--=144, network=6,593 works)
+## Topic 1  (n_hcw--=177, network=13,434 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 67 |
-| 2 | Sulieman Ibraheem Shelash Al-Hawary | 48 | 210 | 6,210 | 49 |
-| 3 | Dickson K.W. Chiu | 51 | 503 | 8,541 | 45 |
+| 1 | P. S. Aithal | 62 | 1,657 | 17,405 | 55 |
+| 2 | Leonid E. Grinin | 35 | 501 | 4,375 | 49 |
+| 3 | Constantinos Halkiopoulos | 36 | 158 | 4,401 | 44 |
 
-## Topic 3  (n_hcw--=141, network=16,796 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Samuel Greef | 8 | 178 | 368 | 69 |
-| 2 | Conrad Lluis | 2 | 97 | 92 | 61 |
-| 3 | Marcos dos Santos | 38 | 648 | 3,414 | 41 |
-
-## Topic 4  (n_hcw--=140, network=12,282 works)
+## Topic 2  (n_hcw--=167, network=11,825 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Jonas Birke | 3 | 122 | 126 | 92 |
-| 2 | Ani Nur Aeni | 17 | 318 | 1,078 | 65 |
-| 3 | Dwi Agus Kurniawan | 35 | 327 | 4,741 | 43 |
+| 1 | Tomi Apra Santosa | 19 | 169 | 1,128 | 50 |
+| 2 | Dadang Juandi | 25 | 523 | 2,761 | 34 |
+| 3 | Dwi Agus Kurniawan | 40 | 432 | 6,122 | 27 |
 
-## Topic 5  (n_hcw--=122, network=6,996 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Tomi Apra Santosa | 19 | 160 | 1,093 | 48 |
-| 2 | Dwi Agus Kurniawan | 35 | 327 | 4,741 | 45 |
-| 3 | Heri Retnawati | 32 | 536 | 4,829 | 36 |
-
-## Topic 6  (n_hcw--=74, network=5,407 works)
+## Topic 3  (n_hcw--=162, network=9,811 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Afib Rulyansah | 14 | 142 | 577 | 46 |
-| 2 | Rizqi Putri Nourma Budiarti | 12 | 159 | 643 | 40 |
-| 3 | Rachma Rizqina Mardhotillah | 6 | 78 | 208 | 36 |
+| 1 | Ani Nur Aeni | 18 | 411 | 1,181 | 48 |
+| 2 | Afib Rulyansah | 14 | 190 | 589 | 47 |
+| 3 | Rizqi Putri Nourma Budiarti | 12 | 167 | 663 | 42 |
 
-## Topic 7  (n_hcw--=74, network=4,525 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Sri Watini | 22 | 228 | 1,868 | 115 |
-| 2 | Dadan Suryana | 19 | 117 | 1,246 | 19 |
-| 3 | Opan Arifudin | 34 | 69 | 4,072 | 15 |
-
-## Topic 8  (n_hcw--=71, network=12,159 works)
+## Topic 4  (n_hcw--=159, network=19,772 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Jonas Birke | 3 | 122 | 126 | 92 |
-| 2 | Samuel Greef | 8 | 178 | 368 | 69 |
-| 3 | Muhlasin Amrullah | 5 | 152 | 80 | 36 |
+| 1 | Conrad Lluis | 2 | 183 | 96 | 61 |
+| 2 | Hans-Jürgen Hohm | 7 | 58 | 295 | 37 |
+| 3 | Bartolomé Marco‐Lajara | 41 | 435 | 5,711 | 30 |
 
-## Topic 9  (n_hcw--=54, network=4,136 works)
+## Topic 5  (n_hcw--=142, network=4,986 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Aiman Faiz | 20 | 77 | 1,531 | 15 |
-| 2 | I Wayan Lasmawan | 12 | 299 | 747 | 11 |
-| 3 | I Gede Margunayasa | 15 | 189 | 972 | 11 |
+| 1 | Leonid E. Grinin | 35 | 501 | 4,375 | 46 |
+| 2 | Andrey Korotayev | 45 | 587 | 8,017 | 43 |
+| 3 | Constantinos Halkiopoulos | 36 | 158 | 4,401 | 38 |
+
+## Topic 6  (n_hcw--=109, network=5,680 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Muhammad Turki Alshurideh | 73 | 464 | 17,443 | 51 |
+| 2 | Leonid E. Grinin | 35 | 501 | 4,375 | 43 |
+| 3 | Andrey Korotayev | 45 | 587 | 8,017 | 39 |
+
+## Topic 7  (n_hcw--=98, network=6,590 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Andrey Korotayev | 45 | 587 | 8,017 | 37 |
+| 2 | Leonid E. Grinin | 35 | 501 | 4,375 | 36 |
+| 3 | Dickson K.W. Chiu | 51 | 522 | 8,818 | 36 |
+
+## Topic 8  (n_hcw--=94, network=5,115 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Dwi Agus Kurniawan | 40 | 432 | 6,122 | 63 |
+| 2 | Andrey Korotayev | 45 | 587 | 8,017 | 56 |
+| 3 | Tomi Apra Santosa | 19 | 169 | 1,128 | 50 |
+
+## Topic 9  (n_hcw--=87, network=12,321 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sri Watini | 22 | 259 | 1,856 | 78 |
+| 2 | Muhlasin Amrullah | 5 | 183 | 92 | 39 |
+| 3 | I Gede Astawan | 13 | 183 | 662 | 25 |

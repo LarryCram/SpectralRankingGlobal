@@ -2,58 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=35, network=9,785 works)
+## Topic 0  (n_hcw--=48, network=6,271 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Gauss M. Cordeiro | 70 | 640 | 18,021 | 41 |
-| 2 | Chun‐Ping Chang | 64 | 333 | 14,434 | 38 |
-| 3 | Afees A. Salisu | 43 | 311 | 6,898 | 31 |
+| 1 | Tomiwa Sunday Adebayo | 92 | 347 | 23,108 | 146 |
+| 2 | Derviş Kırıkkaleli | 72 | 330 | 17,621 | 76 |
+| 3 | Abraham Ayobamiji Awosusi | 39 | 97 | 5,173 | 51 |
 
-## Topic 1  (n_hcw--=24, network=3,732 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Md. Qamruzzaman | 39 | 181 | 5,010 | 31 |
-| 2 | Peterson K Ozili | 42 | 474 | 10,212 | 18 |
-| 3 | Abdul Rahim Ridzuan | 24 | 182 | 1,834 | 14 |
-
-## Topic 2  (n_hcw--=24, network=4,621 works)
+## Topic 1  (n_hcw--=44, network=7,489 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Mohsen Bahmani‐Óskooee | 61 | 584 | 16,964 | 94 |
-| 2 | Asif Raihan | 54 | 215 | 8,749 | 39 |
-| 3 | Malik Shahzad Shabbir | 45 | 238 | 7,916 | 27 |
+| 1 | Muhammad Abubakr Naeem | 63 | 236 | 12,185 | 47 |
+| 2 | Shaen Corbet | 52 | 354 | 13,043 | 45 |
+| 3 | Elie I. Bouri | 92 | 453 | 28,759 | 45 |
 
-## Topic 3  (n_hcw--=20, network=3,362 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Dharen Kumar Pandey | 29 | 118 | 3,154 | 33 |
-| 2 | Paresh Kumar Narayan | 86 | 689 | 31,427 | 28 |
-| 3 | Mariya Gubareva | 33 | 115 | 3,418 | 25 |
-
-## Topic 4  (n_hcw--=17, network=2,196 works)
+## Topic 2  (n_hcw--=36, network=7,338 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Radosław Wolniak | 51 | 531 | 7,284 | 42 |
-| 2 | Liton Chandra Voumik | 32 | 97 | 3,016 | 27 |
-| 3 | Ahmed Samour | 34 | 76 | 3,366 | 22 |
+| 1 | David Mhlanga | 31 | 309 | 5,377 | 69 |
+| 2 | Radosław Wolniak | 52 | 526 | 7,590 | 33 |
+| 3 | Md. Qamruzzaman | 40 | 244 | 4,961 | 27 |
 
-## Topic 5  (n_hcw--=15, network=2,343 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Sampath Boopathi | 63 | 272 | 10,020 | 32 |
-| 2 | Elie Bouri | 91 | 467 | 27,759 | 19 |
-| 3 | Ahmed Jeribi | 19 | 97 | 1,374 | 13 |
-
-## Topic 6  (n_hcw--=10, network=1,606 works)
+## Topic 3  (n_hcw--=34, network=6,352 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Jonas Birke | 3 | 122 | 126 | 92 |
-| 2 | David Mhlanga | 29 | 273 | 4,872 | 31 |
-| 3 | Abdalmuttaleb Al-Sartawi | 48 | 128 | 5,522 | 24 |
+| 1 | Mohsen Bahmani‐Óskooee | 60 | 546 | 17,228 | 91 |
+| 2 | Muntasir Murshed | 78 | 257 | 18,731 | 39 |
+| 3 | Muhammad Usman | 64 | 138 | 13,157 | 31 |
+
+## Topic 4  (n_hcw--=31, network=6,886 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Afees Adebare Salisu | 44 | 326 | 7,245 | 58 |
+| 2 | Elie I. Bouri | 92 | 453 | 28,759 | 45 |
+| 3 | Aviral Kumar Tiwari | 79 | 689 | 25,265 | 40 |
+
+## Topic 5  (n_hcw--=29, network=5,418 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Rangan Gupta | 84 | 1,274 | 32,447 | 103 |
+| 2 | Elie I. Bouri | 92 | 453 | 28,759 | 103 |
+| 3 | Muhammad Abubakr Naeem | 63 | 236 | 12,185 | 79 |
+
+## Topic 6  (n_hcw--=28, network=3,571 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Tomiwa Sunday Adebayo | 92 | 347 | 23,108 | 124 |
+| 2 | Derviş Kırıkkaleli | 72 | 330 | 17,621 | 77 |
+| 3 | Daniel Balsalobre‐Lorente | 76 | 330 | 20,996 | 44 |
+
+## Topic 7  (n_hcw--=21, network=4,953 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Elie I. Bouri | 92 | 453 | 28,759 | 105 |
+| 2 | Shaen Corbet | 52 | 354 | 13,043 | 52 |
+| 3 | Aviral Kumar Tiwari | 79 | 689 | 25,265 | 45 |
+
+## Topic 8  (n_hcw--=13, network=2,366 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Qasim Raza Syed | 26 | 79 | 2,544 | 28 |
+| 2 | Aviral Kumar Tiwari | 79 | 689 | 25,265 | 25 |
+| 3 | Xuan Vinh Vo | 69 | 383 | 17,097 | 25 |
+
+## Topic 9  (n_hcw--=10, network=1,469 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Dharen Kumar Pandey | 30 | 146 | 3,288 | 32 |
+| 2 | Vineeta Kumari | 18 | 56 | 1,854 | 17 |
+| 3 | António Miguel Martins | 16 | 58 | 981 | 14 |

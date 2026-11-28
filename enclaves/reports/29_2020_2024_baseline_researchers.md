@@ -2,66 +2,42 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=30, network=5,756 works)
+## Topic 0  (n_hcw--=45, network=7,156 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Asghar Ghasemi | 40 | 309 | 11,224 | 20 |
-| 2 | Engy Elekhnawy | 34 | 127 | 2,765 | 18 |
-| 3 | Hayder M. Al‐kuraishy | 57 | 433 | 10,718 | 16 |
+| 1 | Vaman V Khadilkar | 36 | 360 | 5,939 | 55 |
+| 2 | Anuradha Vaman Khadilkar | 39 | 370 | 6,978 | 46 |
+| 3 | Great Iruoghene Edo | 42 | 225 | 5,017 | 33 |
 
-## Topic 1  (n_hcw--=27, network=2,672 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Amr H. Hashem | 56 | 181 | 7,862 | 56 |
-| 2 | İlhami Gülçın | 129 | 670 | 53,701 | 33 |
-| 3 | V.О. Kostenko | 11 | 202 | 668 | 32 |
-
-## Topic 2  (n_hcw--=25, network=4,269 works)
+## Topic 1  (n_hcw--=27, network=6,117 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Hassan Karimi‐Maleh | 96 | 528 | 33,674 | 46 |
-| 2 | Hadi Beitollahi | 90 | 455 | 21,655 | 30 |
-| 3 | Fatemeh Karimi | 50 | 117 | 10,263 | 23 |
+| 1 | Youssef Rouphael | 91 | 636 | 31,926 | 35 |
+| 2 | Stefania De Pascale | 61 | 472 | 13,892 | 20 |
+| 3 | Christophe El‐Nakhel | 41 | 145 | 4,884 | 20 |
 
-## Topic 3  (n_hcw--=21, network=2,689 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Vaman Khadilkar | 37 | 359 | 5,836 | 50 |
-| 2 | Anuradha Khadilkar | 39 | 365 | 6,847 | 44 |
-| 3 | Neha Kajale | 19 | 101 | 1,181 | 23 |
-
-## Topic 4  (n_hcw--=20, network=2,978 works)
+## Topic 2  (n_hcw--=15, network=3,925 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Nafeesa Naeem | 27 | 77 | 2,036 | 16 |
-| 2 | Amina Sadiq | 28 | 90 | 2,291 | 15 |
-| 3 | Nicky Rahmana Putra | 26 | 172 | 2,186 | 15 |
+| 1 | Michael Aschner | 118 | 1,485 | 63,672 | 19 |
+| 2 | Alexey A. Tinkov | 54 | 373 | 10,278 | 13 |
+| 3 | Anatoly V. Skalny | 48 | 327 | 8,254 | 10 |
 
-## Topic 5  (n_hcw--=18, network=3,453 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Ramith Ramu | 33 | 184 | 3,293 | 26 |
-| 2 | Zorica Bulat | 32 | 193 | 4,046 | 19 |
-| 3 | Aleksandra Buha Djordjević | 37 | 180 | 5,280 | 18 |
-
-## Topic 6  (n_hcw--=12, network=6,240 works)
+## Topic 3  (n_hcw--=13, network=1,845 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Zongping Liu | 50 | 283 | 8,373 | 25 |
-| 2 | Hui Zou | 43 | 269 | 8,028 | 18 |
-| 3 | Michael Aschner | 118 | 1,449 | 62,727 | 17 |
+| 1 | Md. Rabiul Islam | 49 | 327 | 20,683 | 17 |
+| 2 | Md. Jamal Hossain | 36 | 136 | 5,900 | 11 |
+| 3 | Jayshil J. Patel | 40 | 228 | 5,182 | 9 |
 
-## Topic 7  (n_hcw--=12, network=3,797 works)
+## Topic 4  (n_hcw--=12, network=1,063 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Mengyao Guo | 38 | 144 | 4,254 | 21 |
-| 2 | Ahmed E. Abdel Moneim | 57 | 243 | 8,826 | 14 |
-| 3 | Abazar Ghorbani | 22 | 55 | 1,490 | 12 |
+| 1 | Amr Hosny Hashem | 57 | 177 | 8,228 | 47 |
+| 2 | Amr Fouda | 57 | 163 | 11,252 | 30 |
+| 3 | İlhami Gülçın | 130 | 701 | 55,075 | 30 |

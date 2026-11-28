@@ -307,7 +307,7 @@ def stage_b(api: Elsevier, au_ids: list[str]) -> pd.DataFrame:
 
 def stage_c(p, cdois: pd.DataFrame, cand: pd.DataFrame, per: pd.DataFrame) -> pd.DataFrame:
     con = duckdb.connect()
-    con.execute("SET memory_limit = '6GB'")
+    con.execute("SET memory_limit = '4GB'")
     con.execute('SET threads = 4')
     con.register('_cd', cdois)
     con.execute(f"""

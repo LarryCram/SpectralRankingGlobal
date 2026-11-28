@@ -2,18 +2,18 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=32, network=3,338 works)
+## Topic 0  (n_hcw--=16, network=1,527 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Wen‐Kui Dong | 66 | 544 | 13,637 | 77 |
-| 2 | Md. Anamul Hoque | 40 | 205 | 4,933 | 33 |
-| 3 | Xiutang Zhang | 43 | 300 | 5,179 | 30 |
+| 1 | Hadi Beitollahi | 90 | 486 | 22,047 | 45 |
+| 2 | Wen‐Kui Dong | 67 | 563 | 13,906 | 43 |
+| 3 | Somayeh Tajik | 62 | 237 | 11,918 | 24 |
 
-## Topic 1  (n_hcw--=25, network=5,168 works)
+## Topic 1  (n_hcw--=15, network=1,699 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | M. Ijaz Khan | 99 | 639 | 31,368 | 230 |
-| 2 | Tasawar Hayat | 149 | 2,741 | 134,406 | 184 |
-| 3 | A. Alsaedi | 82 | 473 | 23,081 | 99 |
+| 1 | Manzoore Elahi M. Soudagar | 61 | 541 | 14,334 | 44 |
+| 2 | Md. Anamul Hoque | 40 | 187 | 4,783 | 33 |
+| 3 | Yuvarajan Devarajan | 62 | 336 | 11,327 | 30 |

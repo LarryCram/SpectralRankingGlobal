@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=211, network=37,527 works)
+## Topic 0  (n_hcw--=114, network=12,096 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Aziz Habibi‐Yangjeh | 77 | 353 | 19,455 | 110 |
-| 2 | Pardeep Singh | 97 | 436 | 26,688 | 107 |
-| 3 | Pankaj Raizada | 81 | 237 | 18,439 | 92 |
+| 1 | Wen‐Kui Dong | 67 | 563 | 13,906 | 85 |
+| 2 | Mohd. Muddassir | 33 | 374 | 5,146 | 74 |
+| 3 | Abhinav Kumar | 49 | 388 | 8,995 | 64 |
 
-## Topic 1  (n_hcw--=186, network=32,995 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | M.I. Sayyed | 102 | 1,143 | 41,679 | 590 |
-| 2 | M.S. Al-Buriahi | 88 | 657 | 21,745 | 283 |
-| 3 | Y. S. Rammah | 62 | 404 | 11,799 | 236 |
-
-## Topic 2  (n_hcw--=132, network=59,799 works)
+## Topic 1  (n_hcw--=111, network=58,444 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Edward R. T. Tiekink | 67 | 2,685 | 24,576 | 434 |
-| 2 | Joel T. Mague | 52 | 2,730 | 13,487 | 412 |
-| 3 | Mehmet Akkurt | 21 | 1,138 | 3,055 | 268 |
+| 1 | Edward R. T. Tiekink | 67 | 2,705 | 24,826 | 441 |
+| 2 | Joel T. Mague | 52 | 2,731 | 13,737 | 413 |
+| 3 | Mehmet Akkurt | 21 | 1,172 | 3,104 | 268 |
 
-## Topic 3  (n_hcw--=124, network=32,998 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | S. J. Pearton | 115 | 2,868 | 82,853 | 91 |
-| 2 | F. Ren | 94 | 1,946 | 47,024 | 83 |
-| 3 | Devender Singh | 53 | 328 | 8,569 | 67 |
-
-## Topic 4  (n_hcw--=102, network=26,471 works)
+## Topic 2  (n_hcw--=111, network=19,485 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Amr Fouda | 57 | 160 | 10,768 | 73 |
-| 2 | Salem S. Salem | 50 | 155 | 10,266 | 71 |
-| 3 | Suresh Ghotekar | 40 | 274 | 6,247 | 60 |
+| 1 | Afshin Rashid | 69 | 302 | 22,712 | 136 |
+| 2 | Munirah Abdullah Almessiere | 74 | 546 | 17,952 | 74 |
+| 3 | Abdulhadi BAYKAL | 91 | 727 | 27,827 | 71 |
 
-## Topic 5  (n_hcw--=96, network=14,420 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Edward R. T. Tiekink | 67 | 2,685 | 24,576 | 180 |
-| 2 | Chandrabhan Verma | 76 | 401 | 18,726 | 140 |
-| 3 | Авни Бериша | 57 | 320 | 9,517 | 136 |
-
-## Topic 6  (n_hcw--=92, network=22,422 works)
+## Topic 3  (n_hcw--=98, network=20,203 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sanjay Mavinkere Rangappa | 80 | 552 | 22,858 | 190 |
-| 2 | Suchart Siengchin | 75 | 478 | 20,796 | 170 |
-| 3 | R.A. Ilyas | 86 | 531 | 23,794 | 152 |
+| 1 | Afshin Rashid | 69 | 302 | 22,712 | 130 |
+| 2 | Devender Singh | 54 | 339 | 8,934 | 88 |
+| 3 | Shiao‐Wei Kuo | 83 | 695 | 27,379 | 56 |
 
-## Topic 7  (n_hcw--=83, network=23,059 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Mehmet Akkurt | 21 | 1,138 | 3,055 | 114 |
-| 2 | Edward R. T. Tiekink | 67 | 2,685 | 24,576 | 93 |
-| 3 | Ajaya Bhattarai | 34 | 405 | 4,527 | 78 |
-
-## Topic 8  (n_hcw--=82, network=17,381 works)
+## Topic 4  (n_hcw--=98, network=19,943 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Abbas Rahdar | 70 | 536 | 19,295 | 61 |
-| 2 | Mehrab Pourmadadi | 51 | 197 | 7,125 | 51 |
-| 3 | Mohd. Muddassir | 33 | 370 | 5,023 | 44 |
+| 1 | Gharieb Saied El-Sayyad | 52 | 260 | 8,176 | 89 |
+| 2 | Pankaj Raizada | 96 | 366 | 25,482 | 68 |
+| 3 | Aziz Habibi‐Yangjeh | 77 | 366 | 19,769 | 65 |
 
-## Topic 9  (n_hcw--=43, network=4,578 works)
+## Topic 5  (n_hcw--=92, network=24,418 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Mehtab Alam | 32 | 174 | 3,160 | 66 |
-| 2 | S. M. Anas | 29 | 126 | 2,170 | 66 |
-| 3 | Bassam A. Tayeh | 80 | 232 | 16,193 | 52 |
+| 1 | Mehmet Akkurt | 21 | 1,172 | 3,104 | 114 |
+| 2 | Edward R. T. Tiekink | 67 | 2,705 | 24,826 | 94 |
+| 3 | Ajaya Bhattarai | 35 | 442 | 4,872 | 81 |
+
+## Topic 6  (n_hcw--=83, network=19,393 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Suchart Siengchin | 96 | 1,068 | 37,525 | 213 |
+| 2 | Sanjay Mavinkere Rangappa | 99 | 754 | 36,010 | 202 |
+| 3 | S.M. Sapuan | 113 | 1,101 | 46,831 | 150 |
+
+## Topic 7  (n_hcw--=57, network=8,978 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Hitler Louis | 50 | 480 | 8,921 | 70 |
+| 2 | Abbas Rahdar | 72 | 584 | 20,387 | 70 |
+| 3 | Mehrab Pourmadadi | 53 | 258 | 8,118 | 67 |
+
+## Topic 8  (n_hcw--=56, network=14,728 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Suresh K. Ghotekar | 42 | 297 | 6,694 | 56 |
+| 2 | Abbas Rahdar | 72 | 584 | 20,387 | 41 |
+| 3 | Amr Fouda | 57 | 163 | 11,252 | 40 |
+
+## Topic 9  (n_hcw--=42, network=5,906 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | M.I. Sayyed | 104 | 1,258 | 43,512 | 603 |
+| 2 | Takayuki Yanagida | 58 | 1,740 | 22,192 | 396 |
+| 3 | Noriaki Kawaguchi | 39 | 1,108 | 9,425 | 294 |

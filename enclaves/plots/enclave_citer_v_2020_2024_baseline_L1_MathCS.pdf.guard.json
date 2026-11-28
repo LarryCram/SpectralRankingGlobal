@@ -1,23 +1,23 @@
 {
-  "output": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/plots/enclave_citer_v_2020_2024_baseline_L1_MathCS.pdf",
-  "built_at": 1784980088.0852044,
+  "output": "/home/lc/Projects/SpectralRankingGlobal/enclaves/plots/enclave_citer_v_2020_2024_baseline_L1_MathCS.pdf",
+  "built_at": 1795823296.87542,
   "build_seconds": null,
   "scripts": [
     {
-      "path": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/plot_hca_hcr.py",
-      "mtime": 1790650712.3321013
+      "path": "/home/lc/Projects/SpectralRankingGlobal/enclaves/plot_hca_hcr.py",
+      "mtime": 1795818195.6141582
     }
   ],
   "inputs": [
     {
-      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/enclave_hcw_2020_2024_baseline.parquet",
-      "mtime": 1784979985.2876227,
-      "size": 40195572
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_Oct26/enclave_hcw_2020_2024_baseline.parquet",
+      "mtime": 1795823206.4279385,
+      "size": 42031147
     },
     {
-      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/hcw_authorships.parquet",
-      "mtime": 1784979820.523875,
-      "size": 21234564
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_Oct26/hcw_authorships.parquet",
+      "mtime": 1795823048.5332725,
+      "size": 21668735
     }
   ]
 }

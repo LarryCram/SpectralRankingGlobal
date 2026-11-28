@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=110, network=8,307 works)
+## Topic 0  (n_hcw--=153, network=19,387 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Rainer W. Bussmann | 84 | 5,061 | 41,118 | 512 |
-| 2 | Narel Y. Paniagua-Zambrana | 28 | 3,594 | 12,403 | 405 |
-| 3 | Zaal Kikvidze | 36 | 1,551 | 16,763 | 295 |
+| 1 | Rainer Willi Bussmann | 85 | 5,135 | 42,391 | 510 |
+| 2 | Narel Y. Paniagua-Zambrana | 29 | 3,621 | 12,536 | 407 |
+| 3 | Zaal Kikvidze | 36 | 2,084 | 17,890 | 371 |
 
-## Topic 1  (n_hcw--=102, network=12,783 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Rainer W. Bussmann | 84 | 5,061 | 41,118 | 316 |
-| 2 | Narel Y. Paniagua-Zambrana | 28 | 3,594 | 12,403 | 273 |
-| 3 | Carolina Romero | 12 | 391 | 1,666 | 148 |
-
-## Topic 2  (n_hcw--=89, network=18,260 works)
+## Topic 1  (n_hcw--=118, network=18,145 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Rainer W. Bussmann | 84 | 5,061 | 41,118 | 92 |
-| 2 | Mostafa Elachouri | 20 | 482 | 2,970 | 73 |
-| 3 | Ajar Nath Yadav | 75 | 448 | 17,543 | 41 |
+| 1 | Rainer Willi Bussmann | 85 | 5,135 | 42,391 | 95 |
+| 2 | Mostafa Elachouri | 20 | 492 | 3,014 | 74 |
+| 3 | Youssef Rouphael | 91 | 636 | 31,926 | 54 |
 
-## Topic 3  (n_hcw--=76, network=8,934 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Jhony Vendruscolo | 23 | 194 | 1,329 | 42 |
-| 2 | Radosław Wolniak | 51 | 531 | 7,284 | 39 |
-| 3 | Hosakatte Niranjana Murthy | 51 | 338 | 9,356 | 37 |
-
-## Topic 4  (n_hcw--=71, network=7,588 works)
+## Topic 2  (n_hcw--=93, network=8,820 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | İlhami Gülçın | 129 | 670 | 53,701 | 85 |
-| 2 | Amr H. Hashem | 56 | 181 | 7,862 | 80 |
-| 3 | Salem S. Salem | 50 | 155 | 10,266 | 53 |
+| 1 | Sezai Erċışlı | 69 | 890 | 21,391 | 70 |
+| 2 | Muhammad Hassan | 25 | 141 | 2,472 | 56 |
+| 3 | Ali Raza | 59 | 408 | 17,039 | 43 |
 
-## Topic 5  (n_hcw--=66, network=6,995 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | İlhami Gülçın | 129 | 670 | 53,701 | 46 |
-| 2 | Youssef Rouphael | 90 | 592 | 30,771 | 32 |
-| 3 | Trina Ekawati Tallei | 34 | 332 | 4,424 | 31 |
-
-## Topic 6  (n_hcw--=58, network=7,568 works)
+## Topic 3  (n_hcw--=70, network=7,505 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Ajar Nath Yadav | 75 | 448 | 17,543 | 52 |
-| 2 | Hani Saber Saudy | 41 | 99 | 3,775 | 46 |
-| 3 | Hai Duc Nguyen | 26 | 147 | 1,923 | 35 |
+| 1 | İlhami Gülçın | 130 | 701 | 55,075 | 101 |
+| 2 | Paulo Eduardo Teodoro | 39 | 631 | 6,878 | 74 |
+| 3 | Yasser Fakri Mustafa | 49 | 520 | 8,960 | 57 |
 
-## Topic 7  (n_hcw--=53, network=5,522 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Kingsley O. Iwuozor | 48 | 205 | 7,352 | 47 |
-| 2 | Xiang‐Sheng Chen | 13 | 314 | 1,045 | 45 |
-| 3 | Ebuka Chizitere Emenike | 35 | 153 | 4,135 | 43 |
-
-## Topic 8  (n_hcw--=51, network=5,858 works)
+## Topic 4  (n_hcw--=57, network=10,898 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sampath Boopathi | 63 | 272 | 10,020 | 83 |
-| 2 | Ajar Nath Yadav | 75 | 448 | 17,543 | 44 |
-| 3 | Assunta Bertaccini | 43 | 802 | 9,374 | 35 |
+| 1 | Rainer Willi Bussmann | 85 | 5,135 | 42,391 | 316 |
+| 2 | Narel Y. Paniagua-Zambrana | 29 | 3,621 | 12,536 | 275 |
+| 3 | Carolina Romero | 13 | 385 | 1,652 | 149 |
 
-## Topic 9  (n_hcw--=41, network=6,398 works)
+## Topic 5  (n_hcw--=56, network=7,022 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Faheem Shehzad Baloch | 37 | 225 | 5,354 | 36 |
-| 2 | Muhammad Azhar Nadeem | 32 | 166 | 4,360 | 29 |
-| 3 | Alessandro Piccolo | 76 | 364 | 20,682 | 26 |
+| 1 | Sampath Boopathi | 65 | 278 | 11,008 | 89 |
+| 2 | Abhinay Thakur | 40 | 244 | 4,839 | 26 |
+| 3 | Ashish Kumar | 51 | 569 | 9,945 | 26 |
+
+## Topic 6  (n_hcw--=54, network=5,768 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Vinay Kukreja | 60 | 799 | 11,376 | 154 |
+| 2 | Shiva Mehta | 27 | 378 | 3,018 | 147 |
+| 3 | Rishabh Sharma | 24 | 278 | 2,932 | 55 |
+
+## Topic 7  (n_hcw--=54, network=11,507 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Youssef Rouphael | 91 | 636 | 31,926 | 92 |
+| 2 | Olubukola Oluranti Babalola | 81 | 676 | 31,332 | 70 |
+| 3 | Marcos Deon Vilela de Resende | 41 | 433 | 7,919 | 55 |
+
+## Topic 8  (n_hcw--=45, network=4,296 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Hakan Şevik | 55 | 218 | 6,983 | 34 |
+| 2 | Matthew Chidozie Ogwu | 40 | 313 | 5,000 | 18 |
+| 3 | Cileide Maria Medeiros Coelho | 20 | 220 | 1,388 | 18 |
+
+## Topic 9  (n_hcw--=41, network=5,633 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Vinay Kukreja | 60 | 799 | 11,376 | 97 |
+| 2 | Shiva Mehta | 27 | 378 | 3,018 | 81 |
+| 3 | Rosane Freitas Schwan | 72 | 452 | 15,686 | 34 |

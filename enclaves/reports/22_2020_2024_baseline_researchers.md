@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=502, network=67,466 works)
+## Topic 0  (n_hcw--=540, network=57,808 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Feng Ding | 107 | 728 | 29,919 | 204 |
-| 2 | Davood Toghraie | 110 | 739 | 32,223 | 109 |
-| 3 | Laith Abualigah | 86 | 811 | 41,304 | 107 |
+| 1 | Feng Ding | 106 | 703 | 29,920 | 193 |
+| 2 | Jaya Madan | 48 | 402 | 9,064 | 132 |
+| 3 | M. Khalid Hossain | 69 | 384 | 18,048 | 128 |
 
-## Topic 1  (n_hcw--=470, network=25,443 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Taseer Muhammad | 68 | 737 | 21,251 | 403 |
-| 2 | Ali J. Chamkha | 140 | 1,335 | 64,611 | 359 |
-| 3 | Ioan Pop | 125 | 1,738 | 71,066 | 348 |
-
-## Topic 2  (n_hcw--=277, network=31,844 works)
+## Topic 1  (n_hcw--=452, network=24,364 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sanjay Mavinkere Rangappa | 80 | 552 | 22,858 | 172 |
-| 2 | Sérgio Neves Monteiro | 71 | 1,928 | 19,818 | 153 |
-| 3 | Suchart Siengchin | 75 | 478 | 20,796 | 144 |
+| 1 | Taseer Muhammad | 69 | 782 | 22,281 | 403 |
+| 2 | Ali Jawad Chamkha | 141 | 1,443 | 65,696 | 372 |
+| 3 | Tasawar Hayat | 148 | 2,731 | 134,587 | 317 |
 
-## Topic 3  (n_hcw--=253, network=50,698 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | M.I. Sayyed | 102 | 1,143 | 41,679 | 113 |
-| 2 | M.S. Al-Buriahi | 88 | 657 | 21,745 | 94 |
-| 3 | Ioan Pop | 125 | 1,738 | 71,066 | 83 |
-
-## Topic 4  (n_hcw--=248, network=43,683 works)
+## Topic 2  (n_hcw--=396, network=64,446 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Tasawar Hayat | 149 | 2,741 | 134,406 | 109 |
-| 2 | M. Ijaz Khan | 99 | 639 | 31,368 | 109 |
-| 3 | Abbas Rahdar | 70 | 536 | 19,295 | 98 |
+| 1 | Afshin Rashid | 69 | 302 | 22,712 | 144 |
+| 2 | Suchart Siengchin | 96 | 1,068 | 37,525 | 118 |
+| 3 | Sanjay Mavinkere Rangappa | 99 | 754 | 36,010 | 115 |
 
-## Topic 5  (n_hcw--=246, network=19,302 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | M.I. Sayyed | 102 | 1,143 | 41,679 | 205 |
-| 2 | Muhammad Nasir Amin | 46 | 338 | 6,757 | 117 |
-| 3 | Zao Yi | 82 | 365 | 18,481 | 90 |
-
-## Topic 6  (n_hcw--=234, network=22,781 works)
+## Topic 3  (n_hcw--=296, network=30,814 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Zao Yi | 82 | 365 | 18,481 | 161 |
-| 2 | M. Khalid Hossain | 68 | 390 | 15,747 | 124 |
-| 3 | Md. Ferdous Rahman | 58 | 271 | 10,661 | 119 |
+| 1 | Suchart Siengchin | 96 | 1,068 | 37,525 | 200 |
+| 2 | Sanjay Mavinkere Rangappa | 99 | 754 | 36,010 | 196 |
+| 3 | M.I. Sayyed | 104 | 1,258 | 43,512 | 159 |
 
-## Topic 7  (n_hcw--=164, network=16,688 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Surender Reddy Salkuti | 33 | 372 | 4,407 | 77 |
-| 2 | Muhammad Waqas Iqbal | 53 | 477 | 12,657 | 67 |
-| 3 | Tadeusz Kaczorek | 44 | 676 | 12,247 | 66 |
-
-## Topic 8  (n_hcw--=154, network=28,198 works)
+## Topic 4  (n_hcw--=194, network=32,502 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sampath Boopathi | 63 | 272 | 10,020 | 97 |
-| 2 | Radosław Wolniak | 51 | 531 | 7,284 | 78 |
-| 3 | Abid Haleem | 94 | 455 | 38,944 | 61 |
+| 1 | Muhammad Ijaz Khan | 100 | 627 | 31,837 | 109 |
+| 2 | Tasawar Hayat | 148 | 2,731 | 134,587 | 109 |
+| 3 | Ahmed Alsaedi | 131 | 2,042 | 93,489 | 99 |
 
-## Topic 9  (n_hcw--=106, network=13,331 works)
+## Topic 5  (n_hcw--=169, network=20,707 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Feng Ding | 107 | 728 | 29,919 | 118 |
-| 2 | Shunli Wang | 58 | 673 | 14,098 | 69 |
-| 3 | Carlos Fernández | 53 | 471 | 12,395 | 50 |
+| 1 | Muhammad Turki Alshurideh | 73 | 464 | 17,443 | 110 |
+| 2 | Muhammad Nasir Amin | 47 | 333 | 7,139 | 83 |
+| 3 | Barween Hikmat Al Kurdi | 52 | 249 | 9,922 | 76 |
+
+## Topic 6  (n_hcw--=144, network=11,263 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | M.I. Sayyed | 104 | 1,258 | 43,512 | 124 |
+| 2 | Bassam A. Tayeh | 85 | 345 | 19,851 | 106 |
+| 3 | Muhammad Nasir Amin | 47 | 333 | 7,139 | 104 |
+
+## Topic 7  (n_hcw--=137, network=19,416 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Vinay Kukreja | 60 | 799 | 11,376 | 88 |
+| 2 | Shiva Mehta | 27 | 378 | 3,018 | 55 |
+| 3 | Majid Monajjemi | 48 | 525 | 6,858 | 48 |
+
+## Topic 8  (n_hcw--=114, network=17,565 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sampath Boopathi | 65 | 278 | 11,008 | 98 |
+| 2 | Radosław Wolniak | 52 | 526 | 7,590 | 52 |
+| 3 | Abid Haleem | 98 | 467 | 42,023 | 50 |
+
+## Topic 9  (n_hcw--=89, network=11,697 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Feng Ding | 106 | 703 | 29,920 | 95 |
+| 2 | Shunli Wang | 61 | 698 | 15,135 | 83 |
+| 3 | Carlos Fernández | 56 | 473 | 13,111 | 55 |

@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=217, network=43,807 works)
+## Topic 0  (n_hcw--=119, network=25,461 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Leonie Asfora Sarubbo | 63 | 355 | 13,329 | 68 |
-| 2 | Sampath Boopathi | 63 | 272 | 10,020 | 61 |
-| 3 | Joshua O. Ighalo | 66 | 299 | 14,585 | 58 |
+| 1 | Kingsley O. Iwuozor | 48 | 227 | 7,881 | 74 |
+| 2 | Ebuka Chizitere Emenike | 35 | 170 | 4,495 | 67 |
+| 3 | P. Senthil Kumar | 116 | 1,075 | 59,052 | 65 |
 
-## Topic 1  (n_hcw--=187, network=25,706 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Ali H. Jawad | 74 | 307 | 14,058 | 154 |
-| 2 | Zeid A. ALOthman | 102 | 886 | 41,152 | 123 |
-| 3 | Guilherme Luiz Dotto | 88 | 694 | 28,385 | 122 |
-
-## Topic 2  (n_hcw--=146, network=17,697 works)
+## Topic 1  (n_hcw--=115, network=15,986 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Subodh Chandra Pal | 63 | 372 | 12,379 | 93 |
-| 2 | Hamid Reza Pourghasemi | 99 | 385 | 33,354 | 83 |
-| 3 | Fadl A. Essa | 77 | 245 | 16,456 | 76 |
+| 1 | Tomiwa Sunday Adebayo | 92 | 347 | 23,108 | 150 |
+| 2 | Derviş Kırıkkaleli | 72 | 330 | 17,621 | 97 |
+| 3 | Asif Raihan | 55 | 217 | 9,376 | 84 |
 
-## Topic 3  (n_hcw--=138, network=25,293 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Peiyue Li | 73 | 314 | 18,913 | 134 |
-| 2 | Johnbosco C. Egbueri | 54 | 167 | 7,666 | 88 |
-| 3 | Abu Reza Md. Towfiqul Islam | 74 | 625 | 20,902 | 78 |
-
-## Topic 4  (n_hcw--=116, network=12,327 works)
+## Topic 2  (n_hcw--=105, network=14,921 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Tomiwa Sunday Adebayo | 89 | 350 | 22,456 | 108 |
-| 2 | Asif Raihan | 54 | 215 | 8,749 | 93 |
-| 3 | Radosław Wolniak | 51 | 531 | 7,284 | 65 |
+| 1 | Ali H. Jawad | 76 | 315 | 14,414 | 108 |
+| 2 | Kingsley O. Iwuozor | 48 | 227 | 7,881 | 98 |
+| 3 | Zeid A. ALOthman | 105 | 923 | 43,114 | 90 |
 
-## Topic 5  (n_hcw--=90, network=18,480 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Kingsley O. Iwuozor | 48 | 205 | 7,352 | 74 |
-| 2 | P. Senthil Kumar | 115 | 1,110 | 57,473 | 67 |
-| 3 | Ebuka Chizitere Emenike | 35 | 153 | 4,135 | 66 |
-
-## Topic 6  (n_hcw--=75, network=16,939 works)
+## Topic 3  (n_hcw--=100, network=28,977 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Mu. Naushad | 105 | 529 | 38,773 | 69 |
-| 2 | Gaurav Sharma | 82 | 356 | 21,671 | 58 |
-| 3 | Baber Ali | 46 | 208 | 6,527 | 56 |
+| 1 | Md. Saiful Islam | 69 | 377 | 17,179 | 57 |
+| 2 | Muhammad Rizwan | 115 | 591 | 45,352 | 57 |
+| 3 | Abubakr Mustafa Idris | 47 | 340 | 10,834 | 55 |
 
-## Topic 7  (n_hcw--=67, network=11,793 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Peiyue Li | 73 | 314 | 18,913 | 75 |
-| 2 | Johnbosco C. Egbueri | 54 | 167 | 7,666 | 67 |
-| 3 | Abu Reza Md. Towfiqul Islam | 74 | 625 | 20,902 | 60 |
-
-## Topic 8  (n_hcw--=64, network=9,054 works)
+## Topic 4  (n_hcw--=81, network=12,063 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Aqil Tariq | 57 | 273 | 9,412 | 76 |
-| 2 | Sampath Boopathi | 63 | 272 | 10,020 | 44 |
-| 3 | Hakan Şevik | 55 | 204 | 6,818 | 42 |
+| 1 | Weilong Shi | 86 | 278 | 19,641 | 72 |
+| 2 | Feng Guo | 81 | 195 | 16,542 | 68 |
+| 3 | Pankaj Raizada | 96 | 366 | 25,482 | 64 |
 
-## Topic 9  (n_hcw--=46, network=15,329 works)
+## Topic 5  (n_hcw--=78, network=12,517 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | P. Senthil Kumar | 115 | 1,110 | 57,473 | 59 |
-| 2 | Vinod Kumar Gupta | 160 | 878 | 98,416 | 50 |
-| 3 | Md. Saiful Islam | 68 | 382 | 16,701 | 36 |
+| 1 | Subodh Chandra Pal | 63 | 352 | 12,450 | 80 |
+| 2 | Abu Reza Md. Towfiqul Islam | 76 | 611 | 21,748 | 65 |
+| 3 | Manikandan Natarajan | 34 | 196 | 3,314 | 62 |
+
+## Topic 6  (n_hcw--=63, network=7,660 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Peiyue Li | 74 | 317 | 18,947 | 136 |
+| 2 | Hui Qian | 70 | 325 | 16,043 | 65 |
+| 3 | Johnbosco C. Egbueri | 55 | 183 | 8,032 | 57 |
+
+## Topic 7  (n_hcw--=63, network=10,961 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Johnbosco C. Egbueri | 55 | 183 | 8,032 | 77 |
+| 2 | Abu Reza Md. Towfiqul Islam | 76 | 611 | 21,748 | 70 |
+| 3 | Peiyue Li | 74 | 317 | 18,947 | 59 |
+
+## Topic 8  (n_hcw--=59, network=9,988 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Zao Yi | 89 | 561 | 25,048 | 56 |
+| 2 | İlhami Gülçın | 130 | 701 | 55,075 | 48 |
+| 3 | Prof. Dr. Mohammad Mansoob Khan | 72 | 343 | 18,826 | 45 |
+
+## Topic 9  (n_hcw--=41, network=6,856 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Aqil Tariq | 60 | 312 | 10,323 | 71 |
+| 2 | Hakan Şevik | 55 | 218 | 6,983 | 38 |
+| 3 | Abdulla ‐ Al Kafy | 39 | 151 | 5,172 | 28 |

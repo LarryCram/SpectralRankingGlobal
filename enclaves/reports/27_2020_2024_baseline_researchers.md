@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=979, network=177,014 works)
+## Topic 0  (n_hcw--=1,365, network=216,515 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | M.I. Sayyed | 102 | 1,143 | 41,679 | 176 |
-| 2 | Giovanni Benelli | 101 | 726 | 35,774 | 150 |
-| 3 | Amirhossein Sahebkar | 177 | 2,355 | 245,899 | 140 |
+| 1 | Amirhossein Sahebkar | 179 | 2,611 | 258,454 | 298 |
+| 2 | İlhami Gülçın | 130 | 701 | 55,075 | 257 |
+| 3 | Gökhan Zengin | 80 | 1,279 | 35,585 | 215 |
 
-## Topic 1  (n_hcw--=586, network=78,312 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Hayder M. Al‐kuraishy | 57 | 433 | 10,718 | 129 |
-| 2 | Ali I. Al‐Gareeb | 55 | 406 | 10,267 | 123 |
-| 3 | Gaber El‐Saber Batiha | 68 | 685 | 22,669 | 121 |
-
-## Topic 2  (n_hcw--=559, network=57,959 works)
+## Topic 1  (n_hcw--=613, network=79,540 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | M.I. Sayyed | 102 | 1,143 | 41,679 | 444 |
-| 2 | Özcan Erel | 60 | 932 | 22,579 | 395 |
-| 3 | İlhami Gülçın | 129 | 670 | 53,701 | 268 |
+| 1 | Gaber El‐Saber Batiha | 72 | 852 | 25,682 | 138 |
+| 2 | Hayder Mutter Al-Kuraishy | 59 | 461 | 11,604 | 135 |
+| 3 | Ali Ismail Al-Gareeb | 57 | 437 | 11,054 | 128 |
 
-## Topic 3  (n_hcw--=483, network=93,292 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Giovanni Benelli | 101 | 726 | 35,774 | 100 |
-| 2 | Marc Miravitlles | 90 | 1,078 | 37,183 | 100 |
-| 3 | Ahmed S. Doghish | 52 | 218 | 6,221 | 89 |
-
-## Topic 4  (n_hcw--=399, network=47,521 works)
+## Topic 2  (n_hcw--=352, network=39,247 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | U. Rajendra Acharya | 149 | 1,138 | 90,006 | 112 |
-| 2 | Marine Cargou | 7 | 178 | 774 | 110 |
-| 3 | Jonathan Visentin | 22 | 292 | 2,424 | 105 |
+| 1 | M.I. Sayyed | 104 | 1,258 | 43,512 | 173 |
+| 2 | Marine Cargou | 7 | 211 | 810 | 109 |
+| 3 | Jonathan Visentin | 22 | 314 | 2,340 | 104 |
 
-## Topic 5  (n_hcw--=309, network=49,824 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Rainer W. Bussmann | 84 | 5,061 | 41,118 | 239 |
-| 2 | Mostafa Elachouri | 20 | 482 | 2,970 | 186 |
-| 3 | Narel Y. Paniagua-Zambrana | 28 | 3,594 | 12,403 | 82 |
-
-## Topic 6  (n_hcw--=270, network=62,338 works)
+## Topic 3  (n_hcw--=335, network=65,416 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Viroj Wiwanitkit | 41 | 6,406 | 12,942 | 175 |
-| 2 | Hiroki Nishikawa | 43 | 510 | 7,782 | 81 |
-| 3 | Rujittika Mungmunpuntipantip | 8 | 713 | 637 | 62 |
+| 1 | Ahmed Soliman Doghish | 53 | 253 | 6,532 | 93 |
+| 2 | Amirhossein Sahebkar | 179 | 2,611 | 258,454 | 82 |
+| 3 | Kamal Dua | 76 | 1,059 | 30,387 | 80 |
 
-## Topic 7  (n_hcw--=262, network=48,534 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Hayder M. Al‐kuraishy | 57 | 433 | 10,718 | 84 |
-| 2 | Ali I. Al‐Gareeb | 55 | 406 | 10,267 | 82 |
-| 3 | Gaber El‐Saber Batiha | 68 | 685 | 22,669 | 80 |
-
-## Topic 8  (n_hcw--=154, network=19,881 works)
+## Topic 4  (n_hcw--=297, network=45,108 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Viroj Wiwanitkit | 41 | 6,406 | 12,942 | 108 |
-| 2 | Amnuay Kleebayoon | 6 | 356 | 474 | 54 |
-| 3 | Ahmed A. Al‐Karmalawy | 53 | 235 | 7,672 | 45 |
+| 1 | Amirhossein Sahebkar | 179 | 2,611 | 258,454 | 78 |
+| 2 | Raymond Pranata | 42 | 241 | 8,027 | 51 |
+| 3 | Changjin Xu | 43 | 319 | 5,783 | 43 |
 
-## Topic 9  (n_hcw--=146, network=19,392 works)
+## Topic 5  (n_hcw--=275, network=55,930 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Jose Ignacio Priego‐Quesada | 27 | 181 | 2,498 | 39 |
-| 2 | Ishith Seth | 27 | 228 | 2,481 | 35 |
-| 3 | Sampath Boopathi | 63 | 272 | 10,020 | 33 |
+| 1 | Özcan Erel | 60 | 942 | 23,246 | 399 |
+| 2 | Salim Neşeli̇oğlu | 25 | 452 | 4,107 | 213 |
+| 3 | Viroj Wiwanitkit | 41 | 6,488 | 12,999 | 146 |
+
+## Topic 6  (n_hcw--=228, network=27,623 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Viroj Wiwanitkit | 41 | 6,488 | 12,999 | 113 |
+| 2 | İlhami Gülçın | 130 | 701 | 55,075 | 104 |
+| 3 | Muhammad Asif Zahoor Raja | 78 | 798 | 23,889 | 96 |
+
+## Topic 7  (n_hcw--=189, network=23,733 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | U. Rajendra Acharya | 151 | 1,130 | 92,819 | 56 |
+| 2 | Yudong Zhang | 109 | 1,036 | 41,102 | 52 |
+| 3 | Zulqurnain Sabir | 59 | 326 | 9,486 | 49 |
+
+## Topic 8  (n_hcw--=179, network=34,622 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Gaber El‐Saber Batiha | 72 | 852 | 25,682 | 89 |
+| 2 | Parham Taslımı | 74 | 475 | 16,092 | 85 |
+| 3 | Wen‐Kui Dong | 67 | 563 | 13,906 | 85 |
+
+## Topic 9  (n_hcw--=162, network=18,319 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Ishith Seth | 27 | 233 | 2,590 | 33 |
+| 2 | Sampath Boopathi | 65 | 278 | 11,008 | 33 |
+| 3 | Ryuichi Ohta | 26 | 352 | 2,456 | 31 |

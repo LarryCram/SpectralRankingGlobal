@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=48, network=4,667 works)
+## Topic 0  (n_hcw--=60, network=3,225 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 173 |
-| 2 | Barween Al Kurdi | 52 | 246 | 9,736 | 102 |
-| 3 | Haitham M. Alzoubi | 59 | 250 | 13,770 | 65 |
+| 1 | Marcos dos Santos | 38 | 638 | 3,561 | 46 |
+| 2 | Carlos Francısco Sımões Gomes | 40 | 558 | 3,908 | 39 |
+| 3 | Miguel Ângelo Lellis Moreira | 24 | 185 | 1,591 | 37 |
 
-## Topic 1  (n_hcw--=31, network=3,742 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Md. Qamruzzaman | 39 | 181 | 5,010 | 48 |
-| 2 | David Mhlanga | 29 | 273 | 4,872 | 47 |
-| 3 | Peterson K Ozili | 42 | 474 | 10,212 | 21 |
-
-## Topic 2  (n_hcw--=29, network=2,501 works)
+## Topic 1  (n_hcw--=43, network=3,279 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Marcos dos Santos | 38 | 648 | 3,414 | 36 |
-| 2 | Miguel Ângelo Lellis Moreira | 23 | 151 | 1,504 | 32 |
-| 3 | Carlos Francısco Sımões Gomes | 40 | 538 | 3,804 | 28 |
+| 1 | Dimitrios Belias | 27 | 190 | 2,632 | 28 |
+| 2 | Bambang Slamet Riyadi | 17 | 69 | 693 | 23 |
+| 3 | Sulieman Ibraheem Shelash Al-Hawary | 49 | 228 | 6,328 | 20 |
 
-## Topic 3  (n_hcw--=29, network=2,304 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Radosław Wolniak | 51 | 531 | 7,284 | 41 |
-| 2 | Eduardo Sánchez‐García | 30 | 163 | 2,524 | 36 |
-| 3 | Bartolomé Marco‐Lajara | 41 | 368 | 5,309 | 35 |
-
-## Topic 4  (n_hcw--=23, network=1,616 works)
+## Topic 2  (n_hcw--=35, network=3,477 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 146 |
-| 2 | Haitham M. Alzoubi | 59 | 250 | 13,770 | 93 |
-| 3 | Barween Al Kurdi | 52 | 246 | 9,736 | 91 |
+| 1 | Ryuichi Ohta | 26 | 352 | 2,456 | 67 |
+| 2 | Chiaki Sano | 28 | 393 | 3,376 | 64 |
+| 3 | P. S. Aithal | 62 | 1,657 | 17,405 | 30 |
 
-## Topic 5  (n_hcw--=22, network=2,911 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Marcos dos Santos | 38 | 648 | 3,414 | 41 |
-| 2 | Manaf Al‐Okaily | 53 | 163 | 7,207 | 37 |
-| 3 | Carlos Francısco Sımões Gomes | 40 | 538 | 3,804 | 34 |
-
-## Topic 6  (n_hcw--=21, network=2,793 works)
+## Topic 3  (n_hcw--=32, network=1,558 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Javier Martínez‐Falcó | 31 | 173 | 2,836 | 59 |
-| 2 | Bartolomé Marco‐Lajara | 41 | 368 | 5,309 | 59 |
-| 3 | Eduardo Sánchez‐García | 30 | 163 | 2,524 | 49 |
+| 1 | Marcos dos Santos | 38 | 638 | 3,561 | 64 |
+| 2 | Carlos Francısco Sımões Gomes | 40 | 558 | 3,908 | 53 |
+| 3 | Miguel Ângelo Lellis Moreira | 24 | 185 | 1,591 | 45 |
 
-## Topic 7  (n_hcw--=21, network=3,071 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 100 |
-| 2 | Haitham M. Alzoubi | 59 | 250 | 13,770 | 88 |
-| 3 | Barween Al Kurdi | 52 | 246 | 9,736 | 72 |
-
-## Topic 8  (n_hcw--=20, network=2,093 works)
+## Topic 4  (n_hcw--=32, network=3,289 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Marcos dos Santos | 38 | 648 | 3,414 | 45 |
-| 2 | Carlos Francısco Sımões Gomes | 40 | 538 | 3,804 | 38 |
-| 3 | Miguel Ângelo Lellis Moreira | 23 | 151 | 1,504 | 35 |
+| 1 | Marcos dos Santos | 38 | 638 | 3,561 | 47 |
+| 2 | Carlos Francısco Sımões Gomes | 40 | 558 | 3,908 | 38 |
+| 3 | Miguel Ângelo Lellis Moreira | 24 | 185 | 1,591 | 36 |
 
-## Topic 9  (n_hcw--=17, network=1,689 works)
+## Topic 5  (n_hcw--=31, network=2,262 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Dickson K.W. Chiu | 51 | 503 | 8,541 | 19 |
-| 2 | Tariq Tawfeeq Yousif Alabdullah | 41 | 72 | 3,274 | 18 |
-| 3 | Cong Doanh Duong | 32 | 114 | 3,638 | 15 |
+| 1 | Muhammad Turki Alshurideh | 73 | 464 | 17,443 | 173 |
+| 2 | Barween Hikmat Al Kurdi | 52 | 249 | 9,922 | 103 |
+| 3 | Haitham M. Alzoubi | 62 | 297 | 15,182 | 66 |
+
+## Topic 6  (n_hcw--=31, network=3,307 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Muhammad Turki Alshurideh | 73 | 464 | 17,443 | 100 |
+| 2 | Haitham M. Alzoubi | 62 | 297 | 15,182 | 88 |
+| 3 | Barween Hikmat Al Kurdi | 52 | 249 | 9,922 | 72 |
+
+## Topic 7  (n_hcw--=29, network=1,763 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Muhammad Turki Alshurideh | 73 | 464 | 17,443 | 147 |
+| 2 | Haitham M. Alzoubi | 62 | 297 | 15,182 | 93 |
+| 3 | Barween Hikmat Al Kurdi | 52 | 249 | 9,922 | 90 |
+
+## Topic 8  (n_hcw--=27, network=3,580 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Marcos dos Santos | 38 | 638 | 3,561 | 40 |
+| 2 | Miguel Ângelo Lellis Moreira | 24 | 185 | 1,591 | 33 |
+| 3 | Carlos Francısco Sımões Gomes | 40 | 558 | 3,908 | 33 |
+
+## Topic 9  (n_hcw--=23, network=2,028 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Opan Arifudin | 35 | 196 | 4,298 | 15 |
+| 2 | Yuli Supriani | 8 | 51 | 847 | 13 |
+| 3 | Sri Nurhayati | 16 | 348 | 1,337 | 13 |

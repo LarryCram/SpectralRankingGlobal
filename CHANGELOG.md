@@ -4,6 +4,29 @@ Historical record of major recodes, incidents, and bug fixes. For current pipeli
 status and how to run things, see `CLAUDE.md`. For folder structure, schemas, and
 design/parameter reference, see `REFERENCE.md`.
 
+## 2026-11-28 — Full rebuild on Oct26; config switched; Scopus linking
+
+- **config.yaml → Oct26** in this checkout (jul26 kept for comparisons). Full rerun order executed
+  from this checkout (~3 h). `flat_works` rebuilt once more only because guard records named the
+  Antigravity scripts (identical output). 421/421 guarded outputs fresh afterwards.
+- **First-ever runs**: ERA 2018 sentinel (ε=1, 39 min), ERA 2026 on Oct26 (13 min), AREA5 blocs and
+  sensitivity. Pre-conference-paper ERA 2018 Oct26 outputs preserved in
+  `WORKING_Oct26/era2018_noconf_20261020/`; retired Leiden candidacy files and a stray guard record
+  moved to `WORKING_Oct26/retired_20261128/`.
+- **Fixes needed on the way**: OpenAlex tables under `compact/` (`util.oa_glob`, flattened
+  work_topics in `hca_extract`); hardcoded jul26 paths removed (whitelist builder, two CWTS
+  university comparisons); this checkout had a ResearchClassification commit without FOR2008 —
+  pinned to b4e3234 in requirements.txt; `find_committee_v.py` read a non-existent
+  `enclave_nmf.topic_name` column (now `topic_label`).
+- **NMF topic names** are the fresh algorithmic labels; the 26-field AI naming pass has not been
+  reapplied on Oct26.
+- **NewERA numbers moved** (`era2018_analysis.py` rerun; conference papers now in the corpus):
+  matched division UoEs 506 → 513, groups 864 → 898; pooled within-division ρ CA 0.533 → 0.530,
+  PR 0.510 → 0.540, MIX 0.82 → 0.65 (n=20); Go8 premium at equal v CA ~0.31, PR ~0.94–0.96
+  (was 0.35 / 0.97); REC coefficient with Go8 still n.s. Paper text not yet updated.
+- **Scopus linking** (`researchers/scopus_link.py`) and the vendored arc_grants name parser
+  (`util/human_names.py`, `util/name_diacritic_variants.py`) added — see CLAUDE.md.
+
 ## 2026-11-28 — CWTS Leiden groups retired; AREA5 is the broad-area level
 
 - **Why**: the Leiden 5-group scheme was outdated; AREA5 (`util/areas.py`, ANZSRC-grounded)

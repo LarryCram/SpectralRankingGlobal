@@ -1,33 +1,33 @@
 {
-  "output": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/reports/27_2020_2024_baseline.md",
-  "built_at": 1784980043.983219,
+  "output": "/home/lc/Projects/SpectralRankingGlobal/enclaves/reports/27_2020_2024_baseline.md",
+  "built_at": 1795823269.6182425,
   "build_seconds": null,
   "scripts": [
     {
-      "path": "/home/lc/Projects_Antigravity/SpectralRankingGlobal/enclaves/network_enclave.py",
-      "mtime": 1790647200.883483
+      "path": "/home/lc/Projects/SpectralRankingGlobal/enclaves/network_enclave.py",
+      "mtime": 1784973404.8194444
     }
   ],
   "inputs": [
     {
-      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/enclave_nmf_2020_2024_baseline.parquet",
-      "mtime": 1784979993.6380038,
-      "size": 438288
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_Oct26/enclave_nmf_2020_2024_baseline.parquet",
+      "mtime": 1795823215.0443523,
+      "size": 418549
     },
     {
-      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/enclave_hcw_2020_2024_baseline.parquet",
-      "mtime": 1784979985.2876227,
-      "size": 40195572
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_Oct26/enclave_hcw_2020_2024_baseline.parquet",
+      "mtime": 1795823206.4279385,
+      "size": 42031147
     },
     {
-      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/work_v_2020_2024_baseline.parquet",
-      "mtime": 1784979716.2601879,
-      "size": 1377029906
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_Oct26/work_v_2020_2024_baseline.parquet",
+      "mtime": 1795822999.8886402,
+      "size": 1446464045
     },
     {
-      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_jul26/corpus_references_2000_2025.parquet",
-      "mtime": 1784974688.5114815,
-      "size": 7566068412
+      "path": "/home/lc/s/SpectralRankingGlobal_WORKING_Oct26/corpus_references_2000_2025.parquet",
+      "mtime": 1795818914.6197138,
+      "size": 7941201985
     }
   ]
 }

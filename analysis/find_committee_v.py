@@ -380,12 +380,12 @@ def extract_and_label_works(
               AND eh.field_idx = wv.field_idx
     """)
 
-    # 5. Join enclave_nmf (topic_name for HCW--)
+    # 5. Join enclave_nmf (topic_label for HCW--)
     con.execute(f"""
         CREATE TEMP TABLE _full_works AS
         SELECT
             wh.*,
-            en.topic_name AS enclave_name
+            en.topic_label AS enclave_name
         FROM _works_with_hcw wh
         LEFT JOIN parquet_scan('{enclave_nmf_path}') en
                ON en.work_idx = wh.work_idx

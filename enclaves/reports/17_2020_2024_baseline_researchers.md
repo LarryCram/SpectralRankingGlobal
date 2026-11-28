@@ -2,82 +2,82 @@
 
 Top-3 authors by distinct works in each enclave's 1-hop citation network (HCW-- seeds + all citers with any authorship record).
 
-## Topic 0  (n_hcw--=145, network=29,264 works)
+## Topic 0  (n_hcw--=301, network=50,336 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Laith Abualigah | 86 | 811 | 41,304 | 182 |
-| 2 | Seyedali Mirjalili | 135 | 797 | 146,480 | 115 |
-| 3 | Nebojša Bačanin | 61 | 572 | 11,972 | 113 |
+| 1 | Laith Abualigah | 88 | 829 | 43,530 | 149 |
+| 2 | Seyedali Mirjalili | 139 | 880 | 155,430 | 110 |
+| 3 | Sundarapandian V. Vaidyanathan | 76 | 687 | 16,815 | 100 |
 
-## Topic 1  (n_hcw--=142, network=21,583 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Asif Zahoor Raja | 77 | 802 | 23,479 | 118 |
-| 2 | Feng Ding | 107 | 728 | 29,919 | 99 |
-| 3 | Zulqurnain Sabir | 58 | 316 | 9,236 | 75 |
-
-## Topic 2  (n_hcw--=139, network=21,986 works)
+## Topic 1  (n_hcw--=270, network=49,159 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Sudeep Tanwar | 85 | 901 | 26,926 | 73 |
-| 2 | Neeraj Kumar | 131 | 1,452 | 64,898 | 60 |
-| 3 | Brij B. Gupta | 90 | 1,021 | 32,476 | 52 |
+| 1 | Sudeep Tanwar | 87 | 899 | 27,667 | 109 |
+| 2 | Brij Bhooshan Gupta | 90 | 949 | 32,608 | 105 |
+| 3 | Neeraj Kumar | 134 | 1,388 | 66,306 | 85 |
 
-## Topic 3  (n_hcw--=136, network=13,804 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Krassimir Atanassov | 43 | 632 | 36,679 | 73 |
-| 2 | Jun Mou | 48 | 229 | 6,740 | 64 |
-| 3 | Hitler Louis | 50 | 451 | 8,634 | 57 |
-
-## Topic 4  (n_hcw--=131, network=14,286 works)
+## Topic 2  (n_hcw--=180, network=27,479 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 116 |
-| 2 | Barween Al Kurdi | 52 | 246 | 9,736 | 71 |
-| 3 | Sulieman Ibraheem Shelash Al-Hawary | 48 | 210 | 6,210 | 50 |
+| 1 | Muhammad Asif Zahoor Raja | 78 | 798 | 23,889 | 158 |
+| 2 | Zulqurnain Sabir | 59 | 326 | 9,486 | 104 |
+| 3 | Ahmad Jalal | 53 | 266 | 7,808 | 70 |
 
-## Topic 5  (n_hcw--=126, network=20,465 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Turki Alshurideh | 72 | 462 | 17,044 | 113 |
-| 2 | Feng Ding | 107 | 728 | 29,919 | 105 |
-| 3 | Nebojša Bačanin | 61 | 572 | 11,972 | 87 |
-
-## Topic 6  (n_hcw--=84, network=10,120 works)
+## Topic 3  (n_hcw--=165, network=27,185 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Nebojša Bačanin | 61 | 572 | 11,972 | 32 |
-| 2 | Miodrag Živković | 53 | 376 | 8,046 | 30 |
-| 3 | Robertas Damaševičius | 81 | 785 | 23,792 | 27 |
+| 1 | Hitler Louis | 50 | 480 | 8,921 | 90 |
+| 2 | Samir Chtita | 39 | 409 | 4,530 | 62 |
+| 3 | Zulqurnain Sabir | 59 | 326 | 9,486 | 61 |
 
-## Topic 7  (n_hcw--=75, network=13,616 works)
-
-| # | author | h_index | works_count | cited_by | in_network |
-|---|--------|---------|-------------|----------|------------|
-| 1 | Md. Saiful Islam | 68 | 382 | 16,701 | 58 |
-| 2 | Burhanuddin Arafah | 25 | 135 | 1,495 | 34 |
-| 3 | Abubakr M. Idris | 45 | 344 | 10,330 | 31 |
-
-## Topic 8  (n_hcw--=68, network=9,754 works)
+## Topic 4  (n_hcw--=162, network=23,896 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | U. Rajendra Acharya | 149 | 1,138 | 90,006 | 44 |
-| 2 | Jungpil Shin | 36 | 394 | 5,227 | 31 |
-| 3 | Abu Saleh Musa Miah | 23 | 113 | 1,847 | 27 |
+| 1 | Vinay Kukreja | 60 | 799 | 11,376 | 139 |
+| 2 | Shiva Mehta | 27 | 378 | 3,018 | 115 |
+| 3 | Ahmad Jalal | 53 | 266 | 7,808 | 80 |
 
-## Topic 9  (n_hcw--=63, network=6,161 works)
+## Topic 5  (n_hcw--=161, network=31,194 works)
 
 | # | author | h_index | works_count | cited_by | in_network |
 |---|--------|---------|-------------|----------|------------|
-| 1 | Muhammad Azeem | 25 | 179 | 2,049 | 39 |
-| 2 | Serhat Yüksel | 56 | 542 | 11,361 | 33 |
-| 3 | Hasan Dınçer | 57 | 601 | 11,194 | 33 |
+| 1 | Vinay Kukreja | 60 | 799 | 11,376 | 129 |
+| 2 | Muhammad Turki Alshurideh | 73 | 464 | 17,443 | 112 |
+| 3 | Jerry Chun‐Wei Lin | 67 | 770 | 19,948 | 111 |
+
+## Topic 6  (n_hcw--=156, network=29,102 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Vinay Kukreja | 60 | 799 | 11,376 | 184 |
+| 2 | Shiva Mehta | 27 | 378 | 3,018 | 86 |
+| 3 | Ahmad Jalal | 53 | 266 | 7,808 | 70 |
+
+## Topic 7  (n_hcw--=128, network=20,932 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Jerry Chun‐Wei Lin | 67 | 770 | 19,948 | 87 |
+| 2 | Philippe Fournier‐Viger | 57 | 480 | 13,411 | 75 |
+| 3 | Mohammed Rasheed | 50 | 237 | 5,894 | 56 |
+
+## Topic 8  (n_hcw--=98, network=10,480 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Ziad Alqadi﻿ | 25 | 160 | 1,653 | 43 |
+| 2 | Muhammad Azeem | 24 | 157 | 2,053 | 40 |
+| 3 | Ahmed Hussein Alkhayyat | 45 | 626 | 7,727 | 36 |
+
+## Topic 9  (n_hcw--=88, network=13,457 works)
+
+| # | author | h_index | works_count | cited_by | in_network |
+|---|--------|---------|-------------|----------|------------|
+| 1 | Sampath Boopathi | 65 | 278 | 11,008 | 66 |
+| 2 | Huimin Lu | 57 | 541 | 13,117 | 40 |
+| 3 | Maad Mohsin Mijwil | 28 | 185 | 3,270 | 29 |
